@@ -1,0 +1,69 @@
+services:
+  nginx:
+    image: nginx:1.29.7-alpine
+    container_name: bankvision-ui-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/ssl/bankvision:/etc/ssl/bankvision:ro
+    depends_on:
+      - customer-panel
+      - manager-panel
+      - admin-panel
+    networks:
+      - bankvision-net
+
+  customer-panel:
+    image: bankvision/customer-panel:uat
+    build:
+      context: ./BankVision-Customer-Panel
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-https://vdapp-api.mutualtrustbank.com/api}
+        VITE_WS_URL: ${VITE_WS_URL:-https://vdapp-api.mutualtrustbank.com}
+        VITE_ENVIRONMENT: uat
+    container_name: bankvision-customer-panel
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - bankvision-net
+
+  manager-panel:
+    image: bankvision/manager-panel:uat
+    build:
+      context: ./BankVision-Manager-Panel
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-https://vdapp-api.mutualtrustbank.com/api}
+        VITE_WS_URL: ${VITE_WS_URL:-https://vdapp-api.mutualtrustbank.com}
+        VITE_ENVIRONMENT: uat
+    container_name: bankvision-manager-panel
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - bankvision-net
+
+  admin-panel:
+    image: bankvision/admin-panel:uat
+    build:
+      context: ./BankVision-Admin-Panel
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-https://vdapp-api.mutualtrustbank.com/api}
+        VITE_WS_URL: ${VITE_WS_URL:-https://vdapp-api.mutualtrustbank.com}
+        VITE_ENVIRONMENT: uat
+    container_name: bankvision-admin-panel
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - bankvision-net
+
+networks:
+  bankvision-net:
+    driver: bridge
