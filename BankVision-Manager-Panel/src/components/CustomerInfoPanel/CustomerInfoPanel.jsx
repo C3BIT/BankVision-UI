@@ -257,12 +257,12 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
                 <ListItemText
                   primary={
                     <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#1A1A1A' }}>
-                      {maskCardNumber(card.cardNumber)}
+                      {maskCardNumber(card.number || card.cardNumber)}
                     </Typography>
                   }
                   secondary={
                     <Typography sx={{ fontSize: '0.75rem', color: '#666666', mt: 0.5 }}>
-                      {card.cardType || 'Visa Credit Card'} - {card.tier || 'Platinum'}
+                      {card.type || card.cardType || 'Card'} - {card.category || card.tier || 'Standard'}
                     </Typography>
                   }
                 />
@@ -329,12 +329,12 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
                 <ListItemText
                   primary={
                     <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#1A1A1A' }}>
-                      {maskCardNumber(loan.loanNumber)}
+                      {maskCardNumber(loan.number || loan.loanNumber)}
                     </Typography>
                   }
                   secondary={
                     <Typography sx={{ fontSize: '0.75rem', color: '#666666', mt: 0.5 }}>
-                      {loan.loanType || 'Personal Loan'} - {loan.status || 'Active'}
+                      {loan.type || loan.loanType || 'Loan'} - {loan.status || 'Active'}
                     </Typography>
                   }
                 />
