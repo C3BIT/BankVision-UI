@@ -7,9 +7,12 @@ import {
   Alert,
   CircularProgress,
   Divider,
-  Chip
+  Chip,
+  Dialog,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
-import { ArrowBack, CheckCircle, Visibility } from '@mui/icons-material';
+import { ArrowBack, CheckCircle, Visibility, AccountBalance, Cancel as CancelIcon } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import { useWebSocket } from '../../../providers/WebSocketProvider';
 import { useSelector } from 'react-redux';
@@ -24,6 +27,7 @@ const DormantAccountActivation = ({ onBack }) => {
   const [activating, setActivating] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const typingTimeoutNewRef = useRef(null);
   const typingTimeoutConfirmRef = useRef(null);
   const [customerIsTyping, setCustomerIsTyping] = useState(false);
@@ -45,7 +49,6 @@ const DormantAccountActivation = ({ onBack }) => {
     });
   }, [socket, accountDetails]);
 
-  // Listen for customer typing events
   useEffect(() => {
     if (!socket) return;
     setIsLoading(true);
@@ -71,26 +74,28 @@ const DormantAccountActivation = ({ onBack }) => {
 
     const handleActivationError = (data) => {
       setActivating(false);
+      setConfirmOpen(false);
       setSuccess(false);
       setError(data?.message || 'Account activation failed. Please try again.');
     };
 
     const handleActivationSuccess = () => {
       setActivating(false);
+      setConfirmOpen(false);
       setSuccess(true);
       setError(null);
     };
 
     socket.on('customer:typing-account-number-new', handleCustomerTypingNew);
     socket.on('customer:typing-account-number-confirm', handleCustomerTypingConfirm);
-    socket.on('error', handleActivationError);
+    socket.on('account:activation-error', handleActivationError);
     socket.on('manager:account-activation-success', handleActivationSuccess);
 
     return () => {
       clearTimeout(readyTimer);
       socket.off('customer:typing-account-number-new', handleCustomerTypingNew);
       socket.off('customer:typing-account-number-confirm', handleCustomerTypingConfirm);
-      socket.off('error', handleActivationError);
+      socket.off('account:activation-error', handleActivationError);
       socket.off('manager:account-activation-success', handleActivationSuccess);
     };
   }, [socket]);
@@ -99,30 +104,30 @@ const DormantAccountActivation = ({ onBack }) => {
     setError(null);
     setSuccess(false);
 
-    // Validation
     if (!customerTypedNew || !customerTypedConfirm) {
       setError('Customer must enter both fields');
       return;
     }
-
     if (customerTypedNew !== customerTypedConfirm) {
       setError('Account numbers do not match');
       return;
     }
-
     if (customerTypedNew !== accountDetails?.accountNumber) {
       setError('Account number does not match customer account');
       return;
     }
 
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmActivation = () => {
     setActivating(true);
     setError(null);
-
     if (socket) {
       socket.emit('manager:approve-account-activation', {
         customerId: accountDetails?.mobileNumber,
         accountNumber: customerTypedNew,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }
   };
@@ -133,285 +138,330 @@ const DormantAccountActivation = ({ onBack }) => {
     customerTypedNew === accountDetails?.accountNumber;
 
   return (
-    <Box sx={{
-      width: '100%',
-      padding: '20px',
-      display: 'flex',
-      flexDirection: 'column',
-      backgroundColor: '#FFFFFF',
-      borderRadius: '12px',
-      border: '1px solid #E0E0E0',
-      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
-      gap: 2
-    }}>
-      <Button
-        startIcon={<ArrowBack />}
-        onClick={onBack}
-        sx={{
-          alignSelf: 'flex-start',
-          color: '#1A1A1A',
-          '&:hover': {
-            backgroundColor: '#F0F0F0'
-          }
-        }}
-      >
-        Back
-      </Button>
-
-      <Typography variant="h6" sx={{ color: '#1A1A1A', fontWeight: 'medium' }}>
-        Dormant Account Activation
-      </Typography>
-
-      {customerIsTyping && (
-        <Chip
-          icon={<Visibility />}
-          label="Customer is typing"
-          size="small"
-          color="info"
-          sx={{ alignSelf: 'flex-start' }}
-        />
-      )}
-
-      <Divider sx={{ borderColor: '#E0E0E0' }} />
-
-      {/* Customer Account Information */}
-      <Box>
-        <Typography variant="caption" sx={{ color: '#666' }}>
-          Customer Account Number (Expected)
-        </Typography>
-        <TextField
-          fullWidth
-          value={accountDetails?.accountNumber || 'N/A'}
-          variant="outlined"
-          InputProps={{
-            readOnly: true,
-            sx: { color: '#1A1A1A' }
-          }}
+    <>
+      <Box sx={{
+        width: '100%',
+        padding: '20px',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: '#FFFFFF',
+        borderRadius: '12px',
+        border: '1px solid #E0E0E0',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+        gap: 2
+      }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={onBack}
           sx={{
-            mt: 0.5,
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: '#F5F5F5',
-              '& fieldset': {
-                borderColor: '#E0E0E0',
-              },
-            },
+            alignSelf: 'flex-start',
+            color: '#1A1A1A',
+            '&:hover': { backgroundColor: '#F0F0F0' }
           }}
-        />
-      </Box>
+        >
+          Back
+        </Button>
 
-      <Divider sx={{ borderColor: '#E0E0E0' }} />
-
-      {/* Customer Input - New Account Number */}
-      <Box>
-        <Typography variant="caption" sx={{ color: '#666' }}>
-          Customer Entered - Account Number
+        <Typography variant="h6" sx={{ color: '#1A1A1A', fontWeight: 'medium' }}>
+          Dormant Account Activation
         </Typography>
-        <TextField
-          fullWidth
-          value={customerTypedNew}
-          onChange={(e) => {
-            const value = e.target.value;
-            setCustomerTypedNew(value);
-            setIsLoading(false);
-            setError(null);
-            setSuccess(false);
 
-            // Emit to customer in real-time (override)
-            if (typingTimeoutNewRef.current) clearTimeout(typingTimeoutNewRef.current);
-            typingTimeoutNewRef.current = setTimeout(() => {
-              if (socket && value) {
-                socket.emit('manager:typing-account-number-new', {
-                  accountNumber: value,
-                  timestamp: Date.now()
-                });
-              }
-            }, 300);
-          }}
-          variant="outlined"
-          placeholder={isLoading ? "Waiting for customer input or type here..." : "Enter account number"}
-          helperText="Manager can type here to override customer input (synced to customer)"
-          sx={{
-            mt: 0.5,
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: '#FAFAFA',
-              color: '#1A1A1A',
-              '& fieldset': {
-                borderColor: '#E0E0E0',
-              },
-              '&:hover fieldset': {
-                borderColor: '#BDBDBD',
-              },
-              '&.Mui-focused fieldset': {
-                borderColor: '#0066FF',
-                borderWidth: 2,
-              },
-            },
-            '& .MuiFormHelperText-root': {
-              color: '#666',
-              fontSize: '0.7rem',
-            },
-          }}
-        />
-      </Box>
+        {customerIsTyping && (
+          <Chip
+            icon={<Visibility />}
+            label="Customer is typing"
+            size="small"
+            color="info"
+            sx={{ alignSelf: 'flex-start' }}
+          />
+        )}
 
-      {/* Customer Input - Confirm Account Number */}
-      <Box>
-        <Typography variant="caption" sx={{ color: '#666' }}>
-          Customer Entered - Confirm Account Number
-        </Typography>
-        <TextField
-          fullWidth
-          value={customerTypedConfirm}
-          onChange={(e) => {
-            const value = e.target.value;
-            setCustomerTypedConfirm(value);
-            setIsLoading(false);
-            setError(null);
-            setSuccess(false);
+        <Divider sx={{ borderColor: '#E0E0E0' }} />
 
-            // Emit to customer in real-time (override)
-            if (typingTimeoutConfirmRef.current) clearTimeout(typingTimeoutConfirmRef.current);
-            typingTimeoutConfirmRef.current = setTimeout(() => {
-              if (socket && value) {
-                socket.emit('manager:typing-account-number-confirm', {
-                  accountNumber: value,
-                  timestamp: Date.now()
-                });
-              }
-            }, 300);
-          }}
-          variant="outlined"
-          placeholder={isLoading ? "Waiting for customer input or type here..." : "Confirm account number"}
-          helperText="Manager can type here to override customer input (synced to customer)"
-          sx={{
-            mt: 0.5,
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: '#FAFAFA',
-              color: '#1A1A1A',
-              '& fieldset': {
-                borderColor: '#E0E0E0',
-              },
-              '&:hover fieldset': {
-                borderColor: '#BDBDBD',
-              },
-              '&.Mui-focused fieldset': {
-                borderColor: '#0066FF',
-                borderWidth: 2,
-              },
-            },
-            '& .MuiFormHelperText-root': {
-              color: '#666',
-              fontSize: '0.7rem',
-            },
-          }}
-        />
-      </Box>
-
-      {/* Validation Status */}
-      {!isLoading && customerTypedNew && customerTypedConfirm && (
         <Box>
-          {customerTypedNew !== customerTypedConfirm ? (
-            <Alert severity="error" sx={{ backgroundColor: 'rgba(244, 67, 54, 0.08)' }}>
-              Account numbers do not match
-            </Alert>
-          ) : customerTypedNew !== accountDetails?.accountNumber ? (
-            <Alert severity="error" sx={{ backgroundColor: 'rgba(244, 67, 54, 0.08)' }}>
-              Account number does not match expected account
-            </Alert>
-          ) : (
-            <Alert
-              severity="success"
-              icon={<CheckCircle />}
-              sx={{ backgroundColor: 'rgba(76, 175, 80, 0.08)' }}
-            >
-              Account numbers match! Ready to activate.
-            </Alert>
-          )}
+          <Typography variant="caption" sx={{ color: '#666' }}>
+            Customer Account Number (Expected)
+          </Typography>
+          <TextField
+            fullWidth
+            value={accountDetails?.accountNumber || 'N/A'}
+            variant="outlined"
+            InputProps={{ readOnly: true, sx: { color: '#1A1A1A' } }}
+            sx={{
+              mt: 0.5,
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#F5F5F5',
+                '& fieldset': { borderColor: '#E0E0E0' },
+              },
+            }}
+          />
         </Box>
-      )}
 
-      {/* Error Message */}
-      {error && (
-        <Alert severity="error" sx={{ backgroundColor: 'rgba(244, 67, 54, 0.08)' }}>
-          {error}
-        </Alert>
-      )}
+        <Divider sx={{ borderColor: '#E0E0E0' }} />
 
-      {/* Success Message */}
-      {success && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Alert
-            severity="success"
-            icon={<CheckCircle />}
-            sx={{ backgroundColor: 'rgba(76, 175, 80, 0.08)' }}
-          >
-            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Success!</Typography>
-            Account validated successfully! Customer notified.
+        <Box>
+          <Typography variant="caption" sx={{ color: '#666' }}>
+            Customer Entered - Account Number
+          </Typography>
+          <TextField
+            fullWidth
+            value={customerTypedNew}
+            onChange={(e) => {
+              const value = e.target.value;
+              setCustomerTypedNew(value);
+              setIsLoading(false);
+              setError(null);
+              setSuccess(false);
+              if (typingTimeoutNewRef.current) clearTimeout(typingTimeoutNewRef.current);
+              typingTimeoutNewRef.current = setTimeout(() => {
+                if (socket && value) {
+                  socket.emit('manager:typing-account-number-new', {
+                    accountNumber: value,
+                    timestamp: Date.now(),
+                  });
+                }
+              }, 300);
+            }}
+            variant="outlined"
+            placeholder={isLoading ? 'Waiting for customer input or type here...' : 'Enter account number'}
+            helperText="Manager can type here to override customer input (synced to customer)"
+            sx={{
+              mt: 0.5,
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#FAFAFA',
+                color: '#1A1A1A',
+                '& fieldset': { borderColor: '#E0E0E0' },
+                '&:hover fieldset': { borderColor: '#BDBDBD' },
+                '&.Mui-focused fieldset': { borderColor: '#0066FF', borderWidth: 2 },
+              },
+              '& .MuiFormHelperText-root': { color: '#666', fontSize: '0.7rem' },
+            }}
+          />
+        </Box>
+
+        <Box>
+          <Typography variant="caption" sx={{ color: '#666' }}>
+            Customer Entered - Confirm Account Number
+          </Typography>
+          <TextField
+            fullWidth
+            value={customerTypedConfirm}
+            onChange={(e) => {
+              const value = e.target.value;
+              setCustomerTypedConfirm(value);
+              setIsLoading(false);
+              setError(null);
+              setSuccess(false);
+              if (typingTimeoutConfirmRef.current) clearTimeout(typingTimeoutConfirmRef.current);
+              typingTimeoutConfirmRef.current = setTimeout(() => {
+                if (socket && value) {
+                  socket.emit('manager:typing-account-number-confirm', {
+                    accountNumber: value,
+                    timestamp: Date.now(),
+                  });
+                }
+              }, 300);
+            }}
+            variant="outlined"
+            placeholder={isLoading ? 'Waiting for customer input or type here...' : 'Confirm account number'}
+            helperText="Manager can type here to override customer input (synced to customer)"
+            sx={{
+              mt: 0.5,
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#FAFAFA',
+                color: '#1A1A1A',
+                '& fieldset': { borderColor: '#E0E0E0' },
+                '&:hover fieldset': { borderColor: '#BDBDBD' },
+                '&.Mui-focused fieldset': { borderColor: '#0066FF', borderWidth: 2 },
+              },
+              '& .MuiFormHelperText-root': { color: '#666', fontSize: '0.7rem' },
+            }}
+          />
+        </Box>
+
+        {!isLoading && customerTypedNew && customerTypedConfirm && (
+          <Box>
+            {customerTypedNew !== customerTypedConfirm ? (
+              <Alert severity="error" sx={{ backgroundColor: 'rgba(244, 67, 54, 0.08)' }}>
+                Account numbers do not match
+              </Alert>
+            ) : customerTypedNew !== accountDetails?.accountNumber ? (
+              <Alert severity="error" sx={{ backgroundColor: 'rgba(244, 67, 54, 0.08)' }}>
+                Account number does not match expected account
+              </Alert>
+            ) : (
+              <Alert severity="success" icon={<CheckCircle />} sx={{ backgroundColor: 'rgba(76, 175, 80, 0.08)' }}>
+                Account numbers match! Ready to activate.
+              </Alert>
+            )}
+          </Box>
+        )}
+
+        {error && (
+          <Alert severity="error" sx={{ backgroundColor: 'rgba(244, 67, 54, 0.08)' }}>
+            {error}
           </Alert>
+        )}
 
+        {success && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Alert severity="success" icon={<CheckCircle />} sx={{ backgroundColor: 'rgba(76, 175, 80, 0.08)' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Success!</Typography>
+              Account activated successfully! Customer has been notified.
+            </Alert>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={onBack}
+              sx={{
+                py: 1.5,
+                backgroundColor: '#4CAF50',
+                '&:hover': { backgroundColor: '#388E3C' },
+                borderRadius: '6px',
+                color: 'white',
+                fontWeight: 'bold',
+              }}
+            >
+              Done
+            </Button>
+          </Box>
+        )}
+
+        {!isLoading && customerTypedNew && customerTypedConfirm && !success && (
           <Button
             fullWidth
             variant="contained"
-            onClick={onBack}
+            onClick={handleValidateAndActivate}
+            disabled={!isValid || activating}
+            startIcon={activating ? <CircularProgress size={18} sx={{ color: 'white' }} /> : null}
             sx={{
               py: 1.5,
-              backgroundColor: '#4CAF50',
-              '&:hover': { backgroundColor: '#388E3C' },
+              backgroundColor: '#2196F3',
+              '&:hover': { backgroundColor: '#1976D2' },
+              '&:disabled': { backgroundColor: '#1976D2', opacity: 0.85 },
               borderRadius: '6px',
               color: 'white',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
             }}
           >
-            Done
+            {activating ? 'Activating…' : 'Validate & Activate Account'}
           </Button>
-        </Box>
-      )}
+        )}
 
-      {/* Action Button */}
-      {!isLoading && customerTypedNew && customerTypedConfirm && (
-        <Button
-          fullWidth
-          variant="contained"
-          onClick={handleValidateAndActivate}
-          disabled={!isValid || success || activating}
-          startIcon={activating ? <CircularProgress size={18} sx={{ color: 'white' }} /> : success ? <CheckCircle /> : null}
-          sx={{
-            py: 1.5,
-            backgroundColor: success ? '#4CAF50' : '#2196F3',
-            '&:hover': {
-              backgroundColor: success ? '#388E3C' : '#1976D2',
-            },
-            '&:disabled': {
-              backgroundColor: activating ? '#1976D2' : '#81C784',
-              opacity: activating ? 0.85 : 1,
-            },
-            borderRadius: '6px',
-            color: 'white',
-            fontWeight: 'bold'
-          }}
-        >
-          {activating ? 'Activating…' : success ? 'Activated Successfully' : 'Validate & Activate Account'}
-        </Button>
-      )}
+        <Typography variant="caption" sx={{ color: '#666', textAlign: 'center' }}>
+          {isLoading
+            ? 'Connecting to customer...'
+            : !customerTypedNew && !customerTypedConfirm
+              ? 'Waiting for customer to enter account numbers'
+              : !customerTypedNew || !customerTypedConfirm
+                ? 'Waiting for customer to complete both fields'
+                : isValid
+                  ? 'Ready to validate and activate account'
+                  : 'Account numbers must match expected account'}
+        </Typography>
+      </Box>
 
-      {/* Status Text */}
-      <Typography variant="caption" sx={{ color: '#666', textAlign: 'center' }}>
-        {isLoading
-          ? "Connecting to customer..."
-          : !customerTypedNew && !customerTypedConfirm
-            ? "Waiting for customer to enter account numbers"
-            : !customerTypedNew || !customerTypedConfirm
-              ? "Waiting for customer to complete both fields"
-              : isValid
-                ? "Ready to validate and activate account"
-                : "Account numbers must match expected account"}
-      </Typography>
-    </Box>
+      {/* Confirmation Dialog — same style as ChangeRequestPanel */}
+      <Dialog
+        open={confirmOpen}
+        onClose={() => !activating && setConfirmOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+          },
+        }}
+      >
+        <DialogContent sx={{ p: 4 }}>
+          {/* Header with icon — matches ChangeRequestPanel layout */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+            <Box
+              sx={{
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                backgroundColor: '#E3F2FD',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <AccountBalance sx={{ fontSize: 40, color: '#0066FF' }} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontSize: '1.25rem', fontWeight: 600, color: '#1A1A1A' }}>
+                Dormant Account Activation
+              </Typography>
+              <Typography sx={{ fontSize: '0.875rem', color: '#666666' }}>
+                From: {accountDetails?.name || accountDetails?.mobileNumber}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Divider sx={{ mb: 3 }} />
+
+          <Typography sx={{ fontSize: '0.875rem', color: '#666666', mb: 2 }}>
+            Manager is requesting to reactivate dormant account:
+          </Typography>
+
+          <Box sx={{ backgroundColor: '#F5F5F5', borderRadius: 2, p: 2, mb: 2 }}>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, mb: 1 }}>
+              Account Number:
+            </Typography>
+            <Typography sx={{ fontSize: '0.875rem', color: '#1A1A1A', fontFamily: 'monospace', letterSpacing: 1 }}>
+              {customerTypedNew}
+            </Typography>
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 3, pt: 0 }}>
+          <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+            <Button
+              fullWidth
+              onClick={() => setConfirmOpen(false)}
+              disabled={activating}
+              startIcon={<CancelIcon />}
+              sx={{
+                py: 1.5,
+                textTransform: 'none',
+                fontWeight: 600,
+                color: '#FF4444',
+                borderColor: '#FF4444',
+                '&:hover': { borderColor: '#D32F2F', backgroundColor: '#FFE5E5' },
+              }}
+              variant="outlined"
+            >
+              Cancel
+            </Button>
+            <Button
+              fullWidth
+              onClick={handleConfirmActivation}
+              disabled={activating}
+              startIcon={activating ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <CheckCircle />}
+              sx={{
+                py: 1.5,
+                textTransform: 'none',
+                fontWeight: 600,
+                backgroundColor: '#4CAF50',
+                color: '#FFFFFF',
+                '&:hover': { backgroundColor: '#43A047' },
+                '&:disabled': { backgroundColor: '#4CAF50', opacity: 0.8 },
+              }}
+              variant="contained"
+            >
+              {activating ? 'Activating…' : 'Approve & Activate'}
+            </Button>
+          </Box>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 
 DormantAccountActivation.propTypes = {
-  onBack: PropTypes.func.isRequired
+  onBack: PropTypes.func.isRequired,
 };
 
 export default DormantAccountActivation;
