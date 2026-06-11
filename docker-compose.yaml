@@ -43,8 +43,8 @@ services:
         VITE_ENVIRONMENT: uat
     container_name: bankvision-manager-panel
     restart: unless-stopped
-    expose:
-      - "80"
+    ports:
+      - 127.0.0.1:3001:80
     networks:
       - bankvision-net
 
