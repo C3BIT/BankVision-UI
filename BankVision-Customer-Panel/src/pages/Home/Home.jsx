@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Box, Paper, Typography, CircularProgress, Alert, Grid, Container, IconButton, Fab, Badge } from "@mui/material";
+import { Box, Paper, Typography, CircularProgress, Alert, Grid, Container, IconButton, Fab, Badge, Dialog, DialogContent } from "@mui/material";
 import { Chat as ChatIcon } from "@mui/icons-material";
 import axios from "axios";
 import StartVerification from "../../components/StartVerification/StartVerification";
@@ -9,6 +9,7 @@ import DocumentPanel from "../../components/DocumentPanel/DocumentPanel";
 import VerificationModal from "../../components/VerificationModal/VerificationModal";
 import ChangeContactModal from "../../components/ChangeContactModal/ChangeContactModal";
 import ChangeAddressModal from "../../components/ChangeAddressModal/ChangeAddressModal";
+import DormantAccountActivationRequest from "../../components/DormantAccountActivationRequest/DormantAccountActivationRequest";
 import FeedbackScreen from "../../components/FeedbackScreen/FeedbackScreen";
 import { useWebSocket } from "../../context/WebSocketContext";
 import CallModal from './../CallModal/CallModal';
@@ -46,6 +47,7 @@ const Home = () => {
   const [showChangeContactModal, setShowChangeContactModal] = useState(false);
   const [changeContactType, setChangeContactType] = useState('phone'); // 'phone' or 'email'
   const [showChangeAddressModal, setShowChangeAddressModal] = useState(false);
+  const [showDormantActivationModal, setShowDormantActivationModal] = useState(false);
   // const [showFaceCapture, setShowFaceCapture] = useState(false); // No longer needed as faceVerificationInitiated handles visibility
   const [faceCaptureKey, setFaceCaptureKey] = useState(0); // Force remount on retake
   const [showSignatureUpload, setShowSignatureUpload] = useState(false);
@@ -615,6 +617,14 @@ const Home = () => {
     }
   }, [changeRequests.addressChangeRequested]);
 
+  useEffect(() => {
+    if (changeRequests.accountActivationRequested) {
+      setShowDormantActivationModal(true);
+    } else {
+      setShowDormantActivationModal(false);
+    }
+  }, [changeRequests.accountActivationRequested]);
+
   const handleFaceVerificationClose = () => {
     setFaceVerificationInitiated(false);
     customerCancelFaceVerification(); // Notify manager that customer cancelled
@@ -1021,6 +1031,20 @@ const Home = () => {
         onSubmit={handleChangeAddressSubmit}
         currentAddress={currentAccountData?.address}
       />
+
+      {/* Dormant Account Activation Modal */}
+      <Dialog
+        open={showDormantActivationModal}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: { background: '#6B4FA0', borderRadius: 3 }
+        }}
+      >
+        <DialogContent sx={{ p: 0 }}>
+          <DormantAccountActivationRequest socket={socket} />
+        </DialogContent>
+      </Dialog>
 
 
 
