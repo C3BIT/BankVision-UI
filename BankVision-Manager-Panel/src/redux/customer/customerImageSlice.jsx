@@ -15,11 +15,12 @@ export const fetchCustomerImage = createAsyncThunk(
 
 export const compareFaces = createAsyncThunk(
   "customerImage/compareFaces",
-  async ({ imagePath1, imagePath2 }, { rejectWithValue }) => {
+  async ({ imagePath1, imagePath2, accountNo }, { rejectWithValue }) => {
     try {
       const response = await publicPost("/face/compare", {
         imagePath1,
-        imagePath2
+        imagePath2,
+        ...(accountNo && { accountNo }),
       });
       return response.data;
     } catch (err) {

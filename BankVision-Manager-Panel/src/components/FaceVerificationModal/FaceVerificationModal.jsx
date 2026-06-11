@@ -22,6 +22,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
 
   const { socket, initiateFaceVerification, verifyImage } = useWebSocket();
   const { profileImage } = useSelector((state) => state.customerImageInfo);
+  const { accountDetails } = useSelector((state) => state.customerAccounts);
   const dispatch = useDispatch();
 
   // Reset modal state when opening
@@ -75,6 +76,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
         compareFaces({
           imagePath1: profileImage,
           imagePath2: capturedImagePath,
+          accountNo: accountDetails?.accountNumber,
         })
       ).unwrap();
 

@@ -27,6 +27,7 @@ const PassiveFaceVerification = ({
 }) => {
   const dispatch = useDispatch();
   const { profileImage } = useSelector((state) => state.customerImageInfo);
+  const { accountDetails } = useSelector((state) => state.customerAccounts);
 
   const [verificationStatus, setVerificationStatus] = useState('idle'); // idle, capturing, verifying, verified, failed
   const [matchPercentage, setMatchPercentage] = useState(0);
@@ -343,6 +344,7 @@ const PassiveFaceVerification = ({
         compareFaces({
           imagePath1: profileImage,
           imagePath2: uploadedImagePath,
+          accountNo: accountDetails?.accountNumber,
         })
       ).unwrap();
 

@@ -41,6 +41,7 @@ const FaceVerificationPanel = ({ customerName }) => {
   } = useWebSocket();
 
   const { profileImage } = useSelector((state) => state.customerImageInfo);
+  const { accountDetails } = useSelector((state) => state.customerAccounts);
   const dispatch = useDispatch();
 
   // Fetch customer profile image on mount
@@ -214,6 +215,7 @@ const FaceVerificationPanel = ({ customerName }) => {
           compareFaces({
             imagePath1: profileImage,
             imagePath2: currentImage,
+            accountNo: accountDetails?.accountNumber,
           })
         ).unwrap();
         response.provider = 'OpenCV (server)';
