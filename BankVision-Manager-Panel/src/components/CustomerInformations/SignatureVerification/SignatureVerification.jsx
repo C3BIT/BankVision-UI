@@ -31,8 +31,6 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
 
   const [referenceSignature, setReferenceSignature] = useState(null);
   const [loadingReference, setLoadingReference] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [verificationResult, setVerificationResult] = useState(null);
   const [error, setError] = useState(null);
   const [requestSent, setRequestSent] = useState(false);
   const [decisionPending, setDecisionPending] = useState(false);
@@ -63,12 +61,8 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
   // React to global signature upload state
   useEffect(() => {
     if (signatureUploadedPath) {
-      console.log('✍️ [Local] Detected signatureUploadedPath from global state:', signatureUploadedPath);
       setSignaturePath(signatureUploadedPath);
       setRequestSent(false);
-      // Automatically verify
-      handleVerify(signatureUploadedPath);
-      // Clear global state so we don't re-trigger on remount
       clearSignaturePath();
     }
   }, [signatureUploadedPath, clearSignaturePath]);
@@ -87,37 +81,6 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
     });
     setRequestSent(true);
     setError(null);
-  };
-
-  const handleVerify = async (imagePath) => {
-    if (!imagePath) {
-      setError('No signature image available');
-      return;
-    }
-
-    setVerifying(true);
-    setError(null);
-
-    try {
-      const response = await api.post('/signature/verify', {
-        customerPhone,
-        signatureImagePath: imagePath,
-      });
-
-      if (response.data.success) {
-        setVerificationResult({
-          matched: response.data.data.matched,
-          similarity: response.data.data.similarity || 0,
-          confidence: response.data.data.confidence || 0,
-        });
-      } else {
-        setError(response.data.message || 'Verification failed');
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to verify signature');
-    } finally {
-      setVerifying(false);
-    }
   };
 
   const handleDecision = (decision) => {
@@ -194,30 +157,12 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
         </Alert>
       )}
 
-      {verificationResult && (
-        <Alert
-          severity={verificationResult.matched ? 'success' : 'warning'}
-          sx={{ mb: 2 }}
-          icon={verificationResult.matched ? <CheckCircle /> : <Cancel />}
-        >
-          <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
-            {verificationResult.matched
-              ? 'Signature Matched'
-              : 'Signature Not Matched'}
-          </Typography>
-          <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
-            Similarity: {verificationResult.similarity.toFixed(1)}% | Confidence:{' '}
-            {verificationResult.confidence.toFixed(1)}%
-          </Typography>
-        </Alert>
-      )}
-
       {!signaturePath ? (
         <Button
           variant="contained"
           fullWidth
           onClick={handleRequestSignature}
-          disabled={requestSent || verifying}
+          disabled={requestSent}
           startIcon={requestSent ? <CircularProgress size={20} /> : <Send />}
           sx={{
             backgroundColor: '#0066FF',
@@ -303,15 +248,6 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
             </Paper>
           </Box>
 
-          {verifying && (
-            <Box sx={{ textAlign: 'center', py: 2 }}>
-              <CircularProgress size={24} />
-              <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#666' }}>
-                AI Comparison in progress...
-              </Typography>
-            </Box>
-          )}
-
           {/* Decision Actions */}
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Button
@@ -319,7 +255,7 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
               fullWidth
               color="success"
               onClick={() => handleDecision('approve')}
-              disabled={decisionPending || verifying}
+              disabled={decisionPending}
               startIcon={<CheckCircle />}
               sx={{ py: 1.5, borderRadius: 2 }}
             >
@@ -330,7 +266,7 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
               fullWidth
               color="error"
               onClick={() => handleDecision('reject')}
-              disabled={decisionPending || verifying}
+              disabled={decisionPending}
               startIcon={<Cancel />}
               sx={{ py: 1.5, borderRadius: 2 }}
             >
@@ -342,7 +278,7 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
             variant="text"
             fullWidth
             onClick={handleReset}
-            disabled={decisionPending || verifying}
+            disabled={decisionPending}
             sx={{ color: '#666' }}
           >
             Re-request Signature
