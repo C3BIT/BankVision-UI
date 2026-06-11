@@ -79,6 +79,7 @@ const Home = () => {
     acknowledgePhoneChangeRequest,
     acknowledgeEmailChangeRequest,
     acknowledgeAddressChangeRequest,
+    acknowledgeAccountActivationRequest,
     chatMessages,
     isManagerTyping,
     sendChatMessage,
@@ -587,12 +588,23 @@ const Home = () => {
       }
     };
 
+    const handleAccountActivated = () => {
+      // Show success state inside the modal for 2.5s then close
+      clearTimeout(approvalFeedbackTimerRef.current);
+      approvalFeedbackTimerRef.current = setTimeout(() => {
+        setShowDormantActivationModal(false);
+        acknowledgeAccountActivationRequest();
+      }, 2500);
+    };
+
     socket.on('customer:change-approved', handleChangeApproved);
     socket.on('customer:change-rejected', handleChangeRejected);
+    socket.on('customer:account-activated', handleAccountActivated);
 
     return () => {
       socket.off('customer:change-approved', handleChangeApproved);
       socket.off('customer:change-rejected', handleChangeRejected);
+      socket.off('customer:account-activated', handleAccountActivated);
     };
   }, [socket]);
 
