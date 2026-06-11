@@ -850,7 +850,8 @@ const Home = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            minHeight: "100vh",
+            height: "100vh",
+            overflowY: "auto",
             backgroundColor: "#F5F5F5",
             padding: 2,
           }}
