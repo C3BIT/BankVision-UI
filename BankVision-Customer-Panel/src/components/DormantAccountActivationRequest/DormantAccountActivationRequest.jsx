@@ -112,14 +112,6 @@ const DormantAccountActivationRequest = ({ socket }) => {
 
             <TextField
                 fullWidth
-                label="Your Account Number (read-only)"
-                value={accountDetails?.accountNumber || ''}
-                InputProps={{ readOnly: true }}
-                sx={fieldSx}
-            />
-
-            <TextField
-                fullWidth
                 label="Confirm Account Number"
                 placeholder="Type your account number"
                 value={confirmValue}
