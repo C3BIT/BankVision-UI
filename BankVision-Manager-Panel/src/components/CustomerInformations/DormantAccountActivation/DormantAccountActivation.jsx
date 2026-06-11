@@ -27,6 +27,23 @@ const DormantAccountActivation = ({ onBack }) => {
   const typingTimeoutConfirmRef = useRef(null);
   const [customerIsTyping, setCustomerIsTyping] = useState(false);
 
+  // Notify customer to show dormant account activation screen
+  useEffect(() => {
+    if (!socket) return;
+    socket.emit('manager:screen-sync', {
+      screen: 'accountActivation',
+      timestamp: Date.now(),
+      accountData: accountDetails ? {
+        accountNumber: accountDetails.accountNumber,
+        email: accountDetails.email,
+        mobileNumber: accountDetails.mobileNumber,
+        name: accountDetails.name,
+        address: accountDetails.address,
+        branch: accountDetails.branch,
+      } : null,
+    });
+  }, [socket, accountDetails]);
+
   // Listen for customer typing events
   useEffect(() => {
     if (!socket) return;
