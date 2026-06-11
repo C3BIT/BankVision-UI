@@ -27,7 +27,7 @@ const PassiveFaceVerification = ({
 }) => {
   const dispatch = useDispatch();
   const { profileImage } = useSelector((state) => state.customerImageInfo);
-  const { accountDetails, accounts } = useSelector((state) => state.customerAccounts);
+  const { accountDetails, cbsAccounts } = useSelector((state) => state.customerAccounts);
 
   const [verificationStatus, setVerificationStatus] = useState('idle'); // idle, capturing, verifying, verified, failed
   const [matchPercentage, setMatchPercentage] = useState(0);
@@ -344,7 +344,7 @@ const PassiveFaceVerification = ({
         compareFaces({
           imagePath1: profileImage,
           imagePath2: uploadedImagePath,
-          accountNo: accountDetails?.accountNumber || accounts?.[0]?.accountNumber,
+          accountNo: accountDetails?.accountNumber || cbsAccounts?.[0]?.accountNumber,
         })
       ).unwrap();
 
@@ -473,7 +473,7 @@ const PassiveFaceVerification = ({
     }
 
     // Don't start if no profile image or account info available yet
-    const accountNo = accountDetails?.accountNumber || accounts?.[0]?.accountNumber;
+    const accountNo = accountDetails?.accountNumber || cbsAccounts?.[0]?.accountNumber;
     if (!profileImage || !accountNo || verificationStatus === 'not_available') {
       return;
     }
@@ -497,7 +497,7 @@ const PassiveFaceVerification = ({
         clearTimeout(verificationTimeoutRef.current);
       }
     };
-  }, [isCallActive, customerPhone, callStartTime, profileImage, verificationStatus, accountDetails, accounts]);
+  }, [isCallActive, customerPhone, callStartTime, profileImage, verificationStatus, accountDetails, cbsAccounts]);
 
   // Handle retry logic — fires only when verificationStatus or attemptCapture changes.
   // captureAttempts (display state) is intentionally NOT a dep here: incrementing the
