@@ -6,6 +6,7 @@ import EmailVerificationScreen from '../EmailVerificationScreen/EmailVerificatio
 import PhoneChangeRequest from '../PhoneChangeRequest/PhoneChangeRequest';
 import EmailChangeRequest from '../EmailChangeRequest/EmailChangeRequest';
 import AddressChangeRequest from '../AddressChangeRequest/AddressChangeRequest';
+import DormantAccountActivationRequest from '../DormantAccountActivationRequest/DormantAccountActivationRequest';
 import WelcomeScreen from '../common/WelcomeScreen';
 import CaptureCustomerImage from './../CaptureCustomerImage/CaptureCustomerImage';
 
@@ -62,6 +63,10 @@ const CustomerVerificationScreen = ({
           socket={socket}
         />
       );
+    }
+
+    if (changeRequests.accountActivationRequested) {
+      return <DormantAccountActivationRequest socket={socket} />;
     }
 
     if (verificationRequests.phone) {
@@ -134,7 +139,8 @@ CustomerVerificationScreen.propTypes = {
   changeRequests: PropTypes.shape({
     phoneChangeRequested: PropTypes.bool,
     emailChangeRequested: PropTypes.bool,
-    addressChangeRequested: PropTypes.bool
+    addressChangeRequested: PropTypes.bool,
+    accountActivationRequested: PropTypes.bool,
   }),
   confirmPhoneVerification: PropTypes.func,
   confirmEmailVerification: PropTypes.func,

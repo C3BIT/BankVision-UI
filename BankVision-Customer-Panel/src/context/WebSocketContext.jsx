@@ -347,7 +347,7 @@ export const WebSocketProvider = ({ children }) => {
         setFaceVerificationInitiated(true);
         // Optionally clear other verification requests if face verification is exclusive
         setVerificationRequests(prev => ({ ...prev, phone: false, email: false, signature: false }));
-        setChangeRequests(prev => ({ ...prev, phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false }));
+        setChangeRequests(prev => ({ ...prev, phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false, accountActivationRequested: false }));
 
         if (newSocket && newSocket.connected) {
           newSocket.emit("customer:face-verification-notification-acknowledged", {
@@ -383,14 +383,14 @@ export const WebSocketProvider = ({ children }) => {
         console.log("📱 Manager requested phone verification:", data);
         setFaceVerificationInitiated(false);
         setVerificationRequests({ phone: Date.now(), email: false, face: false, signature: false });
-        setChangeRequests({ phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false });
+        setChangeRequests({ phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false, accountActivationRequested: false });
       });
 
       newSocket.on("requested:email-verification", (data) => {
         console.log("📧 Manager requested email verification:", data);
         setFaceVerificationInitiated(false);
         setVerificationRequests({ phone: false, email: Date.now(), face: false, signature: false });
-        setChangeRequests({ phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false });
+        setChangeRequests({ phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false, accountActivationRequested: false });
         // Store the email so the verify call can include it
         const receivedEmail = data.email || data.customerEmail;
         if (receivedEmail) {
@@ -440,7 +440,8 @@ export const WebSocketProvider = ({ children }) => {
         setChangeRequests({
           phoneChangeRequested: true,
           emailChangeRequested: false,
-          addressChangeRequested: false
+          addressChangeRequested: false,
+          accountActivationRequested: false,
         });
       });
 
@@ -450,7 +451,8 @@ export const WebSocketProvider = ({ children }) => {
         setChangeRequests({
           phoneChangeRequested: false,
           emailChangeRequested: true,
-          addressChangeRequested: false
+          addressChangeRequested: false,
+          accountActivationRequested: false,
         });
       });
 
@@ -460,7 +462,8 @@ export const WebSocketProvider = ({ children }) => {
         setChangeRequests({
           phoneChangeRequested: false,
           emailChangeRequested: false,
-          addressChangeRequested: true
+          addressChangeRequested: true,
+          accountActivationRequested: false,
         });
       });
 
@@ -477,11 +480,12 @@ export const WebSocketProvider = ({ children }) => {
 
         // Map manager screens to customer verification/change states
         const screenMap = {
-          'face': { verifications: { phone: false, email: false, face: false, signature: false }, changes: { phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false } }, // 'face' screen will now be handled by faceVerificationInitiated
-          'signature': { verifications: { phone: false, email: false, face: false, signature: true }, changes: { phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false } },
-          'phoneChange': { verifications: { phone: false, email: false, face: false, signature: false }, changes: { phoneChangeRequested: true, emailChangeRequested: false, addressChangeRequested: false } },
-          'emailChange': { verifications: { phone: false, email: false, face: false, signature: false }, changes: { phoneChangeRequested: false, emailChangeRequested: true, addressChangeRequested: false } },
-          'addressChange': { verifications: { phone: false, email: false, face: false, signature: false }, changes: { phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: true } },
+          'face': { verifications: { phone: false, email: false, face: false, signature: false }, changes: { phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false, accountActivationRequested: false } }, // 'face' screen will now be handled by faceVerificationInitiated
+          'signature': { verifications: { phone: false, email: false, face: false, signature: true }, changes: { phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false, accountActivationRequested: false } },
+          'phoneChange': { verifications: { phone: false, email: false, face: false, signature: false }, changes: { phoneChangeRequested: true, emailChangeRequested: false, addressChangeRequested: false, accountActivationRequested: false } },
+          'emailChange': { verifications: { phone: false, email: false, face: false, signature: false }, changes: { phoneChangeRequested: false, emailChangeRequested: true, addressChangeRequested: false, accountActivationRequested: false } },
+          'addressChange': { verifications: { phone: false, email: false, face: false, signature: false }, changes: { phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: true, accountActivationRequested: false } },
+          'accountActivation': { verifications: { phone: false, email: false, face: false, signature: false }, changes: { phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false, accountActivationRequested: true } },
         };
 
         const mapping = screenMap[data.screen];
@@ -498,7 +502,7 @@ export const WebSocketProvider = ({ children }) => {
             face: false,
             signature: false,
           }));
-          setChangeRequests({ phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false });
+          setChangeRequests({ phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false, accountActivationRequested: false });
         }
       });
 
@@ -745,6 +749,13 @@ export const WebSocketProvider = ({ children }) => {
     }));
   };
 
+  const acknowledgeAccountActivationRequest = () => {
+    setChangeRequests(prev => ({
+      ...prev,
+      accountActivationRequested: false
+    }));
+  };
+
   useEffect(() => {
     return () => {
       if (socket) {
@@ -788,6 +799,7 @@ export const WebSocketProvider = ({ children }) => {
     acknowledgePhoneChangeRequest,
     acknowledgeEmailChangeRequest,
     acknowledgeAddressChangeRequest,
+    acknowledgeAccountActivationRequest,
     sendChatMessage,
     sendTypingIndicator,
     customerStartCapture, // Add new function to context
