@@ -589,12 +589,12 @@ const Home = () => {
     };
 
     const handleAccountActivated = () => {
-      // Show success state inside the modal for 2.5s then close
+      setApprovalMessage('Your dormant account has been successfully activated');
+      setShowApprovalFeedback(true);
       clearTimeout(approvalFeedbackTimerRef.current);
-      approvalFeedbackTimerRef.current = setTimeout(() => {
-        setShowDormantActivationModal(false);
-        acknowledgeAccountActivationRequest();
-      }, 2500);
+      approvalFeedbackTimerRef.current = setTimeout(() => setShowApprovalFeedback(false), 5000);
+      setShowDormantActivationModal(false);
+      acknowledgeAccountActivationRequest();
     };
 
     socket.on('customer:change-approved', handleChangeApproved);
