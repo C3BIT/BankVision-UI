@@ -21,6 +21,7 @@ const DormantAccountActivation = ({ onBack }) => {
   const [customerTypedNew, setCustomerTypedNew] = useState('');
   const [customerTypedConfirm, setCustomerTypedConfirm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [activating, setActivating] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const typingTimeoutNewRef = useRef(null);
@@ -69,19 +70,28 @@ const DormantAccountActivation = ({ onBack }) => {
     };
 
     const handleActivationError = (data) => {
+      setActivating(false);
       setSuccess(false);
       setError(data?.message || 'Account activation failed. Please try again.');
+    };
+
+    const handleActivationSuccess = () => {
+      setActivating(false);
+      setSuccess(true);
+      setError(null);
     };
 
     socket.on('customer:typing-account-number-new', handleCustomerTypingNew);
     socket.on('customer:typing-account-number-confirm', handleCustomerTypingConfirm);
     socket.on('error', handleActivationError);
+    socket.on('manager:account-activation-success', handleActivationSuccess);
 
     return () => {
       clearTimeout(readyTimer);
       socket.off('customer:typing-account-number-new', handleCustomerTypingNew);
       socket.off('customer:typing-account-number-confirm', handleCustomerTypingConfirm);
       socket.off('error', handleActivationError);
+      socket.off('manager:account-activation-success', handleActivationSuccess);
     };
   }, [socket]);
 
@@ -105,11 +115,9 @@ const DormantAccountActivation = ({ onBack }) => {
       return;
     }
 
-    // Success - account validated
-    setSuccess(true);
+    setActivating(true);
     setError(null);
 
-    // Emit to backend to hit CBS API
     if (socket) {
       socket.emit('manager:approve-account-activation', {
         customerId: accountDetails?.mobileNumber,
@@ -365,8 +373,8 @@ const DormantAccountActivation = ({ onBack }) => {
           fullWidth
           variant="contained"
           onClick={handleValidateAndActivate}
-          disabled={!isValid || success}
-          startIcon={success ? <CheckCircle /> : null}
+          disabled={!isValid || success || activating}
+          startIcon={activating ? <CircularProgress size={18} sx={{ color: 'white' }} /> : success ? <CheckCircle /> : null}
           sx={{
             py: 1.5,
             backgroundColor: success ? '#4CAF50' : '#2196F3',
@@ -374,14 +382,15 @@ const DormantAccountActivation = ({ onBack }) => {
               backgroundColor: success ? '#388E3C' : '#1976D2',
             },
             '&:disabled': {
-              backgroundColor: '#81C784',
+              backgroundColor: activating ? '#1976D2' : '#81C784',
+              opacity: activating ? 0.85 : 1,
             },
             borderRadius: '6px',
             color: 'white',
             fontWeight: 'bold'
           }}
         >
-          {success ? 'Validated Successfully' : 'Validate & Activate Account'}
+          {activating ? 'Activating…' : success ? 'Activated Successfully' : 'Validate & Activate Account'}
         </Button>
       )}
 
