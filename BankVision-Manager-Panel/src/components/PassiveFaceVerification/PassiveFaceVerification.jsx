@@ -472,8 +472,9 @@ const PassiveFaceVerification = ({
       return;
     }
 
-    // Don't start if no profile image available
-    if (!profileImage || verificationStatus === 'not_available') {
+    // Don't start if no profile image or account info available yet
+    const accountNo = accountDetails?.accountNumber || accounts?.[0]?.accountNumber;
+    if (!profileImage || !accountNo || verificationStatus === 'not_available') {
       return;
     }
 
@@ -496,7 +497,7 @@ const PassiveFaceVerification = ({
         clearTimeout(verificationTimeoutRef.current);
       }
     };
-  }, [isCallActive, customerPhone, callStartTime, profileImage, verificationStatus]);
+  }, [isCallActive, customerPhone, callStartTime, profileImage, verificationStatus, accountDetails, accounts]);
 
   // Handle retry logic — fires only when verificationStatus or attemptCapture changes.
   // captureAttempts (display state) is intentionally NOT a dep here: incrementing the
