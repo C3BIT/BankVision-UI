@@ -222,7 +222,8 @@ const Home = () => {
       }
     } catch (error) {
       console.error('Error verifying OTP:', error);
-      const msg = error.response?.data?.message || error.message || 'Invalid OTP. Please try again.';
+      const rawMsg = error.response?.data?.message;
+      const msg = (typeof rawMsg === 'string' ? rawMsg : rawMsg?.title) || error.message || 'Invalid OTP. Please try again.';
       setFailedMessage(msg);
       setOtpVerifyLoading(false);
       throw new Error(msg);
@@ -267,7 +268,8 @@ const Home = () => {
       }
     } catch (error) {
       console.error('Error verifying OTP:', error);
-      const msg = error.response?.data?.message || error.message || 'Invalid OTP. Please try again.';
+      const rawMsg = error.response?.data?.message;
+      const msg = (typeof rawMsg === 'string' ? rawMsg : rawMsg?.title) || error.message || 'Invalid OTP. Please try again.';
       setFailedMessage(msg);
       setOtpVerifyLoading(false);
       throw new Error(msg);

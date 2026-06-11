@@ -44,8 +44,10 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
       try {
         const response = await api.post('/customer/find-phone', { phone: customerPhone });
         if (response.data && response.data.data && response.data.data.length > 0) {
-          // CBS Mock returns all accounts for the phone, each has the signature image
-          setReferenceSignature(response.data.data[0].signatureImage);
+          const raw = response.data.data[0].signatureImage;
+          if (raw) {
+            setReferenceSignature(raw.startsWith('data:') ? raw : `data:image/jpeg;base64,${raw}`);
+          }
         }
       } catch (err) {
         console.error('Error fetching reference signature:', err);

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { CHANGE_REQUEST_CONFIG } from '../../config/changeRequestConfig';
 import SimpleChangeRequest from '../common/SimpleChangeRequest';
 import { verifyPhoneOtp } from '../../redux/auth/customerSlice';
-import { updateCustomerPhone } from '../../redux/auth/customerInfoSlice';
 
 const PhoneChangeRequest = ({ currentPhone, socket }) => (
     <SimpleChangeRequest
@@ -11,7 +10,6 @@ const PhoneChangeRequest = ({ currentPhone, socket }) => (
         currentValue={currentPhone}
         socket={socket}
         verifyOtpThunk={verifyPhoneOtp}
-        updateThunk={updateCustomerPhone}
     />
 );
 

@@ -37,6 +37,9 @@ const CustomerAccountDetails = ({ selectedAccount, customerPhone, onServiceSelec
   const handlePermissionChangeService = (serviceKey) => {
     onServiceSelect(serviceKey)
   }
+
+  const toImgSrc = (b64) => b64 ? (b64.startsWith('data:') ? b64 : `data:image/jpeg;base64,${b64}`) : undefined;
+
   return (
     <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Box sx={{
@@ -67,7 +70,7 @@ const CustomerAccountDetails = ({ selectedAccount, customerPhone, onServiceSelec
             }}
           >
             <img
-              src={accountDetails?.profileImage}
+              src={toImgSrc(accountDetails?.profileImage)}
               alt={accountDetails?.name}
               style={{
                 width: '100%',

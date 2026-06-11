@@ -226,7 +226,8 @@ const StartVerification = ({ onVerified, disabled = false }) => {
       }
     } catch (error) {
       console.error('Error verifying OTP:', error);
-      setError(error.response?.data?.message || 'Invalid OTP. Please try again.');
+      const rawMsg = error.response?.data?.message;
+      setError((typeof rawMsg === 'string' ? rawMsg : rawMsg?.title) || 'Invalid OTP. Please try again.');
     } finally {
       setLoading(false);
     }

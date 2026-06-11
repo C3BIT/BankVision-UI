@@ -233,8 +233,8 @@ const ChangeContactModal = ({
       const endpoint = type === 'phone' ? '/otp/send-phone' : '/otp/send';
 
       const payload = type === 'phone'
-        ? { phone: newValue, checkDuplicate: true }
-        : { email: newValue, checkDuplicate: true };
+        ? { phone: newValue }
+        : { email: newValue };
 
       const response = await axios.post(`${API_URL}${endpoint}`, payload);
 
@@ -247,7 +247,9 @@ const ChangeContactModal = ({
       }
     } catch (error) {
       console.error('Error sending OTP:', error);
-      setError(error.response?.data?.message || `Failed to send OTP to new ${type}`);
+      const rawMsg = error.response?.data?.message;
+      const msg = typeof rawMsg === 'string' ? rawMsg : (rawMsg?.title || null);
+      setError(msg || `Failed to send OTP to new ${type}`);
     } finally {
       setIsLoading(false);
     }
@@ -290,7 +292,9 @@ const ChangeContactModal = ({
       }
     } catch (error) {
       console.error('Error verifying OTP:', error);
-      setError(error.response?.data?.message || 'Invalid OTP. Please try again.');
+      const rawMsg = error.response?.data?.message;
+      const msg = typeof rawMsg === 'string' ? rawMsg : (rawMsg?.title || null);
+      setError(msg || 'Invalid OTP. Please try again.');
     } finally {
       setIsLoading(false);
     }

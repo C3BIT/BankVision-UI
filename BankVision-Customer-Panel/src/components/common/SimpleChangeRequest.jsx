@@ -32,7 +32,6 @@ const SimpleChangeRequest = ({
     currentValue,
     socket,
     verifyOtpThunk,
-    updateThunk,
 }) => {
     const { accountDetails } = useSelector((state) => state.customerInfo);
     const [newValue, setNewValue] = useState('');
@@ -76,21 +75,17 @@ const SimpleChangeRequest = ({
             ).unwrap();
 
             if (verifyResult.isVerified) {
-                const updateResult = await dispatch(
-                    updateThunk(config.updatePayload(customerUpdateInfo?.accountNumber, newValue))
-                ).unwrap();
-
-                if (updateResult[config.successFlag]) {
-                    socket.emit(config.changedSocketEvent, {
-                        [config.serviceKey]: newValue,
-                        accountNumber: customerUpdateInfo?.accountNumber,
-                        timestamp: new Date().toISOString(),
-                    });
-                    markSuccess(customerUpdateInfo?.accountNumber);
-                }
+                socket.emit(config.changedSocketEvent, {
+                    [config.serviceKey]: newValue,
+                    accountNumber: customerUpdateInfo?.accountNumber,
+                    timestamp: new Date().toISOString(),
+                });
+                markSuccess(customerUpdateInfo?.accountNumber);
             }
         } catch (err) {
-            setFieldError('Error during verification: ' + err.message);
+            const rawMsg = err?.data?.message ?? err?.message;
+            const msg = typeof rawMsg === 'string' ? rawMsg : (rawMsg?.title || err?.statusText || 'Verification failed');
+            setFieldError(msg);
         } finally {
             setIsVerifying(false);
         }
@@ -192,7 +187,7 @@ const SimpleChangeRequest = ({
                                 borderRadius: '8px', overflow: 'hidden', border: '2px solid white',
                             }}>
                                 <img
-                                    src={accountDetails?.profileImage}
+                                    src={(() => { const p = accountDetails?.profileImage; return p ? (p.startsWith('data:') ? p : `data:image/jpeg;base64,${p}`) : undefined; })()}
                                     alt={accountDetails?.name || 'Profile'}
                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 />
@@ -335,7 +330,6 @@ SimpleChangeRequest.propTypes = {
     currentValue: PropTypes.string,
     socket: PropTypes.object.isRequired,
     verifyOtpThunk: PropTypes.func.isRequired,
-    updateThunk: PropTypes.func.isRequired,
 };
 
 export default SimpleChangeRequest;
