@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Typography, TextField, CircularProgress, Alert } from '@mui/material';
+import { Box, Typography, TextField, CircularProgress, Alert, Divider, InputAdornment } from '@mui/material';
 import { CheckCircle, AccountBalance } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
@@ -17,6 +17,13 @@ const DormantAccountActivationRequest = ({ socket }) => {
     const managerTypingTimer = useRef(null);
     const [managerIsTyping, setManagerIsTyping] = useState(false);
 
+    // New compliance fields
+    const [estDepositCount, setEstDepositCount] = useState('');
+    const [estDepositAmount, setEstDepositAmount] = useState('');
+    const [estWithdrawCount, setEstWithdrawCount] = useState('');
+    const [estWithdrawAmount, setEstWithdrawAmount] = useState('');
+    const [dormancyReason, setDormancyReason] = useState('');
+
     const emitConfirm = useCallback(
         debounce((value) => {
             socket?.emit('typing:account-number-new', { accountNumber: value });
@@ -30,6 +37,25 @@ const DormantAccountActivationRequest = ({ socket }) => {
         }, 300),
         [socket]
     );
+
+    const emitExtraFields = useCallback(
+        debounce((fields) => {
+            socket?.emit('customer:dormant-extra-fields', fields);
+        }, 400),
+        [socket]
+    );
+
+    const handleExtraField = (setter, field) => (e) => {
+        const value = e.target.value;
+        setter(value);
+        emitExtraFields({
+            estDepositCount:  field === 'estDepositCount'  ? value : estDepositCount,
+            estDepositAmount: field === 'estDepositAmount' ? value : estDepositAmount,
+            estWithdrawCount: field === 'estWithdrawCount' ? value : estWithdrawCount,
+            estWithdrawAmount:field === 'estWithdrawAmount'? value : estWithdrawAmount,
+            dormancyReason:   field === 'dormancyReason'   ? value : dormancyReason,
+        });
+    };
 
     useEffect(() => {
         if (!socket) return;
@@ -98,7 +124,7 @@ const DormantAccountActivationRequest = ({ socket }) => {
             </Box>
 
             <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', textAlign: 'center' }}>
-                Please confirm your account number below.
+                Please confirm your account number and complete the required fields below.
             </Typography>
 
             {managerIsTyping && (
@@ -132,9 +158,74 @@ const DormantAccountActivationRequest = ({ socket }) => {
 
             {match && (
                 <Alert severity="success">
-                    Account numbers match. Waiting for manager to complete activation.
+                    Account numbers match. Please complete the fields below.
                 </Alert>
             )}
+
+            <Divider sx={{ borderColor: 'rgba(255,255,255,0.2)', my: 1 }} />
+
+            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Monthly Transaction Estimate
+            </Typography>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+                <TextField
+                    fullWidth
+                    label="No. of Deposits / Month"
+                    placeholder="e.g. 5"
+                    type="number"
+                    inputProps={{ min: 0 }}
+                    value={estDepositCount}
+                    onChange={handleExtraField(setEstDepositCount, 'estDepositCount')}
+                    sx={fieldSx}
+                />
+                <TextField
+                    fullWidth
+                    label="Deposit Amount / Month"
+                    placeholder="e.g. 50000"
+                    type="number"
+                    inputProps={{ min: 0 }}
+                    value={estDepositAmount}
+                    onChange={handleExtraField(setEstDepositAmount, 'estDepositAmount')}
+                    InputProps={{ startAdornment: <InputAdornment position="start" sx={{ color: '#555' }}>BDT</InputAdornment> }}
+                    sx={fieldSx}
+                />
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+                <TextField
+                    fullWidth
+                    label="No. of Withdrawals / Month"
+                    placeholder="e.g. 3"
+                    type="number"
+                    inputProps={{ min: 0 }}
+                    value={estWithdrawCount}
+                    onChange={handleExtraField(setEstWithdrawCount, 'estWithdrawCount')}
+                    sx={fieldSx}
+                />
+                <TextField
+                    fullWidth
+                    label="Withdrawal Amount / Month"
+                    placeholder="e.g. 30000"
+                    type="number"
+                    inputProps={{ min: 0 }}
+                    value={estWithdrawAmount}
+                    onChange={handleExtraField(setEstWithdrawAmount, 'estWithdrawAmount')}
+                    InputProps={{ startAdornment: <InputAdornment position="start" sx={{ color: '#555' }}>BDT</InputAdornment> }}
+                    sx={fieldSx}
+                />
+            </Box>
+
+            <TextField
+                fullWidth
+                label="Reason for Account Dormancy"
+                placeholder="e.g. Was abroad, forgot to transact, medical reasons…"
+                multiline
+                rows={2}
+                value={dormancyReason}
+                onChange={handleExtraField(setDormancyReason, 'dormancyReason')}
+                sx={fieldSx}
+            />
         </Box>
     );
 };

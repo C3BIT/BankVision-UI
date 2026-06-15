@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogContent,
   DialogActions,
+  InputAdornment,
 } from '@mui/material';
 import { ArrowBack, CheckCircle, Visibility, AccountBalance, Cancel as CancelIcon } from '@mui/icons-material';
 import PropTypes from 'prop-types';
@@ -31,6 +32,15 @@ const DormantAccountActivation = ({ onBack }) => {
   const typingTimeoutNewRef = useRef(null);
   const typingTimeoutConfirmRef = useRef(null);
   const [customerIsTyping, setCustomerIsTyping] = useState(false);
+
+  // Compliance fields received from customer
+  const [extraFields, setExtraFields] = useState({
+    estDepositCount: '',
+    estDepositAmount: '',
+    estWithdrawCount: '',
+    estWithdrawAmount: '',
+    dormancyReason: '',
+  });
 
   // Notify customer to show dormant account activation screen
   useEffect(() => {
@@ -86,10 +96,17 @@ const DormantAccountActivation = ({ onBack }) => {
       setError(null);
     };
 
+    const handleExtraFields = (data) => {
+      setExtraFields(prev => ({ ...prev, ...data }));
+      setCustomerIsTyping(true);
+      setTimeout(() => setCustomerIsTyping(false), 1000);
+    };
+
     socket.on('customer:typing-account-number-new', handleCustomerTypingNew);
     socket.on('customer:typing-account-number-confirm', handleCustomerTypingConfirm);
     socket.on('account:activation-error', handleActivationError);
     socket.on('manager:account-activation-success', handleActivationSuccess);
+    socket.on('customer:dormant-extra-fields', handleExtraFields);
 
     return () => {
       clearTimeout(readyTimer);
@@ -97,6 +114,7 @@ const DormantAccountActivation = ({ onBack }) => {
       socket.off('customer:typing-account-number-confirm', handleCustomerTypingConfirm);
       socket.off('account:activation-error', handleActivationError);
       socket.off('manager:account-activation-success', handleActivationSuccess);
+      socket.off('customer:dormant-extra-fields', handleExtraFields);
     };
   }, [socket]);
 
@@ -127,6 +145,7 @@ const DormantAccountActivation = ({ onBack }) => {
       socket.emit('manager:approve-account-activation', {
         customerId: accountDetails?.mobileNumber,
         accountNumber: customerTypedNew,
+        ...extraFields,
         timestamp: Date.now(),
       });
     }
@@ -279,6 +298,71 @@ const DormantAccountActivation = ({ onBack }) => {
           />
         </Box>
 
+        <Divider sx={{ borderColor: '#E0E0E0' }} />
+
+        <Typography variant="caption" sx={{ color: '#666', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          Monthly Transaction Estimate (Customer Provided)
+        </Typography>
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="caption" sx={{ color: '#666' }}>No. of Deposits / Month</Typography>
+            <TextField
+              fullWidth size="small"
+              value={extraFields.estDepositCount || ''}
+              InputProps={{ readOnly: true }}
+              placeholder="Waiting for customer..."
+              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: '#F5F5F5' } }}
+            />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="caption" sx={{ color: '#666' }}>Deposit Amount / Month</Typography>
+            <TextField
+              fullWidth size="small"
+              value={extraFields.estDepositAmount || ''}
+              InputProps={{ readOnly: true, startAdornment: <InputAdornment position="start">BDT</InputAdornment> }}
+              placeholder="Waiting..."
+              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: '#F5F5F5' } }}
+            />
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="caption" sx={{ color: '#666' }}>No. of Withdrawals / Month</Typography>
+            <TextField
+              fullWidth size="small"
+              value={extraFields.estWithdrawCount || ''}
+              InputProps={{ readOnly: true }}
+              placeholder="Waiting for customer..."
+              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: '#F5F5F5' } }}
+            />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="caption" sx={{ color: '#666' }}>Withdrawal Amount / Month</Typography>
+            <TextField
+              fullWidth size="small"
+              value={extraFields.estWithdrawAmount || ''}
+              InputProps={{ readOnly: true, startAdornment: <InputAdornment position="start">BDT</InputAdornment> }}
+              placeholder="Waiting..."
+              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: '#F5F5F5' } }}
+            />
+          </Box>
+        </Box>
+
+        <Box>
+          <Typography variant="caption" sx={{ color: '#666' }}>Reason for Account Dormancy</Typography>
+          <TextField
+            fullWidth size="small" multiline rows={2}
+            value={extraFields.dormancyReason || ''}
+            InputProps={{ readOnly: true }}
+            placeholder="Waiting for customer..."
+            sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: '#F5F5F5' } }}
+          />
+        </Box>
+
+        <Divider sx={{ borderColor: '#E0E0E0' }} />
+
         {!isLoading && customerTypedNew && customerTypedConfirm && (
           <Box>
             {customerTypedNew !== customerTypedConfirm ? (
@@ -414,6 +498,38 @@ const DormantAccountActivation = ({ onBack }) => {
               {customerTypedNew}
             </Typography>
           </Box>
+
+          {(extraFields.estDepositCount || extraFields.estDepositAmount || extraFields.estWithdrawCount || extraFields.estWithdrawAmount || extraFields.dormancyReason) && (
+            <Box sx={{ backgroundColor: '#F5F5F5', borderRadius: 2, p: 2, mb: 2 }}>
+              <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, mb: 1.5, color: '#444' }}>
+                Transaction Estimates &amp; Dormancy Reason
+              </Typography>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, mb: 1 }}>
+                <Box>
+                  <Typography sx={{ fontSize: '0.75rem', color: '#888' }}>Deposits / Month</Typography>
+                  <Typography sx={{ fontSize: '0.875rem' }}>{extraFields.estDepositCount || '—'}</Typography>
+                </Box>
+                <Box>
+                  <Typography sx={{ fontSize: '0.75rem', color: '#888' }}>Deposit Amount</Typography>
+                  <Typography sx={{ fontSize: '0.875rem' }}>BDT {extraFields.estDepositAmount || '—'}</Typography>
+                </Box>
+                <Box>
+                  <Typography sx={{ fontSize: '0.75rem', color: '#888' }}>Withdrawals / Month</Typography>
+                  <Typography sx={{ fontSize: '0.875rem' }}>{extraFields.estWithdrawCount || '—'}</Typography>
+                </Box>
+                <Box>
+                  <Typography sx={{ fontSize: '0.75rem', color: '#888' }}>Withdrawal Amount</Typography>
+                  <Typography sx={{ fontSize: '0.875rem' }}>BDT {extraFields.estWithdrawAmount || '—'}</Typography>
+                </Box>
+              </Box>
+              {extraFields.dormancyReason && (
+                <Box>
+                  <Typography sx={{ fontSize: '0.75rem', color: '#888' }}>Reason for Dormancy</Typography>
+                  <Typography sx={{ fontSize: '0.875rem' }}>{extraFields.dormancyReason}</Typography>
+                </Box>
+              )}
+            </Box>
+          )}
         </DialogContent>
 
         <DialogActions sx={{ p: 3, pt: 0 }}>
