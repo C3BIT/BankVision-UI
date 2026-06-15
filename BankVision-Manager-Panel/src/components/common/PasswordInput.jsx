@@ -11,6 +11,7 @@ const PasswordInput = ({
   error,
   fullWidth = true,
   required = false,
+  autoComplete = 'current-password',
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -30,6 +31,7 @@ const PasswordInput = ({
       helperText={error}
       fullWidth={fullWidth}
       required={required}
+      autoComplete={autoComplete}
       margin="normal"
       variant="outlined"
       InputProps={{

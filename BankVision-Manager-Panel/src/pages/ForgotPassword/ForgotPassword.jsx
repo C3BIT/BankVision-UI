@@ -255,6 +255,7 @@ const ForgotPassword = () => {
               required
               name="newPassword"
               label="New Password"
+              autoComplete="new-password"
               value={newPassword}
               onChange={(e) => {
                 setNewPassword(e.target.value);
@@ -306,6 +307,7 @@ const ForgotPassword = () => {
               required
               name="confirmPassword"
               label="Confirm Password"
+              autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => {
                 setConfirmPassword(e.target.value);

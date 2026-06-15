@@ -90,6 +90,7 @@ const Login = () => {
           name="email"
           label="Email Address"
           type="email"
+          autoComplete="email"
           value={formData.email}
           onChange={handleChange}
           error={errors.email}
@@ -115,6 +116,7 @@ const Login = () => {
           required
           name="password"
           label="Password"
+          autoComplete="current-password"
           value={formData.password}
           onChange={handleChange}
           error={errors.password}

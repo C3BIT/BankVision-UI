@@ -74,7 +74,6 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
       return;
     }
 
-    console.log('📝 Manager requesting signature upload from customer');
     socket.emit('manager:request-signature-upload', {
       customerId: customerPhone,
       timestamp: Date.now(),
@@ -90,7 +89,6 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
     }
 
     setDecisionPending(true);
-    console.log(`✍️ Manager decision for signature: ${decision}`);
 
     socket.emit('manager:signature-verification-decision', {
       customerId: customerPhone,
@@ -109,7 +107,6 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
 
   const handleReset = () => {
     setSignaturePath(null);
-    setVerificationResult(null);
     setError(null);
     setRequestSent(false);
   };

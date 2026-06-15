@@ -83,6 +83,7 @@ const Login = () => {
                     <TextField
                         fullWidth
                         label="Email Address"
+                        type="email"
                         variant="outlined"
                         margin="normal"
                         value={email}
@@ -90,6 +91,7 @@ const Login = () => {
                         disabled={loading}
                         required
                         autoFocus
+                        autoComplete="email"
                     />
                     <TextField
                         fullWidth
@@ -101,6 +103,7 @@ const Login = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         disabled={loading}
                         required
+                        autoComplete="current-password"
                         sx={{ mb: 3 }}
                     />
 

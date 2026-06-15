@@ -48,6 +48,7 @@ const EmailVerificationScreen = ({
               label="Your Email Address"
               variant="outlined"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               sx={{

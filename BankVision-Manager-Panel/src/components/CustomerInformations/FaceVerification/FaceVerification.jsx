@@ -128,7 +128,6 @@ const FaceVerification = ({
     setShowProgress(false); // Hide progress
     setVerificationResult(null); // Clear previous results
     setCurrentImage(null); // Clear any previous captured image
-    console.log("DEBUG: Manager clicked 'Notify Customer'. customerAcknowledgedNotification:", customerAcknowledgedNotification); // Added log
   };
 
   const handleStartCapture = () => {
@@ -154,15 +153,13 @@ const FaceVerification = ({
     setIsLoading(true);
     setShowProgress(false);
     setDetectedEmotions(null);
-    setCapturePhase('image_captured_ready_to_verify'); // Stay in this phase during verification
-    setCapturePhase('image_captured_ready_to_verify'); // Stay in this phase during verification
+    setCapturePhase('image_captured_ready_to_verify');
 
     try {
       let response;
 
       if (useClientSide && faceApiReady) {
         // Client-side verification using face-api.js
-        console.log('Using client-side face verification (face-api.js)');
         const clientResult = await verifyFaceClientSide(currentImage, profileImage);
 
         // Map client result to expected format
@@ -179,9 +176,6 @@ const FaceVerification = ({
         }
       } else {
         // Server-side verification using OpenCV
-        console.log('Using server-side face verification (OpenCV)');
-        console.log('📸 Profile Image:', profileImage);
-        console.log('📸 Current Image:', currentImage);
 
         if (!profileImage || !currentImage) {
           throw new Error(`Missing images - Profile: ${!!profileImage}, Current: ${!!currentImage}`);
