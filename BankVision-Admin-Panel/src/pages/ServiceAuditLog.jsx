@@ -43,9 +43,10 @@ import {
 import api from '../services/api';
 
 const CHANGE_TYPE_CONFIG = {
-    phone:   { label: 'Phone',   Icon: Phone,  color: '#1565C0', bg: '#E3F2FD' },
-    email:   { label: 'Email',   Icon: Mail,   color: '#6A1B9A', bg: '#F3E5F5' },
-    address: { label: 'Address', Icon: Home,   color: '#2E7D32', bg: '#E8F5E9' },
+    phone:              { label: 'Phone',              Icon: Phone,    color: '#1565C0', bg: '#E3F2FD' },
+    email:              { label: 'Email',              Icon: Mail,     color: '#6A1B9A', bg: '#F3E5F5' },
+    address:            { label: 'Address',            Icon: Home,     color: '#2E7D32', bg: '#E8F5E9' },
+    account_activation: { label: 'Account Activation', Icon: FileText, color: '#E65100', bg: '#FFF3E0' },
 };
 
 const STATUS_CONFIG = {
@@ -399,6 +400,10 @@ const ServiceAuditLog = () => {
                 <Chip label={`Total: ${totalCount}`} sx={{ fontWeight: 700, backgroundColor: '#E3F2FD', color: '#1565C0' }} />
                 <Chip label={`Approved: ${rows.filter(r => r.status === 'approved').length}`} color="success" variant="outlined" sx={{ fontWeight: 700 }} />
                 <Chip label={`Rejected: ${rows.filter(r => r.status === 'rejected').length}`} color="error" variant="outlined" sx={{ fontWeight: 700 }} />
+                <Chip label={`Phone: ${rows.filter(r => r.changeType === 'phone').length}`} variant="outlined" sx={{ fontWeight: 700, color: '#1565C0', borderColor: '#1565C0' }} />
+                <Chip label={`Email: ${rows.filter(r => r.changeType === 'email').length}`} variant="outlined" sx={{ fontWeight: 700, color: '#6A1B9A', borderColor: '#6A1B9A' }} />
+                <Chip label={`Address: ${rows.filter(r => r.changeType === 'address').length}`} variant="outlined" sx={{ fontWeight: 700, color: '#2E7D32', borderColor: '#2E7D32' }} />
+                <Chip label={`Activation: ${rows.filter(r => r.changeType === 'account_activation').length}`} variant="outlined" sx={{ fontWeight: 700, color: '#E65100', borderColor: '#E65100' }} />
                 <Chip
                     icon={<Zap size={13} />}
                     label={`Manager Override: ${rows.filter(r => r.method === 'manager_override').length}`}
@@ -461,6 +466,7 @@ const ServiceAuditLog = () => {
                                 <MenuItem value="phone">Phone</MenuItem>
                                 <MenuItem value="email">Email</MenuItem>
                                 <MenuItem value="address">Address</MenuItem>
+                                <MenuItem value="account_activation">Account Activation</MenuItem>
                             </Select>
                         </FormControl>
 
