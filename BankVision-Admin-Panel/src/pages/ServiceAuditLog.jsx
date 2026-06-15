@@ -39,6 +39,7 @@ import {
     Image,
     ExternalLink,
     Zap,
+    Download,
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -73,6 +74,21 @@ const ExpandableRow = ({ row }) => {
     };
 
     const addressNewValue = row.changeType === 'address' ? parseAddressValue(row.newValue) : null;
+
+    const parsedPdfUrls = (() => {
+        if (!row.pdfUrls) return [];
+        try { return JSON.parse(row.pdfUrls); } catch { return []; }
+    })();
+
+    const PDF_LABELS = {
+        static_data:         'Account Services Form (MTB)',
+        dormant:             'Dormant Activation Form (MTB)',
+        transaction_profile: 'Transaction Profile Form (MTB)',
+    };
+    const getPdfLabel = (url) => {
+        const match = Object.keys(PDF_LABELS).find(k => url.includes(`_${k}_`));
+        return match ? PDF_LABELS[match] : 'Banking Form';
+    };
 
     const displayValue = (val) =>
         row.changeType === 'address' ? parseAddressValue(val).text : (val || '—');
@@ -314,6 +330,54 @@ const ExpandableRow = ({ row }) => {
                             {addressNewValue && addressNewValue.documents.length === 0 && (
                                 <Typography variant="caption" sx={{ color: '#999', fontStyle: 'italic', display: 'block', mt: 1.5 }}>
                                     No supporting documents were uploaded for this address change.
+                                </Typography>
+                            )}
+
+                            {/* Attached PDF forms */}
+                            {parsedPdfUrls.length > 0 && (
+                                <Box sx={{ mt: 2 }}>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                                        <FileText size={15} color="#1565C0" />
+                                        Attached Bank Forms ({parsedPdfUrls.length})
+                                    </Typography>
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                        {parsedPdfUrls.map((url, idx) => (
+                                            <Box
+                                                key={idx}
+                                                component="a"
+                                                href={getFullUrl(url)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                sx={{
+                                                    display: 'inline-flex', alignItems: 'center', gap: 0.75,
+                                                    px: 1.5, py: 0.75,
+                                                    borderRadius: 1.5,
+                                                    border: '1px solid #1565C0',
+                                                    backgroundColor: '#E3F2FD',
+                                                    color: '#1565C0',
+                                                    textDecoration: 'none',
+                                                    fontSize: '0.78rem',
+                                                    fontWeight: 600,
+                                                    transition: 'all 0.15s',
+                                                    '&:hover': {
+                                                        backgroundColor: '#1565C0',
+                                                        color: '#fff',
+                                                        transform: 'translateY(-1px)',
+                                                        boxShadow: '0 2px 8px rgba(21,101,192,0.3)',
+                                                    },
+                                                }}
+                                            >
+                                                <Download size={13} />
+                                                {getPdfLabel(url)}
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </Box>
+                            )}
+
+                            {parsedPdfUrls.length === 0 && row.status === 'approved' && (
+                                <Typography variant="caption" sx={{ color: '#bbb', fontStyle: 'italic', display: 'block', mt: 1.5 }}>
+                                    No PDF forms attached (generated for new records only).
                                 </Typography>
                             )}
 

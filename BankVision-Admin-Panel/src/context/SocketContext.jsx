@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import { useAuth } from './AuthContext';
 
-const SOCKET_URL = import.meta.env.VITE_WS_URL || 'https://mtb-backend.ucchash4vc.xyz';
+const SOCKET_URL = import.meta.env.VITE_WS_URL || 'https://vb-api.feedquix.com';
 
 const SocketContext = createContext(null);
 

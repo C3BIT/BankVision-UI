@@ -140,7 +140,7 @@ const Home = () => {
       console.log('📋 Verification data:', verificationData);
 
       // Try to look up customer in database (optional - not blocking)
-      const API_URL = import.meta.env.VITE_API_URL || 'https://mtb-backend.ucchash4vc.xyz/api';
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vb-api.feedquix.com/api';
       let customerFound = false;
       let accountCount = 0;
 
@@ -199,7 +199,7 @@ const Home = () => {
         setOtpVerifyLoading(false);
         throw new Error('Connection lost. Please try again.');
       }
-      const API_URL = import.meta.env.VITE_API_URL || 'https://mtb-backend.ucchash4vc.xyz/api';
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vb-api.feedquix.com/api';
       const response = await axios.post(`${API_URL}/otp/verify-phone`, {
         phone: phone,
         otp: otp
@@ -243,7 +243,7 @@ const Home = () => {
       }
 
       // Verify email OTP and notify manager
-      const API_URL = import.meta.env.VITE_API_URL || 'https://mtb-backend.ucchash4vc.xyz/api';
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vb-api.feedquix.com/api';
       const response = await axios.post(`${API_URL}/otp/verify-email`, {
         email: currentAccountData?.email || '',
         otp: otp
@@ -647,7 +647,7 @@ const Home = () => {
   const handleFeedbackSubmit = async ({ rating, feedback }) => {
     try {
       console.log('📊 Submitting customer feedback:', { rating, feedback, phone, managerEmail });
-      const API_URL = import.meta.env.VITE_API_URL || 'https://mtb-backend.ucchash4vc.xyz/api';
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vb-api.feedquix.com/api';
       const callDuration = callStartTime ? Math.floor((Date.now() - callStartTime) / 1000) : 0;
 
       const response = await axios.post(`${API_URL}/feedback`, {

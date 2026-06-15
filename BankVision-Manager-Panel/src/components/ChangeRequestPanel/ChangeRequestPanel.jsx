@@ -30,8 +30,10 @@ import {
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import { useWebSocket } from '../../providers/WebSocketProvider';
+import { useSelector } from 'react-redux';
 
 const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete }) => {
+  const accountDetails = useSelector((state) => state.customerAccounts.accountDetails);
   const [open, setOpen] = useState(false);
   const [requestData, setRequestData] = useState(null);
   const [realtimeValue, setRealtimeValue] = useState({});
@@ -80,10 +82,14 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
     // Listen for customer address submission
     const handleSubmitAddress = (data) => {
       // data: { addressType: 'present'|'permanent', addressData: {...} }
+      const oldAddress = data.addressType === 'permanent'
+        ? accountDetails?.permanentAddress
+        : (accountDetails?.presentAddress || accountDetails?.address);
       setRequestData({
         type: 'address',
         addressType: data.addressType,
         addressData: data.addressData,
+        oldAddress: oldAddress || '',
       });
       setOpen(true);
     };
@@ -109,6 +115,7 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
         customerId: customerPhone,
         addressType: requestData.addressType,
         addressData: requestData.addressData,
+        oldAddress: requestData.oldAddress || '',
       });
     } else {
       socket.emit('manager:approve-change', {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://mtb-backend.ucchash4vc.xyz/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://vb-api.feedquix.com/api';
 
 const api = axios.create({
     baseURL: API_URL,

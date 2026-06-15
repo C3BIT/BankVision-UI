@@ -109,12 +109,14 @@ const CustomerVerificationScreen = ({
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
-        padding: { xs: '12px', sm: '16px', md: '24px' },
+        padding: { xs: '14px', sm: '18px', md: '20px' },
+        paddingTop: { xs: '14px', sm: '18px', md: '20px' },
         background: '#CEC1DF',
         borderRadius: '16px',
-        overflow: 'auto',
+        overflowY: 'auto',
+        overflowX: 'hidden',
         minHeight: '300px',
-        border:'1px solid white'
+        border: '1px solid white'
       }}
       maxWidth="sm"
     >

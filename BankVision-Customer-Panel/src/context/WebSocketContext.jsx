@@ -41,7 +41,7 @@ export const WebSocketProvider = ({ children }) => {
     callStatusRef.current = callStatus;
   }, [callStatus]);
 
-  const URL = import.meta.env.VITE_WS_URL || 'https://mtb-backend.ucchash4vc.xyz';
+  const URL = import.meta.env.VITE_WS_URL || 'https://vb-api.feedquix.com';
 
   const initiateCall = (phoneNumber, verificationInfo = null) => {
     setConnectionError(null);

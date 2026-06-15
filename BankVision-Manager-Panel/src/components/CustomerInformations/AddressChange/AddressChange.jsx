@@ -35,7 +35,7 @@ const getDocUrl = (path) => {
   return `${API_BASE}/${path.startsWith('/') ? path.slice(1) : path}`;
 };
 
-const AddressChange = ({ currentAddress, onBack }) => {
+const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
   const { accountDetails } = useSelector((state) => state.customerAccounts);
   const { socket } = useWebSocket();
   const dispatch = useDispatch();
@@ -253,11 +253,11 @@ const AddressChange = ({ currentAddress, onBack }) => {
       {/* Current Address */}
       <Box>
         <Typography variant="caption" sx={{ color: '#666' }}>
-          Current Address
+          Current {addressType === 'permanent' ? 'Permanent' : 'Present'} Address
         </Typography>
         <TextField
           fullWidth
-          value={currentAddress || 'Not available'}
+          value={(addressType === 'permanent' ? permanentAddress : presentAddress) || 'Not available'}
           variant="outlined"
           InputProps={{
             readOnly: true,
@@ -739,7 +739,8 @@ const AddressChange = ({ currentAddress, onBack }) => {
 };
 
 AddressChange.propTypes = {
-  currentAddress: PropTypes.string,
+  presentAddress: PropTypes.string,
+  permanentAddress: PropTypes.string,
   onBack: PropTypes.func.isRequired
 };
 

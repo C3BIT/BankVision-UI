@@ -777,7 +777,8 @@ const VideoCallSidebarNew = ({
                 />
               ) : showAddressChange ? (
                 <AddressChange
-                  currentAddress={reduxAccountDetails?.presentAddress || reduxAccountDetails?.address || null}
+                  presentAddress={reduxAccountDetails?.presentAddress || reduxAccountDetails?.address || null}
+                  permanentAddress={reduxAccountDetails?.permanentAddress || null}
                   onBack={() => setShowAddressChange(false)}
                 />
               ) : showAccountActivation ? (

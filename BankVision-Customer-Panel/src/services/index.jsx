@@ -1,1 +1,1 @@
-export const api = import.meta.env.VITE_API_URL || 'https://mtb-backend.ucchash4vc.xyz/api';
+export const api = import.meta.env.VITE_API_URL || 'https://vb-api.feedquix.com/api';
