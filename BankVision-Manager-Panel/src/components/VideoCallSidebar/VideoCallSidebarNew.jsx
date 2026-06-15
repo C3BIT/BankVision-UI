@@ -46,6 +46,7 @@ import {
   fetchCBSAccounts,
   fetchCBSCards,
   fetchCBSLoans,
+  fetchCustomerDetailsByAccount,
   setSelectedAccountNumber,
 } from '../../redux/customer/customerAccountsSlice';
 import { fetchCustomerImage } from '../../redux/customer/customerImageSlice';
@@ -109,27 +110,21 @@ const VideoCallSidebarNew = ({
 
   // Fetch customer data when phone number is available
   useEffect(() => {
-    console.log('🔍 VideoCallSidebarNew mounted with customerPhone:', customerPhone);
     if (customerPhone && customerPhone !== 'N/A') {
-      console.log('📞 Fetching CBS data for phone:', customerPhone);
-      dispatch(fetchCBSAccounts({ phone: customerPhone }))
-        .then(result => console.log('✅ Accounts fetched:', result))
-        .catch(err => console.error('❌ Accounts error:', err));
-      dispatch(fetchCBSCards({ phone: customerPhone }))
-        .then(result => console.log('✅ Cards fetched:', result))
-        .catch(err => console.error('❌ Cards error:', err));
-      dispatch(fetchCBSLoans({ phone: customerPhone }))
-        .then(result => console.log('✅ Loans fetched:', result))
-        .catch(err => console.error('❌ Loans error:', err));
-
-      // Fetch profile image for face verification availability check
-      dispatch(fetchCustomerImage({ phone: customerPhone }))
-        .then(result => console.log('✅ Profile image fetched:', result))
-        .catch(err => console.error('❌ Profile image error:', err));
-    } else {
-      console.warn('⚠️ No valid customerPhone provided:', customerPhone);
+      dispatch(fetchCBSAccounts({ phone: customerPhone }));
+      dispatch(fetchCBSCards({ phone: customerPhone }));
+      dispatch(fetchCBSLoans({ phone: customerPhone }));
+      dispatch(fetchCustomerImage({ phone: customerPhone }));
     }
   }, [customerPhone, dispatch]);
+
+  // Auto-fetch account details for the first CBS account to populate address
+  useEffect(() => {
+    if (cbsAccounts && cbsAccounts.length > 0 && customerPhone && !reduxAccountDetails?.address) {
+      const firstAccNo = cbsAccounts[0].accountNumber;
+      dispatch(fetchCustomerDetailsByAccount({ accountNumber: firstAccNo, phone: customerPhone }));
+    }
+  }, [cbsAccounts, customerPhone, reduxAccountDetails?.address, dispatch]);
 
   // Use real customer data or show empty state
   const clientInfo = {
@@ -166,7 +161,6 @@ const VideoCallSidebarNew = ({
     if (resolvedCustomerEmail) {
       setIsRequestingEmailOTP(true);
       try {
-        console.log('📧 Manager requesting email verification');
         await requestEmailVerification(resolvedCustomerEmail);
       } catch (error) {
         console.error('Error requesting email OTP:', error);
@@ -212,7 +206,7 @@ const VideoCallSidebarNew = ({
 
   // Service request handlers
   const handleRequestPhoneChange = () => {
-    console.log('📱 Manager opening phone change interface');
+
     setShowPhoneChange(true);
     // Also notify customer to open their modal
     if (socket && socket.connected) {
@@ -224,7 +218,7 @@ const VideoCallSidebarNew = ({
   };
 
   const handleRequestEmailChange = () => {
-    console.log('📧 Manager opening email change interface');
+
     setShowEmailChange(true);
     // Also notify customer to open their modal
     if (socket && socket.connected) {
@@ -236,7 +230,7 @@ const VideoCallSidebarNew = ({
   };
 
   const handleRequestAddressChange = () => {
-    console.log('🏠 Manager opening address change interface');
+
     setShowAddressChange(true);
     // Also notify customer to open their modal
     if (socket && socket.connected) {
