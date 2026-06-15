@@ -136,7 +136,7 @@ const VideoCallSidebarNew = ({
     name: customerName || 'N/A',
     mobile: customerPhone || 'N/A',
     email: customerEmail || 'N/A',
-    address: 'N/A', // TODO: Get from customer profile API
+    address: reduxAccountDetails?.address || reduxAccountDetails?.presentAddress || 'N/A',
   };
 
   // Use data from Redux (fetched from CBS backend)
@@ -251,8 +251,7 @@ const VideoCallSidebarNew = ({
     <>
       <Box
         sx={{
-          height: '100%',
-          overflow: 'auto',
+          minHeight: '100%',
           backgroundColor: '#FFFFFF',
           p: 3,
         }}

@@ -83,7 +83,9 @@ const VideoCallLayout = ({
           height: '100%',
           backgroundColor: '#FFFFFF',
           overflowY: 'auto',
+          overflowX: 'hidden',
           borderLeft: '1px solid #E0E0E0',
+          scrollbarWidth: 'thin',
         }}
       >
         {rightContent}
