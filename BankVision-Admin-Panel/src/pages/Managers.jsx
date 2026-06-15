@@ -291,6 +291,7 @@ const Managers = () => {
                             placeholder="Search..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
+                            autoComplete="off"
                             sx={{ minWidth: 200 }}
                             InputProps={{
                                 startAdornment: <InputAdornment position="start"><Search size={16} /></InputAdornment>,
@@ -529,6 +530,8 @@ const Managers = () => {
                         label="New Password"
                         value={resetDialog.newPassword}
                         onChange={e => setResetDialog(prev => ({ ...prev, newPassword: e.target.value }))}
+                        autoComplete="new-password"
+                        name="new-password"
                         autoFocus
                         size="small"
                     />

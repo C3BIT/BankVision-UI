@@ -151,9 +151,6 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
       {requestSent && !signaturePath && (
         <Alert severity="info" sx={{ mb: 2 }}>
           Request sent to customer. Waiting for signature upload...
-          <Typography variant="caption" sx={{ display: 'block', mt: 1, opacity: 0.7 }}>
-            Socket ID: {socket?.id || 'N/A'} | Connected: {socket?.connected ? 'Yes' : 'No'}
-          </Typography>
         </Alert>
       )}
 
