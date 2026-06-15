@@ -131,7 +131,8 @@ const VideoCallSidebarNew = ({
     name: customerName || 'N/A',
     mobile: customerPhone || 'N/A',
     email: customerEmail || 'N/A',
-    address: reduxAccountDetails?.address || reduxAccountDetails?.presentAddress || 'N/A',
+    address: reduxAccountDetails?.address || reduxAccountDetails?.presentAddress || null,
+    permanentAddress: reduxAccountDetails?.permanentAddress || null,
   };
 
   // Use data from Redux (fetched from CBS backend)
@@ -312,10 +313,18 @@ const VideoCallSidebarNew = ({
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', minWidth: 70 }}>
-                Address:
+                Present:
               </Typography>
               <Typography sx={{ fontSize: '0.875rem', color: '#666' }}>
-                {clientInfo.address}
+                {clientInfo.address || 'N/A'}
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', minWidth: 70 }}>
+                Permanent:
+              </Typography>
+              <Typography sx={{ fontSize: '0.875rem', color: '#666' }}>
+                {clientInfo.permanentAddress || 'N/A'}
               </Typography>
             </Box>
           </Box>
