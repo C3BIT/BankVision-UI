@@ -124,7 +124,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
       socket.off('customer:address-documents-uploaded', handleDocumentsUploaded);
       socket.off('customer:address-document-removed', handleDocumentsUpdated);
     };
-  }, [socket, currentAddress]);
+  }, [socket]);
 
   // Emit field change to customer
   const emitFieldChange = (field, value) => {
