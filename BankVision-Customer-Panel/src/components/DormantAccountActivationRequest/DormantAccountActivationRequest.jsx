@@ -9,9 +9,9 @@ const debounce = (func, delay) => {
     return (...args) => { clearTimeout(t); t = setTimeout(() => func(...args), delay); };
 };
 
-const MTB_BLUE = '#004C8C';
-const MTB_BLUE_LIGHT = '#E8F0F9';
-const BORDER_COLOR = '#D0D9E8';
+const MTB_BLUE = '#6B21A8';
+const MTB_BLUE_LIGHT = '#F3E8FF';
+const BORDER_COLOR = '#E9D5FF';
 
 const SectionHeader = ({ icon, title }) => (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
@@ -37,7 +37,7 @@ const inputSx = {
     '& .MuiOutlinedInput-root': {
         borderRadius: '8px',
         '& fieldset': { borderColor: BORDER_COLOR },
-        '&:hover fieldset': { borderColor: '#8AACD4' },
+        '&:hover fieldset': { borderColor: '#C084FC' },
         '&.Mui-focused fieldset': { borderColor: MTB_BLUE, borderWidth: '1.5px' },
         '&.Mui-error fieldset': { borderColor: '#D32F2F' },
     },
