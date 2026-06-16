@@ -75,6 +75,12 @@ const ExpandableRow = ({ row }) => {
 
     const addressNewValue = row.changeType === 'address' ? parseAddressValue(row.newValue) : null;
 
+    const parseActivationValue = (raw) => {
+        if (!raw) return null;
+        try { return JSON.parse(raw); } catch { return null; }
+    };
+    const activationData = row.changeType === 'account_activation' ? parseActivationValue(row.newValue) : null;
+
     const parsedPdfUrls = (() => {
         if (!row.pdfUrls) return [];
         try { return JSON.parse(row.pdfUrls); } catch { return []; }
@@ -226,15 +232,44 @@ const ExpandableRow = ({ row }) => {
                                     <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.25 }}>
                                         New Value
                                     </Typography>
-                                    <Typography variant="body2" sx={{
-                                        p: 1, borderRadius: 1,
-                                        backgroundColor: row.status === 'approved' ? '#E8F5E9' : '#F5F5F5',
-                                        color: row.status === 'approved' ? '#2E7D32' : '#757575',
-                                        fontFamily: row.changeType === 'address' ? 'inherit' : 'monospace',
-                                        wordBreak: 'break-all',
-                                    }}>
-                                        {displayValue(row.newValue)}
-                                    </Typography>
+                                    {activationData ? (
+                                        <Box sx={{
+                                            p: 1.25, borderRadius: 1,
+                                            backgroundColor: row.status === 'approved' ? '#E8F5E9' : '#F5F5F5',
+                                            border: `1px solid ${row.status === 'approved' ? '#C8E6C9' : '#E0E0E0'}`,
+                                            display: 'flex', flexDirection: 'column', gap: 0.75,
+                                        }}>
+                                            {activationData.dormancyReason && (
+                                                <Box>
+                                                    <Typography variant="caption" sx={{ color: '#888', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Reason for Dormancy</Typography>
+                                                    <Typography variant="body2" sx={{ color: row.status === 'approved' ? '#2E7D32' : '#424242' }}>{activationData.dormancyReason}</Typography>
+                                                </Box>
+                                            )}
+                                            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.75 }}>
+                                                {[
+                                                    { label: 'Deposits / Month', value: activationData.estDepositCount },
+                                                    { label: 'Deposit Amount', value: activationData.estDepositAmount ? `BDT ${Number(activationData.estDepositAmount).toLocaleString()}` : null },
+                                                    { label: 'Withdrawals / Month', value: activationData.estWithdrawCount },
+                                                    { label: 'Withdrawal Amount', value: activationData.estWithdrawAmount ? `BDT ${Number(activationData.estWithdrawAmount).toLocaleString()}` : null },
+                                                ].filter(f => f.value != null).map(({ label, value }) => (
+                                                    <Box key={label}>
+                                                        <Typography variant="caption" sx={{ color: '#888', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>{label}</Typography>
+                                                        <Typography variant="body2" sx={{ fontWeight: 600, color: row.status === 'approved' ? '#2E7D32' : '#424242' }}>{value}</Typography>
+                                                    </Box>
+                                                ))}
+                                            </Box>
+                                        </Box>
+                                    ) : (
+                                        <Typography variant="body2" sx={{
+                                            p: 1, borderRadius: 1,
+                                            backgroundColor: row.status === 'approved' ? '#E8F5E9' : '#F5F5F5',
+                                            color: row.status === 'approved' ? '#2E7D32' : '#757575',
+                                            fontFamily: row.changeType === 'address' ? 'inherit' : 'monospace',
+                                            wordBreak: 'break-all',
+                                        }}>
+                                            {displayValue(row.newValue)}
+                                        </Typography>
+                                    )}
                                 </Box>
 
                                 {row.status === 'rejected' && row.rejectionReason && (
