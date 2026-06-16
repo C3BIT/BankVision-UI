@@ -81,15 +81,17 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
 
     // Listen for customer address submission
     const handleSubmitAddress = (data) => {
-      // data: { addressType: 'present'|'permanent', addressData: {...} }
-      const oldAddress = data.addressType === 'permanent'
-        ? accountDetails?.permanentAddress
-        : (accountDetails?.presentAddress || accountDetails?.address);
+      // data: { addressType: 'present'|'permanent', oldAddress: '...', addressData: {...} }
+      const oldAddress = data.oldAddress
+        || (data.addressType === 'permanent'
+            ? accountDetails?.permanentAddress
+            : (accountDetails?.presentAddress || accountDetails?.address))
+        || '';
       setRequestData({
         type: 'address',
         addressType: data.addressType,
         addressData: data.addressData,
-        oldAddress: oldAddress || '',
+        oldAddress,
       });
       setOpen(true);
     };

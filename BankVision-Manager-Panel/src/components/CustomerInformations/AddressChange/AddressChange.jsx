@@ -195,8 +195,12 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
         setVerified(true);
         // Trigger approval modal for manager (via echo)
         if (socket) {
+          const oldAddress = addressType === 'permanent'
+            ? (permanentAddress || '')
+            : (presentAddress || '');
           socket.emit('customer:submit-address-change-request', {
             addressType: addressType,
+            oldAddress,
             addressData: {
               addressLine1,
               addressLine2,

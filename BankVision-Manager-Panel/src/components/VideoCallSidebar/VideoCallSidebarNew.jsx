@@ -772,7 +772,7 @@ const VideoCallSidebarNew = ({
                 />
               ) : showEmailChange ? (
                 <EmailChangeRequest
-                  currentEmail={customerEmail}
+                  currentEmail={resolvedCustomerEmail || customerEmail}
                   onBack={() => setShowEmailChange(false)}
                 />
               ) : showAddressChange ? (
