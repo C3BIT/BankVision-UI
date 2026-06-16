@@ -232,7 +232,34 @@ const ExpandableRow = ({ row }) => {
                                     <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.25 }}>
                                         New Value
                                     </Typography>
-                                    {activationData ? (
+                                    {row.changeType === 'address' && addressNewValue ? (
+                                        <Box sx={{
+                                            p: 1.25, borderRadius: 1,
+                                            backgroundColor: row.status === 'approved' ? '#E8F5E9' : '#F5F5F5',
+                                            border: `1px solid ${row.status === 'approved' ? '#C8E6C9' : '#E0E0E0'}`,
+                                            display: 'flex', flexDirection: 'column', gap: 0.5,
+                                        }}>
+                                            {(() => {
+                                                let parsed = null;
+                                                try { parsed = JSON.parse(row.newValue); } catch {}
+                                                const addrTypeLabel = parsed?.addressType
+                                                    ? parsed.addressType.charAt(0).toUpperCase() + parsed.addressType.slice(1)
+                                                    : null;
+                                                return addrTypeLabel ? (
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.25 }}>
+                                                        <Typography variant="caption" sx={{ color: '#888', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.65rem' }}>
+                                                            Address Type:
+                                                        </Typography>
+                                                        <Chip size="small" label={addrTypeLabel}
+                                                            sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700, backgroundColor: '#E3F2FD', color: '#1565C0' }} />
+                                                    </Box>
+                                                ) : null;
+                                            })()}
+                                            <Typography variant="body2" sx={{ color: row.status === 'approved' ? '#2E7D32' : '#424242', wordBreak: 'break-all' }}>
+                                                {addressNewValue.text}
+                                            </Typography>
+                                        </Box>
+                                    ) : activationData ? (
                                         <Box sx={{
                                             p: 1.25, borderRadius: 1,
                                             backgroundColor: row.status === 'approved' ? '#E8F5E9' : '#F5F5F5',
@@ -264,7 +291,7 @@ const ExpandableRow = ({ row }) => {
                                             p: 1, borderRadius: 1,
                                             backgroundColor: row.status === 'approved' ? '#E8F5E9' : '#F5F5F5',
                                             color: row.status === 'approved' ? '#2E7D32' : '#757575',
-                                            fontFamily: row.changeType === 'address' ? 'inherit' : 'monospace',
+                                            fontFamily: 'monospace',
                                             wordBreak: 'break-all',
                                         }}>
                                             {displayValue(row.newValue)}
