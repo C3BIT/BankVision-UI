@@ -613,6 +613,8 @@ const Home = () => {
     if (changeRequests.phoneChangeRequested) {
       setChangeContactType('phone');
       setShowChangeContactModal(true);
+    } else {
+      setShowChangeContactModal(false);
     }
   }, [changeRequests.phoneChangeRequested]);
 
@@ -620,12 +622,16 @@ const Home = () => {
     if (changeRequests.emailChangeRequested) {
       setChangeContactType('email');
       setShowChangeContactModal(true);
+    } else {
+      setShowChangeContactModal(false);
     }
   }, [changeRequests.emailChangeRequested]);
 
   useEffect(() => {
     if (changeRequests.addressChangeRequested) {
       setShowChangeAddressModal(true);
+    } else {
+      setShowChangeAddressModal(false);
     }
   }, [changeRequests.addressChangeRequested]);
 
