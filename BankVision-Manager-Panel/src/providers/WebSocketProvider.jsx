@@ -64,6 +64,9 @@ export const WebSocketProvider = ({ children }) => {
     // Stats version counter - incremented on stats:update events so components re-fetch
     const [statsVersion, setStatsVersion] = useState(0);
 
+    // true while waiting for customer to reconnect after a network drop
+    const [peerReconnecting, setPeerReconnecting] = useState(false);
+
     // Signature global state
     const [signatureUploadedPath, setSignatureUploadedPath] = useState(null);
 
@@ -273,6 +276,7 @@ export const WebSocketProvider = ({ children }) => {
         // REMOVED: call:rejected event handler - no longer needed
 
         newSocket.on("call:ended", (data) => {
+            setPeerReconnecting(false);
             console.log("📞 [Manager Panel] Call ended event received:", data);
             console.log("   Ended by:", data?.endedBy || "unknown");
             console.log("   Customer ID:", data?.customerId || "unknown");
@@ -312,6 +316,18 @@ export const WebSocketProvider = ({ children }) => {
             setCurrentCall(null);
             resetVerificationState();
             resetPhoneChangeState();
+        });
+
+        // Customer connection interrupted — show reconnecting banner, wait for call:ended
+        newSocket.on("customer:reconnecting", () => {
+            console.log("⚠️ Customer connection interrupted — grace period started");
+            setPeerReconnecting(true);
+        });
+
+        // Customer came back within the grace period — clear the banner
+        newSocket.on("customer:reconnected", () => {
+            console.log("✅ Customer reconnected — call continues");
+            setPeerReconnecting(false);
         });
 
         newSocket.on("manager:list", (managers) => {
@@ -1134,6 +1150,7 @@ export const WebSocketProvider = ({ children }) => {
             signatureUploadedPath,
             clearSignaturePath,
             statsVersion,
+            peerReconnecting,
         }}>
             {children}
         </WebSocketContext.Provider>

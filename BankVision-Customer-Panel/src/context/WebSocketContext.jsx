@@ -33,6 +33,7 @@ export const WebSocketProvider = ({ children }) => {
   const [inQueue, setInQueue] = useState(false);
   const [queuePosition, setQueuePosition] = useState(null);
   const [queueMessage, setQueueMessage] = useState(null);
+  const [peerReconnecting, setPeerReconnecting] = useState(false); // true while waiting for manager to reconnect
   const reconnectInterval = useRef(null);
   const callStatusRef = useRef(callStatus);
 
@@ -263,6 +264,7 @@ export const WebSocketProvider = ({ children }) => {
         newSocket.io.reconnection(false);
 
         // Always clean up all call-specific state regardless of who ended
+        setPeerReconnecting(false);
         setIncomingCall(null);
         setChatMessages([]);
         setIsManagerTyping(false);
@@ -310,34 +312,23 @@ export const WebSocketProvider = ({ children }) => {
         }
       });
 
+      // Manager connection interrupted — show reconnecting banner, wait for call:ended
+      newSocket.on("manager:reconnecting", () => {
+        console.log("⚠️ Manager connection interrupted — grace period started");
+        setPeerReconnecting(true);
+      });
+
+      // Manager came back within the grace period — clear the banner
+      newSocket.on("manager:reconnected", () => {
+        console.log("✅ Manager reconnected — call continues");
+        setPeerReconnecting(false);
+      });
+
+      // Legacy event (kept for backwards-compat with old backend deployments)
       newSocket.on("manager:disconnected", (data) => {
-        console.log("❌ Manager disconnected:", data);
-        setConnectionError(`Manager ${data.managerName || data.managerId} has disconnected`);
-
-        // Clean up socket and reset state
-        if (newSocket && newSocket.connected) {
-          newSocket.disconnect();
-        }
-        setSocket(null);
-
-        setCallStatus("idle");
-        setIncomingCall(null);
-        setCallData(null);
-        setIsConnected(false);
-        setChatMessages([]);
-        setIsManagerTyping(false);
-        setIsOnHold(false);
-        setHoldInfo(null);
-        setInQueue(false);
-        setQueuePosition(null);
-        setQueueMessage(null);
-        setVerificationRequests({ phone: false, email: false, face: false, signature: false });
-        setChangeRequests({
-          phoneChangeRequested: false,
-          emailChangeRequested: false,
-          addressChangeRequested: false
-        });
-        clearInterval(reconnectInterval.current);
+        console.log("❌ Manager disconnected (legacy):", data);
+        setPeerReconnecting(false);
+        // call:ended will arrive shortly from the backend; nothing else to do here
       });
 
 
@@ -815,6 +806,7 @@ export const WebSocketProvider = ({ children }) => {
     sendTypingIndicator,
     customerStartCapture, // Add new function to context
     customerCancelFaceVerification, // Add new function to context
+    peerReconnecting,
     sendEvent: sendMessage
   };
 

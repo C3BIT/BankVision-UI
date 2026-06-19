@@ -194,7 +194,7 @@ const OpenViduMeetComponent = forwardRef(({
   const [isVideoMuted, setIsVideoMuted] = useState(false);
   const [error, setError] = useState(null);
   const [remoteParticipants, setRemoteParticipants] = useState([]);
-  const { socket } = useWebSocket();
+  const { socket, peerReconnecting } = useWebSocket();
 
   // Get token from backend
   const getToken = useCallback(async () => {
@@ -498,9 +498,22 @@ const OpenViduMeetComponent = forwardRef(({
               alignItems: "center",
               justifyContent: "center",
               color: "white",
+              gap: 1,
             }}
           >
-            <Typography variant="h6">Waiting for manager to join...</Typography>
+            {peerReconnecting ? (
+              <>
+                <CircularProgress size={32} sx={{ color: "#ff9800" }} />
+                <Typography variant="h6" sx={{ color: "#ff9800" }}>
+                  Manager connection lost — reconnecting...
+                </Typography>
+                <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.6)" }}>
+                  The call will end automatically if the manager cannot reconnect.
+                </Typography>
+              </>
+            ) : (
+              <Typography variant="h6">Waiting for manager to join...</Typography>
+            )}
           </Box>
         ) : remoteParticipants.length === 1 ? (
           <ParticipantVideo
