@@ -100,6 +100,12 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
   const handleAddressTypeChange = (event, newType) => {
     if (newType !== null) {
       setAddressType(newType);
+      // Clear all fields so present and permanent address cannot bleed into each other
+      setAddressLine1('');
+      setAddressLine2('');
+      setDistrict('');
+      setUpazila('');
+      setPostCode('');
     }
   };
 

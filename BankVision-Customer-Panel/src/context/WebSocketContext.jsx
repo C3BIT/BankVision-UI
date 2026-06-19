@@ -36,6 +36,7 @@ export const WebSocketProvider = ({ children }) => {
   const [peerReconnecting, setPeerReconnecting] = useState(false); // true while waiting for manager to reconnect
   const reconnectInterval = useRef(null);
   const callStatusRef = useRef(callStatus);
+  const callEndedRef = useRef(false); // guards against race where a reconnect socket fires call:initiate after call:ended
 
   // Keep ref in sync so disconnect handler always sees latest callStatus
   useEffect(() => {
@@ -61,6 +62,7 @@ export const WebSocketProvider = ({ children }) => {
         clearInterval(reconnectInterval.current);
       }
 
+      callEndedRef.current = false; // reset so new call can initiate
       setCallStatus("connecting");
       setCallData(null);
       setVerificationRequests({ phone: false, email: false, face: false, signature: false });
@@ -86,7 +88,7 @@ export const WebSocketProvider = ({ children }) => {
         console.log("✅ Socket.io Connected:", newSocket.id);
         setIsConnected(true);
 
-        if (!hasInitiated) {
+        if (!hasInitiated && !callEndedRef.current) {
           hasInitiated = true;
           // Include verification info so manager can see verification phone/email
           newSocket.emit("call:initiate", {
@@ -259,6 +261,8 @@ export const WebSocketProvider = ({ children }) => {
 
         // Stop any pending reconnect loop so it cannot re-queue the customer
         clearInterval(reconnectInterval.current);
+        // Prevent any socket created by attemptReconnect from emitting call:initiate
+        callEndedRef.current = true;
         // Disable socket.io's built-in auto-reconnect — the socket is kept alive
         // only to show the feedback screen; a reconnect would fire call:initiate again
         newSocket.io.reconnection(false);
