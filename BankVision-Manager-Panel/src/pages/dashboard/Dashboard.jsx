@@ -305,7 +305,7 @@ const Dashboard = () => {
           </Box>
         </Container>
       ) : (
-        <Box sx={{ mt: -4, mb: -4 }}>{/* negative margin cancels AppLayout pt/pb */}
+        <Box sx={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: 0, zIndex: 10 }}>
         <VideoCallLayout
           leftContent={
             <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
