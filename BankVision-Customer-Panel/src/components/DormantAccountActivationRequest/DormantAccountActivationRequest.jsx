@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Typography, TextField, CircularProgress, Alert, Collapse, IconButton, InputAdornment, Chip } from '@mui/material';
-import { CheckCircle } from '@mui/icons-material';
+import { Box, Typography, TextField, CircularProgress, Alert, Collapse, IconButton, InputAdornment, Chip, Button } from '@mui/material';
+import { CheckCircle, HourglassEmpty } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
@@ -28,6 +28,7 @@ const DormantAccountActivationRequest = ({ socket }) => {
     const [confirmValue, setConfirmValue] = useState('');
     const [reenterValue, setReenterValue] = useState('');
     const [activated, setActivated] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
     const managerTypingTimer = useRef(null);
     const [managerIsTyping, setManagerIsTyping] = useState(false);
 
@@ -71,6 +72,19 @@ const DormantAccountActivationRequest = ({ socket }) => {
         });
     };
 
+    const handleSubmit = () => {
+        // Send final confirmed data to manager
+        socket?.emit('customer:dormant-extra-fields', {
+            estDepositCount,
+            estDepositAmount,
+            estWithdrawCount,
+            estWithdrawAmount,
+            dormancyReason,
+            submitted: true,
+        });
+        setSubmitted(true);
+    };
+
     useEffect(() => {
         if (!socket) return;
 
@@ -107,6 +121,7 @@ const DormantAccountActivationRequest = ({ socket }) => {
 
     const mismatch = reenterValue.length > 0 && confirmValue !== reenterValue;
     const match    = confirmValue.length > 0 && reenterValue.length > 0 && confirmValue === reenterValue;
+    const canSubmit = match && dormancyReason.trim().length > 0 && !submitted;
 
     if (activated) {
         return (
@@ -136,6 +151,27 @@ const DormantAccountActivationRequest = ({ socket }) => {
                     <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.75)', textAlign: 'center' }}>
                         You may now transact normally.
                     </Typography>
+                </Box>
+            </Box>
+        );
+    }
+
+    if (submitted) {
+        return (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2 }}>
+                <Box sx={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                    backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', p: 3,
+                    border: '1px solid rgba(255,255,255,0.2)',
+                }}>
+                    <HourglassEmpty sx={{ fontSize: 48, color: '#FCD34D' }} />
+                    <Typography variant="h6" sx={{ color: 'white', fontWeight: 700 }}>
+                        Request Submitted
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.75)', textAlign: 'center' }}>
+                        Your activation request has been sent to the manager for approval. Please wait.
+                    </Typography>
+                    <CircularProgress size={24} sx={{ color: 'rgba(255,255,255,0.6)', mt: 1 }} />
                 </Box>
             </Box>
         );
@@ -250,9 +286,34 @@ const DormantAccountActivationRequest = ({ socket }) => {
                 size="small" sx={inputSx}
             />
 
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.55)', textAlign: 'center', pb: 0.5, lineHeight: 1.5 }}>
-                Your manager will review and approve the activation request.
-            </Typography>
+            <Button
+                variant="contained"
+                fullWidth
+                disabled={!canSubmit}
+                onClick={handleSubmit}
+                sx={{
+                    mt: 1,
+                    background: canSubmit
+                        ? 'linear-gradient(90deg, #7C3AED 0%, #9F67F5 100%)'
+                        : undefined,
+                    color: 'white',
+                    fontWeight: 600,
+                    py: 1.2,
+                    borderRadius: '8px',
+                    '&:hover': {
+                        background: 'linear-gradient(90deg, #6D28D9 0%, #8B5CF6 100%)',
+                    },
+                    '&.Mui-disabled': { background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.4)' },
+                }}
+            >
+                Submit Activation Request
+            </Button>
+
+            {!match && (
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.55)', textAlign: 'center', lineHeight: 1.5 }}>
+                    Enter and confirm your account number, then provide a reason to enable submit.
+                </Typography>
+            )}
         </Box>
     );
 };
