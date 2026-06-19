@@ -74,13 +74,29 @@ const ParticipantVideo = ({ participant, isLarge }) => {
       }
     });
 
-    // Listen for new tracks
+    const handleTrackMuted = (publication) => {
+      if (publication.kind === Track.Kind.Video) {
+        setHasVideo(false);
+      }
+    };
+
+    const handleTrackUnmuted = (publication) => {
+      if (publication.kind === Track.Kind.Video) {
+        setHasVideo(true);
+      }
+    };
+
+    // Listen for new tracks and mute state changes
     participant.on("trackSubscribed", handleTrackSubscribed);
     participant.on("trackUnsubscribed", handleTrackUnsubscribed);
+    participant.on("trackMuted", handleTrackMuted);
+    participant.on("trackUnmuted", handleTrackUnmuted);
 
     return () => {
-      participant.off("trackSubscribed", handleTrackUnsubscribed);
+      participant.off("trackSubscribed", handleTrackSubscribed);
       participant.off("trackUnsubscribed", handleTrackUnsubscribed);
+      participant.off("trackMuted", handleTrackMuted);
+      participant.off("trackUnmuted", handleTrackUnmuted);
 
       // Cleanup audio element
       if (audioRef.current) {
@@ -512,9 +528,12 @@ const OpenViduMeetComponent = forwardRef(({
           height: 120,
           borderRadius: 2,
           overflow: "hidden",
-          border: "3px solid #4caf50",
+          border: isVideoMuted ? "3px solid #666" : "3px solid #4caf50",
           backgroundColor: "#000",
           zIndex: 1002,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <video
@@ -527,8 +546,14 @@ const OpenViduMeetComponent = forwardRef(({
             height: "100%",
             objectFit: "cover",
             transform: "scaleX(-1)",
+            display: isVideoMuted ? "none" : "block",
           }}
         />
+        {isVideoMuted && (
+          <Box sx={{ color: "#888", textAlign: "center" }}>
+            <VideocamOff sx={{ fontSize: 32 }} />
+          </Box>
+        )}
         <Chip
           label="You"
           size="small"
@@ -536,7 +561,7 @@ const OpenViduMeetComponent = forwardRef(({
             position: "absolute",
             bottom: 4,
             left: 4,
-            bgcolor: "rgba(76, 175, 80, 0.8)",
+            bgcolor: isVideoMuted ? "rgba(100,100,100,0.8)" : "rgba(76, 175, 80, 0.8)",
             color: "white",
             fontSize: 10,
           }}
