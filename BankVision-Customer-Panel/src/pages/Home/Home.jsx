@@ -407,24 +407,28 @@ const Home = () => {
         setManagerEmail(callData.managerId);
       }
     } else if (callStatus === "ended") {
-      console.log("   Setting up ended state - SHOWING FEEDBACK");
       setShowCallModal(false);
       setIsVideoCallActive(false);
       setCallStartTime(null);
-      // Show feedback screen when call ends (whether customer or manager ended it)
+      setShowChangeAddressModal(false);
+      setShowChangeContactModal(false);
+      setShowDormantActivationModal(false);
       setShowFeedback(true);
-      console.log("   showFeedback set to TRUE");
     } else if (callStatus === "failed") {
-      console.log("   Setting up failed state");
       setShowCallModal(false);
       setIsVideoCallActive(false);
       setFailedMessage(connectionError || "No managers available at this moment");
       setCallStartTime(null);
+      setShowChangeAddressModal(false);
+      setShowChangeContactModal(false);
+      setShowDormantActivationModal(false);
     } else if (callStatus === "idle") {
-      console.log("   Setting up idle state");
       setShowCallModal(false);
       setIsVideoCallActive(false);
       setCallStartTime(null);
+      setShowChangeAddressModal(false);
+      setShowChangeContactModal(false);
+      setShowDormantActivationModal(false);
     } else if (callStatus === "queued") {
       console.log("   Setting up queued state");
       // Show queue status in the call modal
