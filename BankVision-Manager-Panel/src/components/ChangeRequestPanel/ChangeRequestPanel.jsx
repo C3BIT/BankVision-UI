@@ -70,11 +70,11 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
 
     // Listen for customer submission (phone/email)
     const handleSubmitChange = (data) => {
-      // data: { changeType: 'phone'|'email', newValue: '...', currentValue: '...' }
       setRequestData({
         type: data.changeType,
         newValue: data.newValue,
         currentValue: data.currentValue,
+        verified: data.verified === true,
       });
       setOpen(true);
     };
@@ -125,6 +125,7 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
         customerId: customerPhone,
         newValue: requestData.newValue,
         currentValue: requestData.currentValue,
+        isOverride: requestData.verified === true,
       });
     }
 
