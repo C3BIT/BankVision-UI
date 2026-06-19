@@ -77,16 +77,23 @@ export const WebSocketProvider = ({ children }) => {
         reconnectionDelay: 3000,
       });
 
+      // Only emit call:initiate on the very first connect, not on auto-reconnects.
+      // Reconnects after call:ended would otherwise re-add the customer to the queue.
+      let hasInitiated = false;
+
       newSocket.on("connect", () => {
         console.log("✅ Socket.io Connected:", newSocket.id);
         setIsConnected(true);
 
-        // Include verification info so manager can see verification phone/email
-        newSocket.emit("call:initiate", {
-          phoneNumber: formattedPhone,
-          timestamp: new Date().toISOString(),
-          verificationInfo: verificationInfo, // { method: 'phone'|'email', phoneOrEmail: '...' }
-        });
+        if (!hasInitiated) {
+          hasInitiated = true;
+          // Include verification info so manager can see verification phone/email
+          newSocket.emit("call:initiate", {
+            phoneNumber: formattedPhone,
+            timestamp: new Date().toISOString(),
+            verificationInfo: verificationInfo, // { method: 'phone'|'email', phoneOrEmail: '...' }
+          });
+        }
       });
 
       newSocket.on("connect_error", (error) => {
@@ -242,15 +249,18 @@ export const WebSocketProvider = ({ children }) => {
       newSocket.on("call:ended", (data) => {
         console.log("📞 [WebSocketContext] call:ended event received!");
         console.log("   Ended by:", data.endedBy || "unknown");
-        console.log("   Current callStatus (from ref):", callStatusRef.current);
-        console.log("   Event data:", data);
 
         // Set status to ended (only needed when manager ends the call;
         // endCall() already sets it when customer ends)
         if (data?.endedBy !== "customer") {
-          console.log("   Manager ended call - setting status to 'ended'");
           setCallStatus("ended");
         }
+
+        // Stop any pending reconnect loop so it cannot re-queue the customer
+        clearInterval(reconnectInterval.current);
+        // Disable socket.io's built-in auto-reconnect — the socket is kept alive
+        // only to show the feedback screen; a reconnect would fire call:initiate again
+        newSocket.io.reconnection(false);
 
         // Always clean up all call-specific state regardless of who ended
         setIncomingCall(null);
@@ -265,11 +275,12 @@ export const WebSocketProvider = ({ children }) => {
         setChangeRequests({
           phoneChangeRequested: false,
           emailChangeRequested: false,
-          addressChangeRequested: false
+          addressChangeRequested: false,
+          accountActivationRequested: false,
         });
 
         // NOTE: Socket will be disconnected after feedback is submitted/skipped
-        console.log("✅ Call ended - all state cleaned up, feedback screen will show");
+        console.log("✅ Call ended - state cleaned, reconnection disabled, feedback screen will show");
       });
 
       newSocket.on("call:cancelled_confirmation", (data) => {
