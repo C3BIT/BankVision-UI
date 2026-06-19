@@ -269,6 +269,8 @@ const OpenViduMeetComponent = forwardRef(({
 }, ref) => {
   const localVideoRef = useRef(null);
   const roomRef = useRef(null);
+  const reconnectTimerRef = useRef(null);
+  const hadParticipantsRef = useRef(false);
   const [isConnecting, setIsConnecting] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
@@ -276,6 +278,7 @@ const OpenViduMeetComponent = forwardRef(({
   const [error, setError] = useState(null);
   const [remoteParticipants, setRemoteParticipants] = useState([]);
   const [isSpeakerMuted, setIsSpeakerMuted] = useState(false);
+  const [liveKitReconnecting, setLiveKitReconnecting] = useState(false);
   const { socket, peerReconnecting } = useWebSocket();
 
   // Get token from backend
@@ -319,10 +322,36 @@ const OpenViduMeetComponent = forwardRef(({
 
         roomRef.current = room;
 
+        const RECONNECT_TIMEOUT_MS = 20000;
+
+        const startReconnectTimer = () => {
+          if (reconnectTimerRef.current) return;
+          console.log(`⏳ Remote participant left — starting ${RECONNECT_TIMEOUT_MS / 1000}s reconnect timer`);
+          setLiveKitReconnecting(true);
+          reconnectTimerRef.current = setTimeout(() => {
+            reconnectTimerRef.current = null;
+            setLiveKitReconnecting(false);
+            console.log("⌛ Reconnect timer expired — ending call");
+            if (socket) socket.emit("call:end", { reason: "peer_timeout" });
+            if (onLeave) onLeave();
+          }, RECONNECT_TIMEOUT_MS);
+        };
+
+        const cancelReconnectTimer = () => {
+          if (reconnectTimerRef.current) {
+            clearTimeout(reconnectTimerRef.current);
+            reconnectTimerRef.current = null;
+            setLiveKitReconnecting(false);
+            console.log("✅ Remote participant back — reconnect timer cancelled");
+          }
+        };
+
         // Handle participant events
         room.on(RoomEvent.ParticipantConnected, (participant) => {
           console.log("Participant connected:", participant.identity);
           if (mounted) {
+            hadParticipantsRef.current = true;
+            cancelReconnectTimer();
             setRemoteParticipants((prev) => [...prev, participant]);
           }
         });
@@ -330,9 +359,13 @@ const OpenViduMeetComponent = forwardRef(({
         room.on(RoomEvent.ParticipantDisconnected, (participant) => {
           console.log("Participant disconnected:", participant.identity);
           if (mounted) {
-            setRemoteParticipants((prev) =>
-              prev.filter((p) => p.identity !== participant.identity)
-            );
+            setRemoteParticipants((prev) => {
+              const next = prev.filter((p) => p.identity !== participant.identity);
+              if (next.length === 0 && hadParticipantsRef.current) {
+                startReconnectTimer();
+              }
+              return next;
+            });
           }
         });
 
@@ -373,6 +406,7 @@ const OpenViduMeetComponent = forwardRef(({
 
         // Get existing participants
         const existingParticipants = Array.from(room.remoteParticipants.values());
+        if (existingParticipants.length > 0) hadParticipantsRef.current = true;
         setRemoteParticipants(existingParticipants);
 
         // Create and publish local tracks with fallback
@@ -464,6 +498,10 @@ const OpenViduMeetComponent = forwardRef(({
 
     return () => {
       mounted = false;
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
       if (roomRef.current) {
         roomRef.current.disconnect();
         roomRef.current = null;
@@ -728,7 +766,7 @@ const OpenViduMeetComponent = forwardRef(({
                 gap: 1,
               }}
             >
-              {peerReconnecting ? (
+              {(liveKitReconnecting || peerReconnecting) ? (
                 <>
                   <CircularProgress size={32} sx={{ color: "#ff9800" }} />
                   <Typography variant="h6" sx={{ color: "#ff9800" }}>

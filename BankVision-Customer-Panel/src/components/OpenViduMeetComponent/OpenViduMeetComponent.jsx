@@ -188,12 +188,15 @@ const OpenViduMeetComponent = forwardRef(({
 }, ref) => {
   const localVideoRef = useRef(null);
   const roomRef = useRef(null);
+  const reconnectTimerRef = useRef(null);  // fires when remote party doesn't come back
+  const hadParticipantsRef = useRef(false); // true once any remote participant joined
   const [isConnecting, setIsConnecting] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(false);
   const [error, setError] = useState(null);
   const [remoteParticipants, setRemoteParticipants] = useState([]);
+  const [liveKitReconnecting, setLiveKitReconnecting] = useState(false);
   const { socket, peerReconnecting } = useWebSocket();
 
   // Get token from backend
@@ -237,10 +240,36 @@ const OpenViduMeetComponent = forwardRef(({
 
         roomRef.current = room;
 
+        const RECONNECT_TIMEOUT_MS = 20000; // 20 s to rejoin before call is force-ended
+
+        const startReconnectTimer = () => {
+          if (reconnectTimerRef.current) return; // already running
+          console.log(`⏳ Remote participant left — starting ${RECONNECT_TIMEOUT_MS / 1000}s reconnect timer`);
+          setLiveKitReconnecting(true);
+          reconnectTimerRef.current = setTimeout(() => {
+            reconnectTimerRef.current = null;
+            setLiveKitReconnecting(false);
+            console.log("⌛ Reconnect timer expired — ending call");
+            if (socket) socket.emit("call:end", { reason: "peer_timeout" });
+            if (onLeave) onLeave();
+          }, RECONNECT_TIMEOUT_MS);
+        };
+
+        const cancelReconnectTimer = () => {
+          if (reconnectTimerRef.current) {
+            clearTimeout(reconnectTimerRef.current);
+            reconnectTimerRef.current = null;
+            setLiveKitReconnecting(false);
+            console.log("✅ Remote participant back — reconnect timer cancelled");
+          }
+        };
+
         // Handle participant events
         room.on(RoomEvent.ParticipantConnected, (participant) => {
           console.log("Participant connected:", participant.identity);
           if (mounted) {
+            hadParticipantsRef.current = true;
+            cancelReconnectTimer();
             setRemoteParticipants((prev) => [...prev, participant]);
           }
         });
@@ -248,9 +277,14 @@ const OpenViduMeetComponent = forwardRef(({
         room.on(RoomEvent.ParticipantDisconnected, (participant) => {
           console.log("Participant disconnected:", participant.identity);
           if (mounted) {
-            setRemoteParticipants((prev) =>
-              prev.filter((p) => p.identity !== participant.identity)
-            );
+            setRemoteParticipants((prev) => {
+              const next = prev.filter((p) => p.identity !== participant.identity);
+              // Only start timer if we had participants before (not initial "waiting to join")
+              if (next.length === 0 && hadParticipantsRef.current) {
+                startReconnectTimer();
+              }
+              return next;
+            });
           }
         });
 
@@ -272,6 +306,7 @@ const OpenViduMeetComponent = forwardRef(({
         const existingParticipants = Array.from(room.remoteParticipants.values());
         console.log(`📋 Found ${existingParticipants.length} existing remote participants:`, existingParticipants.map(p => p.identity));
         console.log(`👤 Local participant identity: ${room.localParticipant.identity}`);
+        if (existingParticipants.length > 0) hadParticipantsRef.current = true;
         setRemoteParticipants(existingParticipants);
 
         // Create and publish local tracks - START WITH NO CONSTRAINTS
@@ -388,6 +423,10 @@ const OpenViduMeetComponent = forwardRef(({
 
     return () => {
       mounted = false;
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
       if (roomRef.current) {
         roomRef.current.disconnect();
         roomRef.current = null;
@@ -501,7 +540,7 @@ const OpenViduMeetComponent = forwardRef(({
               gap: 1,
             }}
           >
-            {peerReconnecting ? (
+            {(liveKitReconnecting || peerReconnecting) ? (
               <>
                 <CircularProgress size={32} sx={{ color: "#ff9800" }} />
                 <Typography variant="h6" sx={{ color: "#ff9800" }}>
