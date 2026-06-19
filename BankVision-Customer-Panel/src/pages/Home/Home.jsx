@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Box, Paper, Typography, CircularProgress, Alert, Grid, Container, IconButton, Fab, Badge, Dialog, DialogContent } from "@mui/material";
-import { Chat as ChatIcon } from "@mui/icons-material";
+import { Chat as ChatIcon, Close as CloseIcon } from "@mui/icons-material";
 import axios from "axios";
 import StartVerification from "../../components/StartVerification/StartVerification";
 import BrandLogo from "../../components/BrandLogo/BrandLogo";
@@ -1064,7 +1064,18 @@ const Home = () => {
           sx: { background: '#6B4FA0', borderRadius: 3 }
         }}
       >
-        <DialogContent sx={{ p: 0 }}>
+        <DialogContent sx={{ p: 0, position: 'relative' }}>
+          <IconButton
+            onClick={() => { setShowDormantActivationModal(false); acknowledgeAccountActivationRequest(); }}
+            size="small"
+            sx={{
+              position: 'absolute', top: 8, right: 8, zIndex: 1,
+              color: 'rgba(255,255,255,0.7)',
+              '&:hover': { color: '#fff', background: 'rgba(255,255,255,0.15)' },
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
           <DormantAccountActivationRequest socket={socket} />
         </DialogContent>
       </Dialog>
