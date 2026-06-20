@@ -398,26 +398,27 @@ const OpenViduMeetComponent = forwardRef(({
           console.log("📶 Connection quality:", quality, "for", participant?.identity || 'local');
         });
 
-        // Re-attach local video when camera is re-enabled (new track is created each time)
+        // Re-attach local video when camera is re-enabled (new track is created each time).
+        // Only update the relevant track kind's state — updating both from one event causes
+        // cross-contamination (e.g. disabling camera incorrectly resets mic muted state).
         room.on(RoomEvent.LocalTrackPublished, (publication) => {
           if (!mounted) return;
-          if (publication.track?.kind === Track.Kind.Video && localVideoRef.current) {
-            publication.track.attach(localVideoRef.current);
+          if (publication.track?.kind === Track.Kind.Video) {
+            if (localVideoRef.current) publication.track.attach(localVideoRef.current);
+            setIsVideoMuted(false);
           }
-          setIsAudioMuted(!room.localParticipant.isMicrophoneEnabled);
-          setIsVideoMuted(!room.localParticipant.isCameraEnabled);
         });
 
         room.on(RoomEvent.LocalTrackUnpublished, (publication) => {
           if (!mounted) return;
           if (publication.track?.kind === Track.Kind.Video) {
             publication.track.detach();
+            setIsVideoMuted(true);
           }
-          setIsAudioMuted(!room.localParticipant.isMicrophoneEnabled);
-          setIsVideoMuted(!room.localParticipant.isCameraEnabled);
         });
 
-        // Drive UI state from LiveKit mute events — single source of truth
+        // setCameraEnabled(false) fires LocalTrackUnpublished (track is removed, not muted).
+        // setMicrophoneEnabled(false) fires LocalTrackMuted (track is muted, not removed).
         room.on(RoomEvent.LocalTrackMuted, (publication) => {
           if (!mounted) return;
           if (publication.source === Track.Source.Microphone) setIsAudioMuted(true);
@@ -595,10 +596,8 @@ const OpenViduMeetComponent = forwardRef(({
     try {
       const localParticipant = roomRef.current.localParticipant;
       await localParticipant.setMicrophoneEnabled(!localParticipant.isMicrophoneEnabled);
-      // Read actual state after await — LocalTrackMuted/Unmuted events also update this
-      const nowEnabled = localParticipant.isMicrophoneEnabled;
-      setIsAudioMuted(!nowEnabled);
-      if (onAudioStateChange) onAudioStateChange(nowEnabled);
+      // State driven by LocalTrackMuted/Unmuted events; read final value for parent callback only
+      if (onAudioStateChange) onAudioStateChange(localParticipant.isMicrophoneEnabled);
     } catch (error) {
       console.error('Error toggling audio:', error);
     }
@@ -609,10 +608,8 @@ const OpenViduMeetComponent = forwardRef(({
     try {
       const localParticipant = roomRef.current.localParticipant;
       await localParticipant.setCameraEnabled(!localParticipant.isCameraEnabled);
-      // Read actual state after await — LocalTrackMuted/Unmuted events also update this
-      const nowEnabled = localParticipant.isCameraEnabled;
-      setIsVideoMuted(!nowEnabled);
-      if (onVideoStateChange) onVideoStateChange(nowEnabled);
+      // State driven by LocalTrackPublished/Unpublished events; read final value for parent callback only
+      if (onVideoStateChange) onVideoStateChange(localParticipant.isCameraEnabled);
     } catch (error) {
       console.error('Error toggling video:', error);
     }
