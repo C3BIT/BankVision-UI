@@ -190,11 +190,25 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
       uploadedFiles: JSON.stringify(uploadedFiles)
     });
 
+    // Format the current address as a readable string so the manager's audit log
+    // shows the previous value alongside the new one.
+    const current = currentAddress?.[addressType];
+    const oldAddress = current
+      ? [
+          current.addressLine1,
+          current.addressLine2,
+          current.upazila,
+          current.district,
+          current.postCode,
+        ].filter(Boolean).join(', ')
+      : '';
+
     // Send to manager for approval (not directly to backend)
     if (socket) {
       socket.emit('customer:submit-address-change-request', {
         addressType,
-        addressData
+        addressData,
+        oldAddress,
       });
     }
 
