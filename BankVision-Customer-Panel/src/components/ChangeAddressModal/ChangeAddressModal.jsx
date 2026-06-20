@@ -27,6 +27,7 @@ import {
 } from '@mui/icons-material';
 import { useWebSocket } from '../../context/WebSocketContext';
 import { publicPostFile } from '../../services/apiCaller';
+import { BD_GEO, DISTRICTS } from '../../utils/bdGeo';
 
 const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
   const { socket } = useWebSocket();
@@ -472,7 +473,9 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
                 onChange={(e) => {
                   const value = e.target.value;
                   setDistrict(value);
+                  setUpazila('');
                   emitAddressChange('district', value);
+                  emitAddressChange('upazila', '');
                 }}
                 displayEmpty
                 sx={{
@@ -493,11 +496,9 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
                 <MenuItem value="" disabled>
                   Select District
                 </MenuItem>
-                <MenuItem value="dhaka">Dhaka</MenuItem>
-                <MenuItem value="chittagong">Chittagong</MenuItem>
-                <MenuItem value="rajshahi">Rajshahi</MenuItem>
-                <MenuItem value="sylhet">Sylhet</MenuItem>
-                <MenuItem value="khulna">Khulna</MenuItem>
+                {DISTRICTS.map((d) => (
+                  <MenuItem key={d} value={d}>{d}</MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Box>
@@ -562,6 +563,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
                 emitAddressChange('upazila', value);
               }}
               displayEmpty
+              disabled={!district}
               sx={{
                 backgroundColor: '#FFFFFF',
                 fontSize: '0.875rem',
@@ -578,12 +580,11 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
               }}
             >
               <MenuItem value="" disabled>
-                Select Thana
+                {district ? 'Select Thana / Upazila' : 'Select district first'}
               </MenuItem>
-              <MenuItem value="dhanmondi">Dhanmondi</MenuItem>
-              <MenuItem value="gulshan">Gulshan</MenuItem>
-              <MenuItem value="mirpur">Mirpur</MenuItem>
-              <MenuItem value="uttara">Uttara</MenuItem>
+              {(BD_GEO[district] || []).map((u) => (
+                <MenuItem key={u} value={u}>{u}</MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Box>

@@ -27,6 +27,7 @@ import { useWebSocket } from '../../../providers/WebSocketProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { sendOtpToCustomer } from '../../../redux/auth/customerSlice';
 import { publicPost } from '../../../services/apiCaller';
+import { BD_GEO, DISTRICTS } from '../../../utils/bdGeo';
 
 const API_BASE = (import.meta.env.VITE_API_URL || '').replace('/api', '');
 const getDocUrl = (path) => {
@@ -409,10 +410,12 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
                 onChange={(e) => {
                   const value = e.target.value;
                   setDistrict(value);
+                  setUpazila('');
                   setIsLoading(false);
                   setOtpSent(false);
                   setError(null);
                   emitFieldChange('district', value);
+                  emitFieldChange('upazila', '');
                 }}
                 displayEmpty
                 sx={{
@@ -426,11 +429,9 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
                 <MenuItem value="" disabled>
                   <em style={{ color: '#999' }}>Select District</em>
                 </MenuItem>
-                <MenuItem value="dhaka">Dhaka</MenuItem>
-                <MenuItem value="chittagong">Chittagong</MenuItem>
-                <MenuItem value="rajshahi">Rajshahi</MenuItem>
-                <MenuItem value="sylhet">Sylhet</MenuItem>
-                <MenuItem value="khulna">Khulna</MenuItem>
+                {DISTRICTS.map((d) => (
+                  <MenuItem key={d} value={d}>{d}</MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Box>
@@ -476,7 +477,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
           <FormControl fullWidth sx={{ mt: 0.5 }}>
             <Select
               value={upazila}
-              disabled={verified}
+              disabled={verified || !district}
               onChange={(e) => {
                 const value = e.target.value;
                 setUpazila(value);
@@ -495,12 +496,11 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
               }}
             >
               <MenuItem value="" disabled>
-                <em style={{ color: '#999' }}>Select Thana</em>
+                <em style={{ color: '#999' }}>{district ? 'Select Thana / Upazila' : 'Select district first'}</em>
               </MenuItem>
-              <MenuItem value="dhanmondi">Dhanmondi</MenuItem>
-              <MenuItem value="gulshan">Gulshan</MenuItem>
-              <MenuItem value="mirpur">Mirpur</MenuItem>
-              <MenuItem value="uttara">Uttara</MenuItem>
+              {(BD_GEO[district] || []).map((u) => (
+                <MenuItem key={u} value={u}>{u}</MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Box>
