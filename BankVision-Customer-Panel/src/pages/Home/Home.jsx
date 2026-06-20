@@ -1052,7 +1052,10 @@ const Home = () => {
         open={showChangeAddressModal}
         onClose={handleChangeAddressClose}
         onSubmit={handleChangeAddressSubmit}
-        currentAddress={currentAccountData?.address}
+        currentAddress={{
+          present: currentAccountData?.address ? { addressLine1: currentAccountData.address } : null,
+          permanent: currentAccountData?.permanentAddress ? { addressLine1: currentAccountData.permanentAddress } : null,
+        }}
       />
 
       {/* Dormant Account Activation Modal */}
