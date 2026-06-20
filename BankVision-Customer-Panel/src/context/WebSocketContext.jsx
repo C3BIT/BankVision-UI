@@ -462,8 +462,12 @@ export const WebSocketProvider = ({ children }) => {
         });
       });
 
-      newSocket.on("requested:address-change", () => {
+      newSocket.on("requested:address-change", (data = {}) => {
         console.log("🏠 Address change requested by manager");
+        // Store account data so ChangeAddressModal can display and submit the previous address
+        if (data.accountData) {
+          setCurrentAccountData(prev => ({ ...(prev || {}), ...data.accountData }));
+        }
         setVerificationRequests({ phone: false, email: false, face: false, signature: false });
         setChangeRequests({
           phoneChangeRequested: false,

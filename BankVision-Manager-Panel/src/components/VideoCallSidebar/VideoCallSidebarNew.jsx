@@ -233,11 +233,16 @@ const VideoCallSidebarNew = ({
   const handleRequestAddressChange = () => {
 
     setShowAddressChange(true);
-    // Also notify customer to open their modal
+    // Notify customer to open their modal and pass current address data so
+    // the customer's ChangeAddressModal can display and submit the previous value.
     if (socket && socket.connected) {
       socket.emit('manager:request-address-change', {
         customerId: customerPhone,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        accountData: {
+          address: reduxAccountDetails?.address || reduxAccountDetails?.presentAddress || null,
+          permanentAddress: reduxAccountDetails?.permanentAddress || null,
+        },
       });
     }
   };
