@@ -418,9 +418,10 @@ export const WebSocketProvider = ({ children }) => {
         console.log("📥 Received answer:", data);
       });
 
-      newSocket.on("error", (error) => {
-        console.error("⚠️ Socket error:", error);
-        setConnectionError(error.message || "An error occurred");
+      newSocket.on("call:error", (error) => {
+        const msg = error?.message || error?.toString() || "An error occurred";
+        console.warn("⚠️ Call error:", msg);
+        setConnectionError(msg);
       });
 
       newSocket.on("manager:request-signature-upload", (data) => {

@@ -236,10 +236,10 @@ export const WebSocketProvider = ({ children }) => {
             console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         });
 
-        newSocket.on("error", (error) => {
-            console.error("WebSocket Error:", error);
-            if (error.toString().toLowerCase().includes("auth") ||
-                error.toString().toLowerCase().includes("token")) {
+        newSocket.on("call:error", (error) => {
+            const msg = error?.message || error?.toString() || "An error occurred";
+            console.warn("⚠️ Call error:", msg);
+            if (msg.toLowerCase().includes("auth") || msg.toLowerCase().includes("token")) {
                 handleTokenExpiration();
             }
         });
