@@ -363,7 +363,7 @@ const VideoCallSidebarNew = ({
         </Box>
 
         {/* Passive Face Verification */}
-        {isCallActive && profileImage && (
+        {isCallActive && (
           <Box sx={{ mb: 1.5 }}>
             <PassiveFaceVerification
               videoElement={customerVideoElement}
@@ -418,23 +418,13 @@ const VideoCallSidebarNew = ({
                     </Box>
                   </Button>
 
-                  {!profileImage ? (
-                    <Box sx={{ py: 0.75, px: 1.5, border: '1px solid #E0E0E0', borderRadius: 1, backgroundColor: '#F8F9FA', opacity: 0.6, display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <FaceIcon sx={{ color: '#999', fontSize: 18 }} />
-                      <Box>
-                        <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: '#999' }}>Face Verification</Typography>
-                        <Typography sx={{ fontSize: '0.7rem', color: '#999' }}>Not Available - No profile image</Typography>
-                      </Box>
+                  <Box sx={{ py: 0.75, px: 1.5, border: '1px solid', borderColor: faceVerificationStatus === 'verified' ? '#10B981' : '#E0E0E0', borderRadius: 1, backgroundColor: faceVerificationStatus === 'verified' ? '#F0FDF4' : '#FFFFFF', display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {faceVerificationStatus === 'verified' ? <CheckCircleIcon sx={{ color: '#10B981', fontSize: 18 }} /> : <FaceIcon sx={{ color: '#0066FF', fontSize: 18 }} />}
+                    <Box>
+                      <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>Face Verification</Typography>
+                      <Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{faceVerificationStatus === 'verified' ? 'Verified ✓ - Passive monitoring active' : 'Passive - Auto-verifying via CBS...'}</Typography>
                     </Box>
-                  ) : (
-                    <Box sx={{ py: 0.75, px: 1.5, border: '1px solid', borderColor: faceVerificationStatus === 'verified' ? '#10B981' : '#E0E0E0', borderRadius: 1, backgroundColor: faceVerificationStatus === 'verified' ? '#F0FDF4' : '#FFFFFF', display: 'flex', alignItems: 'center', gap: 1 }}>
-                      {faceVerificationStatus === 'verified' ? <CheckCircleIcon sx={{ color: '#10B981', fontSize: 18 }} /> : <FaceIcon sx={{ color: '#0066FF', fontSize: 18 }} />}
-                      <Box>
-                        <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>Face Verification</Typography>
-                        <Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{faceVerificationStatus === 'verified' ? 'Verified ✓ - Passive monitoring active' : 'Passive - Auto-verifying...'}</Typography>
-                      </Box>
-                    </Box>
-                  )}
+                  </Box>
 
                   <Button fullWidth variant="outlined" onClick={() => setShowSignatureVerification(true)}
                     startIcon={signatureVerified ? <CheckCircleIcon sx={{ color: '#10B981' }} /> : <SignatureIcon />}

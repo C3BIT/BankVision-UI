@@ -319,75 +319,49 @@ const PassiveFaceVerification = ({
     }
   }, []);
 
-  // Verify captured frame against profile image
+  // Verify captured frame via CBS getUserIdentity — no profile image needed
   const verifyFrame = useCallback(async (imageBlob) => {
-    if (!profileImage) {
-      console.warn('⚠️ No profile image available');
+    const accountNo = accountDetails?.accountNumber || cbsAccounts?.[0]?.accountNumber;
+    if (!accountNo) {
+      console.warn('⚠️ No account number available for CBS identity check');
       return;
     }
 
     setVerificationStatus('verifying');
 
     try {
-      // Upload the captured image first to get a path
-      console.log('📤 Uploading captured frame...');
-      const uploadedImagePath = await uploadImageBlob(imageBlob);
-
-      if (!uploadedImagePath) {
-        throw new Error('Failed to upload image');
-      }
-
-      console.log('✅ Image uploaded, comparing faces...');
-
-      // Now compare using image paths (not base64)
-      const response = await dispatch(
-        compareFaces({
-          imagePath1: profileImage,
-          imagePath2: uploadedImagePath,
-          accountNo: accountDetails?.accountNumber || cbsAccounts?.[0]?.accountNumber,
-        })
-      ).unwrap();
-
-      const similarity = response.similarity || 0;
-      const matched = response.imageMatched || false;
-
-      setMatchPercentage(Math.round(similarity));
-      setIsMatched(matched);
-
-      console.log('✅ Face comparison result:', {
-        matched,
-        similarity,
-        threshold: 50
+      // Convert blob to base64
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(imageBlob);
       });
 
-      if (matched && similarity >= 50) {
+      // Send directly to CBS via backend — CBS compares against its own stored photo
+      const response = await api.post('/face/verify-identity', { accountNo, imageBase64: base64 });
+      const { verified, score } = response.data?.data || {};
+
+      setMatchPercentage(Math.round(score || 0));
+      setIsMatched(!!verified);
+
+      if (verified) {
         setVerificationStatus('verified');
-        // Stop capturing once verified
         if (captureIntervalRef.current) {
           clearInterval(captureIntervalRef.current);
           captureIntervalRef.current = null;
         }
-
-        if (onVerified) {
-          console.log('✅ Calling onVerified callback with match percentage:', Math.round(similarity));
-          onVerified(Math.round(similarity));
-        }
+        if (onVerified) onVerified(Math.round(score || 0));
       } else {
         setVerificationStatus('failed');
-        // Retry after delay
-        setTimeout(() => {
-          setVerificationStatus('capturing');
-        }, RETRY_DELAY);
+        setTimeout(() => setVerificationStatus('capturing'), RETRY_DELAY);
       }
     } catch (error) {
-      console.error('❌ Verification error:', error);
+      console.error('❌ CBS identity verification error:', error);
       setVerificationStatus('failed');
-      // Retry after delay
-      setTimeout(() => {
-        setVerificationStatus('capturing');
-      }, RETRY_DELAY);
+      setTimeout(() => setVerificationStatus('capturing'), RETRY_DELAY);
     }
-  }, [dispatch, profileImage, uploadImageBlob]);
+  }, [accountDetails, cbsAccounts, onVerified]);
 
   // Main capture and verification loop (DEFINE AFTER findCustomerVideoElement)
   // Uses captureAttemptsRef (not state) in deps so incrementing the counter does NOT
