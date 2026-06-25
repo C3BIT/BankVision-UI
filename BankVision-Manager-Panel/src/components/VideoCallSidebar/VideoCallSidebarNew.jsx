@@ -267,7 +267,7 @@ const VideoCallSidebarNew = ({
 
         {/* Client's Information */}
         <Box sx={{ mb: 1.5 }}>
-          <Typography sx={{ fontWeight: 700, fontSize: '0.8125rem', color: '#1A1A1A', mb: 0.75, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <Typography sx={{ fontWeight: 700, fontSize: '0.8125rem', color: '#1A1A1A', mb: 0.75, mt: 1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Client's Information
           </Typography>
 
