@@ -14,8 +14,7 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
-import { compareFaces, fetchCustomerImage } from '../../redux/customer/customerImageSlice';
+import { useSelector } from 'react-redux';
 import api from '../../services/api';
 
 const PassiveFaceVerification = ({
@@ -25,8 +24,6 @@ const PassiveFaceVerification = ({
   isCallActive,
   onVerified // Add prop
 }) => {
-  const dispatch = useDispatch();
-  const { profileImage } = useSelector((state) => state.customerImageInfo);
   const { accountDetails, cbsAccounts } = useSelector((state) => state.customerAccounts);
 
   const [verificationStatus, setVerificationStatus] = useState('idle'); // idle, capturing, verifying, verified, failed
@@ -417,38 +414,14 @@ const PassiveFaceVerification = ({
     }
   }, [videoElement, findCustomerVideoElement, captureFrame, verifyFrame]);
 
-  // Load profile image and check availability
-  useEffect(() => {
-    if (!customerPhone || !isCallActive) {
-      setVerificationStatus('idle');
-      return;
-    }
-
-    dispatch(fetchCustomerImage({ phone: customerPhone }))
-      .unwrap()
-      .then((result) => {
-        if (!result || !result.profileImage) {
-          console.log('⚠️ No profile image available for customer');
-          setVerificationStatus('not_available');
-        } else {
-          console.log('✅ Profile image found, ready for passive verification');
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching profile image:', error);
-        setVerificationStatus('not_available');
-      });
-  }, [customerPhone, isCallActive, dispatch]);
-
-  // Start passive verification when call is active and profile image is available
+  // Start passive verification when call is active — CBS getUserIdentity needs only accountNo
   useEffect(() => {
     if (!isCallActive || !customerPhone || !callStartTime) {
       return;
     }
 
-    // Don't start if no profile image or account info available yet
     const accountNo = accountDetails?.accountNumber || cbsAccounts?.[0]?.accountNumber;
-    if (!profileImage || !accountNo || verificationStatus === 'not_available') {
+    if (!accountNo) {
       return;
     }
 
@@ -471,7 +444,7 @@ const PassiveFaceVerification = ({
         clearTimeout(verificationTimeoutRef.current);
       }
     };
-  }, [isCallActive, customerPhone, callStartTime, profileImage, verificationStatus, accountDetails, cbsAccounts]);
+  }, [isCallActive, customerPhone, callStartTime, verificationStatus, accountDetails, cbsAccounts]);
 
   // Handle retry logic — fires only when verificationStatus or attemptCapture changes.
   // captureAttempts (display state) is intentionally NOT a dep here: incrementing the
