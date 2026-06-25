@@ -277,32 +277,12 @@ const VideoCallSidebarNew = ({
             </Alert>
           )}
 
-          {/* CBS Profile Photo */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-            <Box sx={{
-              width: 56, height: 56, borderRadius: 1, overflow: 'hidden', flexShrink: 0,
-              border: '1px solid #E0E0E0', backgroundColor: '#F5F5F5',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              {profileImage
-                ? <img src={`data:image/jpeg;base64,${profileImage}`} alt="CBS" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : <PersonIcon sx={{ fontSize: 32, color: '#BDBDBD' }} />
-              }
-            </Box>
-            <Box sx={{ minWidth: 0 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.8125rem', color: '#1A1A1A', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {clientInfo.name}
-              </Typography>
-              <Typography sx={{ fontSize: '0.72rem', color: '#666', lineHeight: 1.4 }}>{clientInfo.mobile}</Typography>
-              {profileImage
-                ? <Chip label="Photo on record" size="small" sx={{ height: 16, fontSize: '0.6rem', backgroundColor: '#F0FDF4', color: '#10B981', mt: 0.25 }} />
-                : <Chip label="No photo on record" size="small" sx={{ height: 16, fontSize: '0.6rem', backgroundColor: '#FFF3E0', color: '#E65100', mt: 0.25 }} />
-              }
-            </Box>
-          </Box>
-
-          <Box sx={{ display: 'grid', gridTemplateColumns: '62px 1fr', rowGap: 0.25, columnGap: 0.75 }}>
+          {/* Info + Photo side by side */}
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+            <Box sx={{ flex: 1, minWidth: 0, display: 'grid', gridTemplateColumns: '58px 1fr', rowGap: 0.25, columnGap: 0.75 }}>
             {[
+              ['Name', clientInfo.name],
+              ['Mobile', clientInfo.mobile],
               ['E-mail', clientInfo.email],
               ['Present', clientInfo.address || 'N/A'],
               ['Permanent', clientInfo.permanentAddress || 'N/A'],
@@ -312,6 +292,19 @@ const VideoCallSidebarNew = ({
                 <Typography key={label + 'v'} sx={{ fontSize: '0.75rem', color: '#666', lineHeight: 1.6, wordBreak: 'break-word' }}>{value}</Typography>
               </>
             ))}
+            </Box>
+
+            {/* CBS Profile Photo — right side */}
+            <Box sx={{
+              width: 60, height: 72, borderRadius: 1, overflow: 'hidden', flexShrink: 0,
+              border: '1px solid #E0E0E0', backgroundColor: '#F5F5F5',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            }}>
+              {profileImage
+                ? <img src={`data:image/jpeg;base64,${profileImage}`} alt="CBS" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <PersonIcon sx={{ fontSize: 30, color: '#BDBDBD' }} />
+              }
+            </Box>
           </Box>
 
           {/* Pre-Call Verification Info */}
