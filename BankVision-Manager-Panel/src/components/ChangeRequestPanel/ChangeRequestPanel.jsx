@@ -1,3 +1,4 @@
+import { API_URL } from '../../config.js';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -45,7 +46,7 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
 
   const { socket } = useWebSocket();
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '');
+  const API_BASE_URL = API_URL.replace('/api', '');
 
   useEffect(() => {
     if (!socket) return;
