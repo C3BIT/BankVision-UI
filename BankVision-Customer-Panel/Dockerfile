@@ -2,7 +2,7 @@
 # Multi-stage build: Build React app, then serve with nginx
 
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:20.20.2-alpine3.23 AS builder
 WORKDIR /app
 
 # Copy package files
