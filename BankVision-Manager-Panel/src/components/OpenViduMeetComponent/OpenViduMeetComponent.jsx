@@ -14,7 +14,7 @@ import {
   Track,
   createLocalTracks,
 } from "livekit-client";
-import { BackgroundBlur, VirtualBackground } from "@livekit/track-processors";
+import { BackgroundProcessor } from "@livekit/track-processors";
 import { useWebSocket } from "../../providers/WebSocketProvider";
 import { publicPost } from "../../services/apiCaller";
 
@@ -719,22 +719,23 @@ const OpenViduMeetComponent = forwardRef(({
     const videoTrack = pub?.videoTrack;
     if (!videoTrack) return;
 
+    const assetPaths = {
+      tasksVisionFileSet: '/mediapipe/wasm',
+      modelAssetPath: '/mediapipe/selfie_segmenter.tflite',
+    };
+
     try {
       await videoTrack.stopProcessor();
 
       if (mode === 'blur') {
-        const processor = BackgroundBlur(15);
+        const processor = BackgroundProcessor({ blurRadius: 15, assetPaths });
         await videoTrack.setProcessor(processor);
-        console.log('🎨 Background blur applied');
       } else if (mode && mode !== 'none') {
-        const processor = VirtualBackground(mode);
+        const processor = BackgroundProcessor({ imagePath: mode, assetPaths });
         await videoTrack.setProcessor(processor);
-        console.log('🖼️ Virtual background applied:', mode);
-      } else {
-        console.log('✅ Background processor removed');
       }
     } catch (err) {
-      console.error('❌ Background processor error:', err.message);
+      console.error('Background processor error:', err.message);
     }
   }, []);
 
