@@ -1,3 +1,4 @@
+import { API_URL } from '../../config.js';
 import { useState, useRef, useEffect } from 'react';
 import {
   Dialog,
@@ -71,7 +72,7 @@ const SignatureUpload = ({ open, onClose }) => {
     setError(null);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || '/api';
+      
       const formData = new FormData();
       formData.append('file', signatureFile);
       formData.append('type', 'signature');

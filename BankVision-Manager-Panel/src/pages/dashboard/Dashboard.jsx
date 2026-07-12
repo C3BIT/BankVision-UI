@@ -38,6 +38,7 @@ const Dashboard = () => {
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [speakerEnabled, setSpeakerEnabled] = useState(true);
   const [whiteboardOpen, setWhiteboardOpen] = useState(false);
+  const [activeBackground, setActiveBackground] = useState('none');
   const [customerVideoElement, setCustomerVideoElement] = useState(null);
   const [serviceResetKey, setServiceResetKey] = useState(0);
 
@@ -201,6 +202,7 @@ const Dashboard = () => {
     setAudioEnabled(true);
     setVideoEnabled(true);
     setWhiteboardOpen(false);
+    setActiveBackground('none');
     console.log("Call ended");
   };
 
@@ -394,6 +396,7 @@ const Dashboard = () => {
               videoEnabled={videoEnabled}
               speakerEnabled={speakerEnabled}
               whiteboardOpen={whiteboardOpen}
+              activeBackground={activeBackground}
               onToggleAudio={() => openViduRef.current?.toggleAudio()}
               onToggleVideo={() => openViduRef.current?.toggleVideo()}
               onToggleSpeaker={() => openViduRef.current?.toggleSpeaker()}
@@ -403,6 +406,10 @@ const Dashboard = () => {
                   if (socket) socket.emit('whiteboard:toggle', { open: next });
                   return next;
                 });
+              }}
+              onSetBackground={async (mode) => {
+                await openViduRef.current?.setBackground(mode);
+                setActiveBackground(mode);
               }}
               onEndCall={() => openViduRef.current?.leaveCall()}
             />

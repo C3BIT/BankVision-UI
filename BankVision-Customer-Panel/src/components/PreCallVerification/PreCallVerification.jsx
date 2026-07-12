@@ -1,3 +1,4 @@
+import { API_URL } from '../../config.js';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -34,7 +35,7 @@ const PreCallVerification = ({
   const [externalPhone, setExternalPhone] = useState('');
   const [guestEmail, setGuestEmail] = useState(''); // For guest email verification
 
-  const API_URL = import.meta.env.VITE_API_URL || '/api';
+  
 
   // Check verification status when modal opens
   useEffect(() => {

@@ -35,7 +35,15 @@ const customerSlice = createSlice({
         verificationSuccess: null,
         loading: false,
     },
-    reducers: {},
+    reducers: {
+        resetVerification: (state) => {
+            state.phoneVerified = false;
+            state.emailVerified = false;
+            state.verificationError = null;
+            state.verificationSuccess = null;
+            state.loading = false;
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(verifyPhoneOtp.pending, (state) => {
@@ -71,4 +79,5 @@ const customerSlice = createSlice({
     },
 });
 
+export const { resetVerification } = customerSlice.actions;
 export default customerSlice.reducer;

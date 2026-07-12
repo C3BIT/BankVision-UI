@@ -1,4 +1,7 @@
+import { API_URL } from '../../config.js';
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useDispatch } from "react-redux";
+import { resetVerification } from "../../redux/auth/customerSlice";
 import { Box, Paper, Typography, CircularProgress, Alert, Grid, Container, IconButton, Fab, Badge, Dialog, DialogContent } from "@mui/material";
 import { Chat as ChatIcon, Close as CloseIcon } from "@mui/icons-material";
 import axios from "axios";
@@ -23,6 +26,7 @@ import SignatureUpload from "../../components/SignatureUpload/SignatureUpload";
 import CollaborativeWhiteboard from "../../components/CollaborativeWhiteboard/CollaborativeWhiteboard";
 
 const Home = () => {
+  const dispatch = useDispatch();
   const [phone, setPhone] = useState(""); // Will be set from verification
   const [isVideoCallActive, setIsVideoCallActive] = useState(false);
   const [showCallModal, setShowCallModal] = useState(false);
@@ -140,7 +144,7 @@ const Home = () => {
       console.log('📋 Verification data:', verificationData);
 
       // Try to look up customer in database (optional - not blocking)
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vb-api.feedquix.com/api';
+      
       let customerFound = false;
       let accountCount = 0;
 
@@ -199,7 +203,7 @@ const Home = () => {
         setOtpVerifyLoading(false);
         throw new Error('Connection lost. Please try again.');
       }
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vb-api.feedquix.com/api';
+      
       const response = await axios.post(`${API_URL}/otp/verify-phone`, {
         phone: phone,
         otp: otp
@@ -212,6 +216,8 @@ const Home = () => {
           phone: phone,
           verified: true
         });
+        // Clear the manager-initiated request flag so the modal closes
+        setVerificationRequests(prev => ({ ...prev, phone: false }));
 
         // Wait a moment to show success state
         setTimeout(() => {
@@ -243,7 +249,7 @@ const Home = () => {
       }
 
       // Verify email OTP and notify manager
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vb-api.feedquix.com/api';
+      
       const response = await axios.post(`${API_URL}/otp/verify-email`, {
         email: currentAccountData?.email || '',
         otp: otp
@@ -257,6 +263,8 @@ const Home = () => {
           email: currentAccountData?.email || '',
           verified: true
         });
+        // Clear the manager-initiated request flag so the modal closes
+        setVerificationRequests(prev => ({ ...prev, email: false }));
 
         // Wait a moment to show success state
         setTimeout(() => {
@@ -413,6 +421,7 @@ const Home = () => {
       setShowChangeAddressModal(false);
       setShowChangeContactModal(false);
       setShowDormantActivationModal(false);
+      dispatch(resetVerification());
       setShowFeedback(true);
     } else if (callStatus === "failed") {
       setShowCallModal(false);
@@ -545,13 +554,29 @@ const Home = () => {
       }, 3000);
     };
 
+    const handleFaceVerificationResult = (data) => {
+      console.log('🎯 Face verification result received:', data);
+      setFaceVerificationInitiated(false);
+      const message = data.verified
+        ? 'Face verification successful. Your identity has been confirmed.'
+        : 'Face verification was not successful. The manager could not confirm your identity.';
+      setApprovalMessage(message);
+      setShowApprovalFeedback(true);
+      clearTimeout(approvalFeedbackTimerRef.current);
+      approvalFeedbackTimerRef.current = setTimeout(() => {
+        setShowApprovalFeedback(false);
+      }, 5000);
+    };
+
     socket.on('customer:signature-verification-decision', handleSignatureDecision);
     socket.on('otp:resent', handleOtpResent);
+    socket.on('customer:face-verification-result', handleFaceVerificationResult);
 
     return () => {
       socket.off('customer:retake-image-request', handleRetakeRequest);
       socket.off('customer:signature-verification-decision', handleSignatureDecision);
       socket.off('otp:resent', handleOtpResent);
+      socket.off('customer:face-verification-result', handleFaceVerificationResult);
       clearTimeout(approvalFeedbackTimerRef.current);
     };
   }, [socket]);
@@ -657,7 +682,7 @@ const Home = () => {
   const handleFeedbackSubmit = async ({ rating, feedback }) => {
     try {
       console.log('📊 Submitting customer feedback:', { rating, feedback, phone, managerEmail });
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vb-api.feedquix.com/api';
+      
       const callDuration = callStartTime ? Math.floor((Date.now() - callStartTime) / 1000) : 0;
 
       const response = await axios.post(`${API_URL}/feedback`, {
@@ -1099,7 +1124,7 @@ const Home = () => {
           }}
         >
           <Alert
-            severity={approvalMessage.includes('approved') ? 'success' : 'warning'}
+            severity={approvalMessage.includes('approved') || approvalMessage.includes('successful') ? 'success' : approvalMessage.includes('not successful') || approvalMessage.includes('not approved') ? 'error' : 'warning'}
             onClose={() => setShowApprovalFeedback(false)}
             sx={{
               boxShadow: '0 4px 20px rgba(0,0,0,0.15)',

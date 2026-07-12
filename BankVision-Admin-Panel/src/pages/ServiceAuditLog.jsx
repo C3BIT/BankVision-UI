@@ -1,3 +1,4 @@
+import { API_URL } from '../config.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     Box,
@@ -99,7 +100,7 @@ const ExpandableRow = ({ row }) => {
     const displayValue = (val) =>
         row.changeType === 'address' ? parseAddressValue(val).text : (val || '—');
 
-    const API_BASE = (import.meta.env.VITE_API_URL || '').replace('/api', '');
+    const API_BASE = (API_URL || '').replace('/api', '');
     const getFullUrl = (url) => {
         if (!url) return '';
         if (url.startsWith('http://') || url.startsWith('https://')) return url;
@@ -122,6 +123,12 @@ const ExpandableRow = ({ row }) => {
                     <IconButton size="small" onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}>
                         {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </IconButton>
+                </TableCell>
+
+                <TableCell>
+                    <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.8rem', color: row.referenceNumber ? 'primary.main' : 'text.disabled' }}>
+                        {row.referenceNumber || '—'}
+                    </Typography>
                 </TableCell>
 
                 <TableCell>
@@ -187,7 +194,7 @@ const ExpandableRow = ({ row }) => {
             </TableRow>
 
             <TableRow>
-                <TableCell colSpan={6} sx={{ py: 0 }}>
+                <TableCell colSpan={7} sx={{ py: 0 }}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{
                             m: 1.5, p: 2,
@@ -627,6 +634,7 @@ const ServiceAuditLog = () => {
                             <TableHead>
                                 <TableRow sx={{ backgroundColor: '#F5F5F5' }}>
                                     <TableCell sx={{ width: 40 }} />
+                                    <TableCell sx={{ fontWeight: 700 }}>Ref #</TableCell>
                                     <TableCell sx={{ fontWeight: 700 }}>Customer</TableCell>
                                     <TableCell sx={{ fontWeight: 700 }}>Change Type</TableCell>
                                     <TableCell sx={{ fontWeight: 700 }}>Decided By (Manager)</TableCell>

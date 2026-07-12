@@ -1,3 +1,4 @@
+import { API_URL } from '../../config.js';
 import { useState, useEffect } from 'react';
 import {
   Box,
@@ -27,7 +28,7 @@ const StartVerification = ({ onVerified, disabled = false }) => {
   const [error, setError] = useState('');
   const [isTouched, setIsTouched] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL || '/api';
+  
   const validPrefixes = ['013', '014', '015', '016', '017', '018', '019'];
 
   const isValidPhone = (phone) => {

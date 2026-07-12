@@ -1,3 +1,4 @@
+import { API_URL } from '../../config.js';
 import { useState, useCallback, useEffect } from 'react';
 import {
   Dialog,
@@ -229,7 +230,7 @@ const ChangeContactModal = ({
     setError('');
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || '/api';
+      
       const endpoint = type === 'phone' ? '/otp/send-phone' : '/otp/send';
 
       const payload = type === 'phone'
@@ -265,7 +266,7 @@ const ChangeContactModal = ({
     setError('');
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || '/api';
+      
       const endpoint = type === 'phone' ? '/otp/verify-phone' : '/otp/verify-email';
 
       const payload = type === 'phone'

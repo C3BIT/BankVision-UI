@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { io } from "socket.io-client";
+import { WS_URL } from "../config.js";
 import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 import { persistor } from "../redux/store";
@@ -118,7 +119,7 @@ export const WebSocketProvider = ({ children }) => {
 
     const reconnectInterval = useRef(null);
     const socketRef = useRef(null);
-    const URL = import.meta.env.VITE_WS_URL;
+    const URL = WS_URL;
     const attemptingReconnect = useRef(false);
 
     const handleTokenExpiration = async () => {

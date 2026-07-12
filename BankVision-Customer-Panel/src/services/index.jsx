@@ -1,1 +1,1 @@
-export const api = import.meta.env.VITE_API_URL || 'https://vb-api.feedquix.com/api';
+export { API_URL as api } from '../config.js';

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useRef, useEffect } from "react";
 import { io } from "socket.io-client";
 import PropTypes from "prop-types";
+import { WS_URL } from "../config.js";
 
 const WebSocketContext = createContext(null);
 
@@ -43,7 +44,7 @@ export const WebSocketProvider = ({ children }) => {
     callStatusRef.current = callStatus;
   }, [callStatus]);
 
-  const URL = import.meta.env.VITE_WS_URL || 'https://vb-api.feedquix.com';
+  const URL = WS_URL;
 
   const initiateCall = (phoneNumber, verificationInfo = null) => {
     setConnectionError(null);
@@ -181,6 +182,7 @@ export const WebSocketProvider = ({ children }) => {
           emailChangeRequested: false,
           addressChangeRequested: false
         });
+        setFaceVerificationInitiated(false);
         setConnectionError(data.message || "Call was not answered");
         clearInterval(reconnectInterval.current);
       });
@@ -205,6 +207,7 @@ export const WebSocketProvider = ({ children }) => {
           emailChangeRequested: false,
           addressChangeRequested: false
         });
+        setFaceVerificationInitiated(false);
         setConnectionError(data.message || "No managers available at this moment");
         clearInterval(reconnectInterval.current);
 
@@ -284,6 +287,7 @@ export const WebSocketProvider = ({ children }) => {
           addressChangeRequested: false,
           accountActivationRequested: false,
         });
+        setFaceVerificationInitiated(false);
 
         // NOTE: Socket will be disconnected after feedback is submitted/skipped
         console.log("✅ Call ended - state cleaned, reconnection disabled, feedback screen will show");

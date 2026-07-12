@@ -14,6 +14,7 @@ import {
   Track,
   createLocalTracks,
 } from "livekit-client";
+import { BackgroundBlur, VirtualBackground } from "@livekit/track-processors";
 import { useWebSocket } from "../../providers/WebSocketProvider";
 import { publicPost } from "../../services/apiCaller";
 
@@ -709,6 +710,34 @@ const OpenViduMeetComponent = forwardRef(({
     return customerVideoRef.current;
   }, []);
 
+  // Apply or remove a background processor on the local camera track.
+  // mode: 'none' | 'blur' | string (URL for virtual background image)
+  const setBackground = useCallback(async (mode) => {
+    const room = roomRef.current;
+    if (!room) return;
+    const pub = room.localParticipant.getTrackPublication(Track.Source.Camera);
+    const videoTrack = pub?.videoTrack;
+    if (!videoTrack) return;
+
+    try {
+      await videoTrack.stopProcessor();
+
+      if (mode === 'blur') {
+        const processor = BackgroundBlur(15);
+        await videoTrack.setProcessor(processor);
+        console.log('🎨 Background blur applied');
+      } else if (mode && mode !== 'none') {
+        const processor = VirtualBackground(mode);
+        await videoTrack.setProcessor(processor);
+        console.log('🖼️ Virtual background applied:', mode);
+      } else {
+        console.log('✅ Background processor removed');
+      }
+    } catch (err) {
+      console.error('❌ Background processor error:', err.message);
+    }
+  }, []);
+
   useImperativeHandle(ref, () => ({
     toggleAudio,
     toggleVideo,
@@ -718,6 +747,7 @@ const OpenViduMeetComponent = forwardRef(({
     isVideoMuted,
     isSpeakerMuted,
     getCustomerVideoElement,
+    setBackground,
   }));
 
   return (

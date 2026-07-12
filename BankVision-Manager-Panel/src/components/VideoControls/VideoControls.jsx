@@ -9,16 +9,19 @@ import {
   Edit as WhiteboardIcon,
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
+import VirtualBackgroundMenu from '../VirtualBackgroundMenu/VirtualBackgroundMenu';
 
 const VideoControls = ({
   audioEnabled = true,
   videoEnabled = true,
   speakerEnabled = true,
   whiteboardOpen = false,
+  activeBackground = 'none',
   onToggleAudio,
   onToggleVideo,
   onToggleSpeaker,
   onToggleWhiteboard,
+  onSetBackground,
   onEndCall,
   disabled = false,
 }) => {
@@ -138,6 +141,15 @@ const VideoControls = ({
         </IconButton>
       </Tooltip>
 
+      {/* Virtual Background */}
+      {onSetBackground && (
+        <VirtualBackgroundMenu
+          onSelect={onSetBackground}
+          activeMode={activeBackground}
+          disabled={disabled || !videoEnabled}
+        />
+      )}
+
       {/* Divider */}
       <Box sx={{ width: 2, height: 40, backgroundColor: 'rgba(255, 255, 255, 0.3)', mx: 1 }} />
 
@@ -176,10 +188,12 @@ VideoControls.propTypes = {
   videoEnabled: PropTypes.bool,
   speakerEnabled: PropTypes.bool,
   whiteboardOpen: PropTypes.bool,
+  activeBackground: PropTypes.string,
   onToggleAudio: PropTypes.func.isRequired,
   onToggleVideo: PropTypes.func.isRequired,
   onToggleSpeaker: PropTypes.func,
   onToggleWhiteboard: PropTypes.func,
+  onSetBackground: PropTypes.func,
   onEndCall: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };

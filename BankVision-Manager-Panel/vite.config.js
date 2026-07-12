@@ -7,7 +7,17 @@ export default defineConfig({
   base: '/',
   server: {
     port: 3001,
+    headers: {
+      // Required for SharedArrayBuffer used by some background processors
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+    },
   },
+  optimizeDeps: {
+    // Exclude from pre-bundling — it ships WASM which Vite can't pre-bundle
+    exclude: ['@livekit/track-processors'],
+  },
+  assetsInclude: ['**/*.wasm'],
   build: {
     // Re-enable minification now that TDZ errors are fixed
     minify: 'esbuild',
@@ -15,7 +25,7 @@ export default defineConfig({
     esbuildOptions: {
       drop: ['console', 'debugger'],
     },
-    target: 'es2015',
+    target: 'es2020',
     rollupOptions: {
       output: {
         manualChunks: undefined,

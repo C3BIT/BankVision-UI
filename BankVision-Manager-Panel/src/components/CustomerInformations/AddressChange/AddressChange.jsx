@@ -1,3 +1,4 @@
+import { API_URL } from '../../../config.js';
 import { useState, useEffect, useRef } from 'react';
 import {
   Box,
@@ -29,7 +30,7 @@ import { sendOtpToCustomer } from '../../../redux/auth/customerSlice';
 import { publicPost } from '../../../services/apiCaller';
 import { BD_GEO, DISTRICTS } from '../../../utils/bdGeo';
 
-const API_BASE = (import.meta.env.VITE_API_URL || '').replace('/api', '');
+const API_BASE = (API_URL || '').replace('/api', '');
 const getDocUrl = (path) => {
   if (!path) return '#';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;

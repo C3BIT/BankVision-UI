@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import { useAuth } from './AuthContext';
+import { WS_URL } from '../config.js';
 
-const SOCKET_URL = import.meta.env.VITE_WS_URL || 'https://vb-api.feedquix.com';
+const SOCKET_URL = WS_URL;
 
 const SocketContext = createContext(null);
 

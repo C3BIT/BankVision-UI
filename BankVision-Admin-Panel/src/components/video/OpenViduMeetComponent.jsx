@@ -1,3 +1,4 @@
+import { WS_URL } from '../../config.js';
 import PropTypes from "prop-types";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Box, IconButton, Typography, CircularProgress, Chip } from "@mui/material";
@@ -184,7 +185,7 @@ const OpenViduMeetComponent = ({
 
                 // If serverUrl is not returned by whisper-token, use env var or default
                 // The `generateWhisperToken` in backend returns { token, serverUrl: process.env.LIVEKIT_URL }
-                const wsUrl = serverUrl || import.meta.env.VITE_WS_URL?.replace('http', 'ws') || 'ws://localhost:7880';
+                const wsUrl = serverUrl || WS_URL.replace('http', 'ws') || 'ws://localhost:7880';
 
                 const room = new Room({
                     adaptiveStream: true,

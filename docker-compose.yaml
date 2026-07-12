@@ -21,10 +21,10 @@ services:
     build:
       context: ./BankVision-Customer-Panel
       dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL:-https://vdapp-api.mutualtrustbank.com/api}
-        VITE_WS_URL: ${VITE_WS_URL:-https://vdapp-api.mutualtrustbank.com}
-        VITE_ENVIRONMENT: uat
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-https://vb-api.feedquix.com/api}
+      - VITE_WS_URL=${VITE_WS_URL:-https://vb-api.feedquix.com}
+      - VITE_ENVIRONMENT=uat
     container_name: bankvision-customer-panel
     restart: unless-stopped
     expose:
@@ -37,10 +37,10 @@ services:
     build:
       context: ./BankVision-Manager-Panel
       dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL:-https://vdapp-api.mutualtrustbank.com/api}
-        VITE_WS_URL: ${VITE_WS_URL:-https://vdapp-api.mutualtrustbank.com}
-        VITE_ENVIRONMENT: uat
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-https://vb-api.feedquix.com/api}
+      - VITE_WS_URL=${VITE_WS_URL:-https://vb-api.feedquix.com}
+      - VITE_ENVIRONMENT=uat
     container_name: bankvision-manager-panel
     restart: unless-stopped
     ports:
@@ -53,10 +53,10 @@ services:
     build:
       context: ./BankVision-Admin-Panel
       dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL:-https://vdapp-api.mutualtrustbank.com/api}
-        VITE_WS_URL: ${VITE_WS_URL:-https://vdapp-api.mutualtrustbank.com}
-        VITE_ENVIRONMENT: uat
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-https://vb-api.feedquix.com/api}
+      - VITE_WS_URL=${VITE_WS_URL:-https://vb-api.feedquix.com}
+      - VITE_ENVIRONMENT=uat
     container_name: bankvision-admin-panel
     restart: unless-stopped
     expose:

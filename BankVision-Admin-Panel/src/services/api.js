@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'https://vb-api.feedquix.com/api';
+import { API_URL } from '../config.js';
 
 const api = axios.create({
     baseURL: API_URL,
