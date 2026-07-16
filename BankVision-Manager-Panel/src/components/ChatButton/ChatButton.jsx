@@ -1,6 +1,7 @@
 import { IconButton, Badge, Tooltip, Zoom } from '@mui/material';
 import { Chat as ChatIcon } from '@mui/icons-material';
 import PropTypes from 'prop-types';
+import { colors } from '../../styles/tokens';
 
 const ChatButton = ({ unreadCount = 0, onClick, isChatOpen = false }) => {
   return (
@@ -10,12 +11,12 @@ const ChatButton = ({ unreadCount = 0, onClick, isChatOpen = false }) => {
         sx={{
           width: 64,
           height: 64,
-          backgroundColor: isChatOpen ? '#0052CC' : '#0066FF',
+          backgroundColor: isChatOpen ? colors.primaryDark : colors.primary,
           color: '#FFFFFF',
           boxShadow: '0 4px 16px rgba(0, 102, 255, 0.4)',
           transition: 'all 0.3s ease',
           '&:hover': {
-            backgroundColor: '#0052CC',
+            backgroundColor: colors.primaryDark,
             transform: 'scale(1.1)',
             boxShadow: '0 6px 20px rgba(0, 102, 255, 0.6)',
           },

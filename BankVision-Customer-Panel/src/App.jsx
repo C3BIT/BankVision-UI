@@ -2,6 +2,7 @@ import { Component } from 'react';
 import { BrowserRouter as Router } from "react-router-dom";
 import { AppRouter } from "./routes/Router";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { colors, gradients } from './theme/tokens';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -23,7 +24,7 @@ class ErrorBoundary extends Component {
             <p style={{ color: '#666', marginBottom: 24, fontSize: 14 }}>{this.state.error?.message || 'An unexpected error occurred.'}</p>
             <button
               onClick={() => { this.setState({ hasError: false, error: null }); }}
-              style={{ padding: '10px 24px', backgroundColor: '#0066FF', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}
+              style={{ padding: '10px 24px', backgroundColor: colors.primary, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}
             >
               Try Again
             </button>
@@ -40,10 +41,18 @@ const theme = createTheme({
     h1: {
       fontSize: '2rem',
       fontWeight: 600,
+      background: gradients.brand,
+      backgroundClip: 'text',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
     },
     h5: {
       fontSize: '1.5rem',
       fontWeight: 600,
+      background: gradients.brand,
+      backgroundClip: 'text',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
     },
     button: {
       textTransform: 'none',
@@ -52,20 +61,21 @@ const theme = createTheme({
   },
   palette: {
     primary: {
-      main: '#0066FF',
-      contrastText: '#FFFFFF',
+      main: colors.primary,
+      dark: colors.primaryDark,
+      contrastText: colors.surface,
     },
     secondary: {
-      main: '#FF4444',
-      contrastText: '#FFFFFF',
+      main: colors.error,
+      contrastText: colors.surface,
     },
     background: {
-      default: '#F5F5F5',
-      paper: '#FFFFFF',
+      default: colors.background,
+      paper: colors.surface,
     },
     text: {
-      primary: '#1A1A1A',
-      secondary: '#666666',
+      primary: colors.textPrimary,
+      secondary: colors.textSecondary,
     },
   },
   shape: {
@@ -89,15 +99,24 @@ const theme = createTheme({
             transition: 'transform 0.2s ease-in-out',
           },
         },
+        containedPrimary: {
+          background: gradients.brand,
+          '&:hover': {
+            background: gradients.brand,
+          },
+          '&.Mui-disabled': {
+            background: 'rgba(0, 0, 0, 0.12)',
+          },
+        },
       },
     },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
           borderRadius: 8,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: colors.surface,
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#0066FF',
+            borderColor: colors.primary,
             borderWidth: 2,
           },
         },
@@ -108,7 +127,7 @@ const theme = createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             '& fieldset': {
-              borderColor: '#E0E0E0',
+              borderColor: colors.border,
             },
           },
         },

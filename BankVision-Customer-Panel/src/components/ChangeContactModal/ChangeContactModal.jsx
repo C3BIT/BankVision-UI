@@ -1,5 +1,5 @@
 import { API_URL } from '../../config.js';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -13,8 +13,10 @@ import {
 import { CheckCircle } from '@mui/icons-material';
 import { useWebSocket } from '../../context/WebSocketContext';
 import { debounce } from '../../utils/debounce';
-import { publicPost } from '../../services/apiCaller';
-import axios from 'axios';
+import { publicPost, apiClient } from '../../services/apiCaller';
+import Captcha from '../Captcha/Captcha';
+import { colors } from '../../theme/tokens';
+import BrandLogo from '../BrandLogo/BrandLogo';
 
 const ChangeContactModal = ({
   open,
@@ -32,6 +34,9 @@ const ChangeContactModal = ({
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState('');
+  const [captchaId, setCaptchaId] = useState('');
+  const [captchaAnswer, setCaptchaAnswer] = useState('');
+  const captchaRef = useRef(null);
 
   // Debounced socket emit for real-time updates to manager - separate events for new and confirm fields (150ms so manager sees typing quickly)
   const emitNewFieldChange = useCallback(
@@ -226,18 +231,23 @@ const ChangeContactModal = ({
       }
     }
 
+    if (!captchaAnswer) {
+      setError('Please enter the captcha code');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
     try {
-      
+
       const endpoint = type === 'phone' ? '/otp/send-phone' : '/otp/send';
 
       const payload = type === 'phone'
-        ? { phone: newValue }
-        : { email: newValue };
+        ? { phone: newValue, captchaId: captchaId, captchaAnswer: captchaAnswer }
+        : { email: newValue, captchaId: captchaId, captchaAnswer: captchaAnswer };
 
-      const response = await axios.post(`${API_URL}${endpoint}`, payload);
+      const response = await apiClient.post(`${API_URL}${endpoint}`, payload);
 
       if (response.data.status === 'success') {
         setOtpSent(true);
@@ -245,12 +255,16 @@ const ChangeContactModal = ({
         setError('');
       } else {
         setError(response.data.message || `Failed to send OTP to ${type}`);
+        setCaptchaAnswer('');
+        captchaRef.current?.refresh();
       }
     } catch (error) {
       console.error('Error sending OTP:', error);
       const rawMsg = error.response?.data?.message;
       const msg = typeof rawMsg === 'string' ? rawMsg : (rawMsg?.title || null);
       setError(msg || `Failed to send OTP to new ${type}`);
+      setCaptchaAnswer('');
+      captchaRef.current?.refresh();
     } finally {
       setIsLoading(false);
     }
@@ -273,7 +287,7 @@ const ChangeContactModal = ({
         ? { phone: newValue, otp: otp }
         : { email: newValue, otp: otp };
 
-      const response = await axios.post(`${API_URL}${endpoint}`, payload);
+      const response = await apiClient.post(`${API_URL}${endpoint}`, payload);
 
       if (response.data.status === 'success') {
         // OTP verified, now send to manager for approval
@@ -310,6 +324,7 @@ const ChangeContactModal = ({
     setDuplicateWarning('');
     setOtpSent(false);
     setIsLoading(false);
+    setCaptchaAnswer('');
     onClose();
   };
 
@@ -362,11 +377,14 @@ const ChangeContactModal = ({
       }}
     >
       <DialogContent sx={{ p: 4 }}>
+        <Box sx={{ mb: 2 }}>
+          <BrandLogo size="small" />
+        </Box>
         <Typography
           sx={{
             fontSize: '1.25rem',
             fontWeight: 600,
-            color: '#0066FF',
+            color: colors.primary,
             mb: 2,
             textAlign: 'center',
           }}
@@ -377,7 +395,7 @@ const ChangeContactModal = ({
         <Typography
           sx={{
             fontSize: '0.875rem',
-            color: '#666666',
+            color: colors.textSecondary,
             mb: 2,
             textAlign: 'center',
           }}
@@ -392,7 +410,7 @@ const ChangeContactModal = ({
               width: 32,
               height: 32,
               borderRadius: '50%',
-              backgroundColor: step >= 1 ? '#0066FF' : '#E0E0E0',
+              backgroundColor: step >= 1 ? colors.primary : colors.border,
               color: 'white',
               display: 'flex',
               alignItems: 'center',
@@ -408,7 +426,7 @@ const ChangeContactModal = ({
               width: 32,
               height: 4,
               alignSelf: 'center',
-              backgroundColor: step >= 2 ? '#0066FF' : '#E0E0E0',
+              backgroundColor: step >= 2 ? colors.primary : colors.border,
               borderRadius: 1,
             }}
           />
@@ -417,7 +435,7 @@ const ChangeContactModal = ({
               width: 32,
               height: 32,
               borderRadius: '50%',
-              backgroundColor: step >= 2 ? '#0066FF' : '#E0E0E0',
+              backgroundColor: step >= 2 ? colors.primary : colors.border,
               color: 'white',
               display: 'flex',
               alignItems: 'center',
@@ -442,10 +460,10 @@ const ChangeContactModal = ({
               }
             }}
           >
-            <Typography sx={{ fontSize: '0.75rem', color: '#666666', mb: 0.5 }}>
+            <Typography sx={{ fontSize: '0.75rem', color: colors.textSecondary, mb: 0.5 }}>
               Current {type === 'phone' ? 'Mobile Number' : 'Email'}:
             </Typography>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#1A1A1A' }}>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.textPrimary }}>
               {type === 'phone' ? `+88${currentValue}` : currentValue}
             </Typography>
           </Alert>
@@ -460,7 +478,7 @@ const ChangeContactModal = ({
                 sx={{
                   fontSize: '0.875rem',
                   fontWeight: 500,
-                  color: '#666666',
+                  color: colors.textSecondary,
                   mb: 1,
                 }}
               >
@@ -479,15 +497,15 @@ const ChangeContactModal = ({
                 type={type === 'email' ? 'email' : 'tel'}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: colors.surface,
                     '& fieldset': {
-                      borderColor: error ? '#FF4444' : '#E0E0E0',
+                      borderColor: error ? colors.error : colors.border,
                     },
                     '&:hover fieldset': {
-                      borderColor: error ? '#FF4444' : '#0066FF',
+                      borderColor: error ? colors.error : colors.primary,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: error ? '#FF4444' : '#0066FF',
+                      borderColor: error ? colors.error : colors.primary,
                       borderWidth: 2,
                     },
                   },
@@ -501,7 +519,7 @@ const ChangeContactModal = ({
                 sx={{
                   fontSize: '0.875rem',
                   fontWeight: 500,
-                  color: '#666666',
+                  color: colors.textSecondary,
                   mb: 1,
                 }}
               >
@@ -520,15 +538,15 @@ const ChangeContactModal = ({
                 type={type === 'email' ? 'email' : 'tel'}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: colors.surface,
                     '& fieldset': {
-                      borderColor: error ? '#FF4444' : '#E0E0E0',
+                      borderColor: error ? colors.error : colors.border,
                     },
                     '&:hover fieldset': {
-                      borderColor: error ? '#FF4444' : '#0066FF',
+                      borderColor: error ? colors.error : colors.primary,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: error ? '#FF4444' : '#0066FF',
+                      borderColor: error ? colors.error : colors.primary,
                       borderWidth: 2,
                     },
                   },
@@ -538,12 +556,20 @@ const ChangeContactModal = ({
 
             {/* Duplicate phone warning */}
             {duplicateWarning && (
-              <Alert severity="warning" sx={{ mb: 0 }}>
+              <Alert severity="warning" sx={{ mb: 2 }}>
                 <Typography sx={{ fontSize: '0.8rem' }}>
                   {duplicateWarning}
                 </Typography>
               </Alert>
             )}
+
+            <Captcha
+              ref={captchaRef}
+              value={captchaAnswer}
+              onChange={setCaptchaAnswer}
+              onCaptchaIdChange={setCaptchaId}
+              disabled={isLoading}
+            />
           </>
         )}
 
@@ -561,7 +587,7 @@ const ChangeContactModal = ({
                 sx={{
                   fontSize: '0.875rem',
                   fontWeight: 500,
-                  color: '#666666',
+                  color: colors.textSecondary,
                   mb: 1,
                 }}
               >
@@ -582,15 +608,15 @@ const ChangeContactModal = ({
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: colors.surface,
                     '& fieldset': {
-                      borderColor: error ? '#FF4444' : '#E0E0E0',
+                      borderColor: error ? colors.error : colors.border,
                     },
                     '&:hover fieldset': {
-                      borderColor: error ? '#FF4444' : '#0066FF',
+                      borderColor: error ? colors.error : colors.primary,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: error ? '#FF4444' : '#0066FF',
+                      borderColor: error ? colors.error : colors.primary,
                       borderWidth: 2,
                     },
                   },
@@ -604,7 +630,7 @@ const ChangeContactModal = ({
           <Typography
             sx={{
               fontSize: '0.75rem',
-              color: '#FF4444',
+              color: colors.error,
               mb: 2,
               textAlign: 'center',
             }}
@@ -628,10 +654,10 @@ const ChangeContactModal = ({
               py: 1.5,
               textTransform: 'none',
               fontWeight: 500,
-              color: '#666666',
-              borderColor: '#E0E0E0',
+              color: colors.textSecondary,
+              borderColor: colors.border,
               '&:hover': {
-                borderColor: '#999999',
+                borderColor: colors.textMuted,
                 backgroundColor: 'transparent',
               },
             }}
@@ -644,7 +670,7 @@ const ChangeContactModal = ({
             onClick={step === 1 ? handleRequestOTP : handleVerifyOTP}
             disabled={
               isLoading ||
-              (step === 1 && (!newValue || !confirmValue || !!duplicateWarning)) ||
+              (step === 1 && (!newValue || !confirmValue || !!duplicateWarning || !captchaAnswer)) ||
               (step === 2 && otp.length !== 6)
             }
             startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
@@ -652,14 +678,14 @@ const ChangeContactModal = ({
               py: 1.5,
               textTransform: 'none',
               fontWeight: 600,
-              backgroundColor: '#0066FF',
+              backgroundColor: colors.primary,
               color: '#FFFFFF',
               '&:hover': {
-                backgroundColor: '#0052CC',
+                backgroundColor: colors.primaryDark,
               },
               '&.Mui-disabled': {
-                backgroundColor: '#E0E0E0',
-                color: '#999999',
+                backgroundColor: colors.border,
+                color: colors.textMuted,
               },
             }}
             variant="contained"

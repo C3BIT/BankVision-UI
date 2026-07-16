@@ -1,5 +1,6 @@
 import { Box, Typography, IconButton, Button, useMediaQuery, useTheme } from '@mui/material';
 import { Description, MoreVert, Close } from '@mui/icons-material';
+import { colors } from '../../theme/tokens';
 
 const DocumentPanel = ({ documents = [], onNewUpload, onClose }) => {
   const theme = useTheme();
@@ -13,7 +14,7 @@ const DocumentPanel = ({ documents = [], onNewUpload, onClose }) => {
         left: { xs: 0, sm: 24 },
         right: { xs: 0, sm: 'auto' },
         width: { xs: '100%', sm: 360 },
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.surface,
         borderRadius: { xs: '16px 16px 0 0', sm: 3 },
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
         overflow: 'hidden',
@@ -27,7 +28,7 @@ const DocumentPanel = ({ documents = [], onNewUpload, onClose }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          backgroundColor: '#0066FF',
+          backgroundColor: colors.primary,
           color: '#FFFFFF',
           px: 2,
           py: 1.5,
@@ -55,18 +56,18 @@ const DocumentPanel = ({ documents = [], onNewUpload, onClose }) => {
                 py: 1.5,
                 borderBottom: index < documents.length - 1 ? '1px solid #F0F0F0' : 'none',
                 '&:hover': {
-                  backgroundColor: '#F5F5F5',
+                  backgroundColor: colors.background,
                 },
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1 }}>
-                <Description sx={{ fontSize: 20, color: '#666666' }} />
+                <Description sx={{ fontSize: 20, color: colors.textSecondary }} />
                 <Box sx={{ flex: 1 }}>
                   <Typography
                     sx={{
                       fontSize: '0.875rem',
                       fontWeight: 500,
-                      color: '#1A1A1A',
+                      color: colors.textPrimary,
                     }}
                   >
                     {doc.name}
@@ -74,7 +75,7 @@ const DocumentPanel = ({ documents = [], onNewUpload, onClose }) => {
                   <Typography
                     sx={{
                       fontSize: '0.75rem',
-                      color: '#999999',
+                      color: colors.textMuted,
                     }}
                   >
                     {doc.size}
@@ -82,7 +83,7 @@ const DocumentPanel = ({ documents = [], onNewUpload, onClose }) => {
                 </Box>
               </Box>
               <IconButton size="small">
-                <MoreVert sx={{ fontSize: 18, color: '#666666' }} />
+                <MoreVert sx={{ fontSize: 18, color: colors.textSecondary }} />
               </IconButton>
             </Box>
           ))
@@ -91,7 +92,7 @@ const DocumentPanel = ({ documents = [], onNewUpload, onClose }) => {
             <Typography
               sx={{
                 fontSize: '0.875rem',
-                color: '#999999',
+                color: colors.textMuted,
               }}
             >
               Click to browse or
@@ -99,7 +100,7 @@ const DocumentPanel = ({ documents = [], onNewUpload, onClose }) => {
             <Typography
               sx={{
                 fontSize: '0.875rem',
-                color: '#999999',
+                color: colors.textMuted,
               }}
             >
               drag and drop your files

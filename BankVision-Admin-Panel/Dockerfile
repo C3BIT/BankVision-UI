@@ -31,17 +31,29 @@ RUN rm -rf ./*
 # Copy built assets from builder
 COPY --from=builder /app/dist .
 
+# Security headers live in their own snippet and are explicitly included in
+# every location block below. nginx's add_header does NOT inherit into a
+# location that defines its own add_header, and index/js/css locations each
+# set their own Cache-Control - without the explicit include, those
+# responses would silently ship with no security headers at all.
+RUN echo 'add_header X-Frame-Options "SAMEORIGIN" always; \
+add_header X-Content-Type-Options "nosniff" always; \
+add_header X-XSS-Protection "1; mode=block" always; \
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always; \
+add_header Referrer-Policy "strict-origin-when-cross-origin" always; \
+add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always; \
+add_header Cross-Origin-Resource-Policy "same-origin" always; \
+add_header Content-Security-Policy "default-src '"'"'self'"'"'; script-src '"'"'self'"'"'; style-src '"'"'self'"'"' '"'"'unsafe-inline'"'"' https://fonts.googleapis.com; img-src '"'"'self'"'"' data: blob: https:; font-src '"'"'self'"'"' data: https://fonts.gstatic.com; connect-src '"'"'self'"'"' wss: https:; media-src '"'"'self'"'"' blob:; object-src '"'"'none'"'"'; frame-ancestors '"'"'none'"'"'; base-uri '"'"'self'"'"'; form-action '"'"'self'"'"';" always;' > /etc/nginx/security-headers.conf
+
 # Create nginx configuration for SPA routing
 RUN echo 'server { \
     listen 80; \
     server_name _; \
     root /usr/share/nginx/html; \
     index index.html; \
+    server_tokens off; \
     \
-    # Security headers \
-    add_header X-Frame-Options "SAMEORIGIN" always; \
-    add_header X-Content-Type-Options "nosniff" always; \
-    add_header X-XSS-Protection "1; mode=block" always; \
+    include /etc/nginx/security-headers.conf; \
     \
     # Gzip compression \
     gzip on; \
@@ -50,6 +62,7 @@ RUN echo 'server { \
     \
     # Never cache index.html - always check for updates \
     location = /index.html { \
+        include /etc/nginx/security-headers.conf; \
         add_header Cache-Control "no-cache, no-store, must-revalidate"; \
         add_header Pragma "no-cache"; \
         add_header Expires "0"; \
@@ -58,6 +71,7 @@ RUN echo 'server { \
     \
     # Cache JS/CSS with revalidation (Vite uses hash-based filenames) \
     location ~* \.(?:css|js)$ { \
+        include /etc/nginx/security-headers.conf; \
         expires 1y; \
         add_header Cache-Control "public, max-age=31536000, must-revalidate"; \
     } \

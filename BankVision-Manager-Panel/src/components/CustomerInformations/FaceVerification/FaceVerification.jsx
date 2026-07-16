@@ -20,6 +20,7 @@ import { useWebSocket } from '../../../providers/WebSocketProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { compareFaces, fetchCustomerImage } from '../../../redux/customer/customerImageSlice';
 import EmotionDisplay from '../../EmotionDisplay';
+import { colors, gradients } from '../../../styles/tokens';
 
 const FaceVerification = ({
   customerName,
@@ -318,7 +319,7 @@ const FaceVerification = ({
         p: 4,
         textAlign: 'center'
       }}>
-        <CheckCircle sx={{ fontSize: 80, mb: 2, color: '#4caf50' }} />
+        <CheckCircle sx={{ fontSize: 80, mb: 2, color: colors.success }} />
         <Typography variant="h4" gutterBottom>
           Face Verification Accepted
         </Typography>
@@ -342,7 +343,7 @@ const FaceVerification = ({
                 borderRadius: 4,
                 backgroundColor: 'rgba(255,255,255,0.3)',
                 '& .MuiLinearProgress-bar': {
-                  backgroundColor: '#4caf50',
+                  backgroundColor: colors.success,
                   borderRadius: 4,
                 }
               }}
@@ -375,7 +376,7 @@ const FaceVerification = ({
               textTransform: 'none',
               fontWeight: 600,
               fontSize: '1rem',
-              background: 'linear-gradient(135deg, #13A183 0%, #5EBA4F 100%)',
+              background: gradients.success,
               borderRadius: '8px',
               '&:hover': {
                 opacity: 0.9,
@@ -398,11 +399,11 @@ const FaceVerification = ({
                 textTransform: 'none',
                 fontWeight: 600,
                 fontSize: '1rem',
-                color: '#f44336',
-                borderColor: '#f44336',
+                color: colors.error,
+                borderColor: colors.error,
                 borderRadius: '8px',
                 '&:hover': {
-                  borderColor: '#d32f2f',
+                  borderColor: colors.error,
                   bgcolor: 'rgba(244, 67, 54, 0.1)'
                 },
               }}
@@ -484,8 +485,8 @@ const FaceVerification = ({
                     onChange={(e) => setUseClientSide(e.target.checked)}
                     size="small"
                     sx={{
-                      '& .MuiSwitch-switchBase.Mui-checked': { color: '#4caf50' },
-                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: '#4caf50' },
+                      '& .MuiSwitch-switchBase.Mui-checked': { color: colors.success },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: colors.success },
                     }}
                   />
                 }
@@ -678,7 +679,7 @@ const FaceVerification = ({
                 sx={{
                   fontSize: '1.1rem',
                   fontWeight: 'medium',
-                  background: 'linear-gradient(135deg, #0066FF 0%, #004CFF 100%)',
+                  background: colors.primary,
                   '&:hover': { opacity: 0.9 },
                 }}
               >
@@ -721,11 +722,10 @@ const FaceVerification = ({
                   sx={{
                     fontSize: '1.1rem',
                     fontWeight: 'medium',
-                    background: 'linear-gradient(135deg, #13A183 0%, #5EBA4F 100%)',
+                    background: gradients.success,
                     '&:hover': { opacity: 0.9 },
-                  },
-                }}
-              >
+                  }}
+                >
                   {isLoading ? (
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <CircularProgress size={24} sx={{ color: 'white', mr: 1 }} />
@@ -748,7 +748,7 @@ const FaceVerification = ({
                 sx={{
                   fontSize: '1.1rem',
                   fontWeight: 'medium',
-                  background: 'linear-gradient(135deg, #13A183 0%, #5EBA4F 100%)',
+                  background: gradients.success,
                   '&:hover': { opacity: 0.9 },
                 }}
               >
@@ -787,7 +787,7 @@ const FaceVerification = ({
                     fontSize: '1.1rem',
                     fontWeight: 'medium',
                     background: bothImagesAvailable
-                      ? 'linear-gradient(135deg, #13A183 0%, #5EBA4F 100%)'
+                      ? gradients.success
                       : '#ccc',
                     '&:hover': { opacity: 0.9 },
                   }}
@@ -866,10 +866,10 @@ const FaceVerification = ({
                     onClick={handleRejectVerification}
                     sx={{
                       fontSize: '1.1rem',
-                      color: '#f44336',
-                      borderColor: '#f44336',
+                      color: colors.error,
+                      borderColor: colors.error,
                       '&:hover': {
-                        borderColor: '#d32f2f',
+                        borderColor: colors.error,
                         bgcolor: 'rgba(244, 67, 54, 0.1)'
                       },
                     }}
@@ -885,7 +885,7 @@ const FaceVerification = ({
                     sx={{
                       fontSize: '1.1rem',
                       fontWeight: 'medium',
-                      background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
+                      background: `linear-gradient(135deg, ${colors.success} 0%, #2e7d32 100%)`,
                       '&:hover': {
                         opacity: 0.9,
                       },

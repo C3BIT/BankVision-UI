@@ -7,9 +7,9 @@ import { sendOtpToCustomer } from '../../../redux/auth/customerSlice';
 const PhoneChangeRequest = ({ currentPhone, onBack }) => {
   const dispatch = useDispatch();
 
-  const sendOtpFn = async (phone) => {
+  const sendOtpFn = async (phone, captchaId, captchaAnswer) => {
     await dispatch(
-      sendOtpToCustomer({ phone, checkDuplicate: true })
+      sendOtpToCustomer({ phone, checkDuplicate: true, captchaId, captchaAnswer })
     ).unwrap();
   };
 

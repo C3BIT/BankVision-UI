@@ -8,6 +8,7 @@ import {
     CircularProgress,
 } from '@mui/material';
 import PropTypes from 'prop-types';
+import { colors } from '../../theme/tokens';
 
 const PhoneForm = ({ phone, setPhone, onStartCall, isLoading = false, disabled = false }) => {
     const [isTouched, setIsTouched] = useState(false);
@@ -46,7 +47,7 @@ const PhoneForm = ({ phone, setPhone, onStartCall, isLoading = false, disabled =
                 sx={{
                     fontSize: '0.875rem',
                     fontWeight: 500,
-                    color: '#666666',
+                    color: colors.textSecondary,
                     mb: 1,
                 }}
             >
@@ -67,16 +68,16 @@ const PhoneForm = ({ phone, setPhone, onStartCall, isLoading = false, disabled =
                 sx={{
                     mb: 3,
                     '& .MuiOutlinedInput-root': {
-                        backgroundColor: '#FFFFFF',
+                        backgroundColor: colors.surface,
                         fontSize: '1rem',
                         '& fieldset': {
-                            borderColor: isError ? '#FF4444' : '#E0E0E0',
+                            borderColor: isError ? colors.error : colors.border,
                         },
                         '&:hover fieldset': {
-                            borderColor: isError ? '#FF4444' : '#0066FF',
+                            borderColor: isError ? colors.error : colors.primary,
                         },
                         '&.Mui-focused fieldset': {
-                            borderColor: isError ? '#FF4444' : '#0066FF',
+                            borderColor: isError ? colors.error : colors.primary,
                             borderWidth: 2,
                         },
                     },
@@ -84,7 +85,7 @@ const PhoneForm = ({ phone, setPhone, onStartCall, isLoading = false, disabled =
                         padding: '14px 16px',
                     },
                     '& .MuiInputBase-input::placeholder': {
-                        color: '#999999',
+                        color: colors.textMuted,
                         opacity: 1,
                     },
                     '& .MuiFormHelperText-root': {
@@ -95,7 +96,7 @@ const PhoneForm = ({ phone, setPhone, onStartCall, isLoading = false, disabled =
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">
-                            <Typography sx={{ color: '#666666', fontWeight: 500 }}>
+                            <Typography sx={{ color: colors.textSecondary, fontWeight: 500 }}>
                                 +88
                             </Typography>
                         </InputAdornment>
@@ -115,11 +116,11 @@ const PhoneForm = ({ phone, setPhone, onStartCall, isLoading = false, disabled =
                     fontWeight: 600,
                     fontSize: '1rem',
                     color: '#FFFFFF',
-                    backgroundColor: '#0066FF',
+                    backgroundColor: colors.primary,
                     borderRadius: '8px',
                     boxShadow: 'none',
                     '&:hover': {
-                        backgroundColor: '#0052CC',
+                        backgroundColor: colors.primaryDark,
                         boxShadow: 'none',
                         transform: 'translateY(-1px)',
                     },
@@ -127,8 +128,8 @@ const PhoneForm = ({ phone, setPhone, onStartCall, isLoading = false, disabled =
                         transform: 'translateY(0)',
                     },
                     '&.Mui-disabled': {
-                        backgroundColor: '#E0E0E0',
-                        color: '#999999',
+                        backgroundColor: colors.border,
+                        color: colors.textMuted,
                     },
                     transition: 'all 0.2s ease-in-out',
                 }}

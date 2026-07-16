@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Box, Grid, Link, Typography } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
@@ -6,9 +6,11 @@ import AuthLayout from '../../components/layout/AuthLayout';
 import FormInput from '../../components/common/FormInput';
 import PasswordInput from '../../components/common/PasswordInput';
 import LoadingButton from '../../components/common/LoadingButton';
+import Captcha from '../../components/Captcha/Captcha';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginManager } from '../../redux/auth/authSlice';
-import Toast from '../../utils/toast'; 
+import Toast from '../../utils/toast';
+import { gradients } from '../../styles/tokens';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,6 +20,9 @@ const Login = () => {
     password: ''
   });
   const [errors, setErrors] = useState({});
+  const [captchaAnswer, setCaptchaAnswer] = useState('');
+  const [captchaId, setCaptchaId] = useState(null);
+  const captchaRef = useRef(null);
   const dispatch = useDispatch();
 
   const handleChange = (e) => {
@@ -57,22 +62,28 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      captchaRef.current?.refresh();
+      return;
+    }
 
     try {
       await dispatch(
         loginManager({
           email: formData.email,
           password: formData.password,
+          captchaId,
+          captchaAnswer,
         })
       ).unwrap();
-      
+
       Toast.success('Login successful!');
       navigate('/dashboard');
     } catch (error) {
       const errorMessage = error?.message || 'Invalid email or password';
       setErrors({ submit: errorMessage });
       Toast.error(errorMessage);
+      captchaRef.current?.refresh();
     }
   };
 
@@ -134,7 +145,14 @@ const Login = () => {
           fullWidth
           margin="normal"
         />
-        
+
+        <Captcha
+          ref={captchaRef}
+          value={captchaAnswer}
+          onChange={(e) => setCaptchaAnswer(e.target.value)}
+          onCaptchaIdChange={setCaptchaId}
+        />
+
         <Grid container justifyContent="flex-end">
           <Grid item>
             <Link
@@ -148,26 +166,27 @@ const Login = () => {
             </Link>
           </Grid>
         </Grid>
-        
+
         {errors.submit && (
           <Typography color="error" align="center" sx={{ mt: 2 }}>
             {errors.submit}
           </Typography>
         )}
-        
+
         <LoadingButton
           type="submit"
           fullWidth
           variant="contained"
           color="primary"
           loading={loading}
-          sx={{ 
-            mt: 3, 
+          disabled={!captchaAnswer.trim()}
+          sx={{
+            mt: 3,
             mb: 2,
-            background: 'linear-gradient(90deg, #13A183 0%, #5EBA4F 100%)',
+            background: gradients.success,
             color: 'white',
             '&:hover': {
-              background: 'linear-gradient(90deg, #13A183 0%, #5EBA4F 100%)',
+              background: gradients.success,
               opacity: 0.9,
             },
           }}

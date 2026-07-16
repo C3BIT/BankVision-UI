@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, Typography, TextField, Button, CircularProgress, Alert, Chip } from '@mui/material';
 import { CheckCircle, Send, HourglassEmpty } from '@mui/icons-material';
 import PropTypes from 'prop-types';
+import { colors } from '../../../styles/tokens';
 
 const PhoneVerification = ({ phoneNumber, verificationPending, onSendOTP, onResendOTP, otpSent, isVerified, onVerifyOTP }) => {
     const [otp, setOtp] = useState('');
@@ -106,8 +107,8 @@ const PhoneVerification = ({ phoneNumber, verificationPending, onSendOTP, onRese
                             onClick={handleVerify}
                             disabled={otp.length !== 6 || verificationPending}
                             sx={{
-                                backgroundColor: '#0066FF',
-                                '&:hover': { backgroundColor: '#0052CC' }
+                                backgroundColor: colors.primary,
+                                '&:hover': { backgroundColor: colors.primaryDark }
                             }}
                         >
                             Verify Manually
@@ -247,8 +248,8 @@ const EnterOTP = ({ phoneNumber, onVerifyOTP, verificationPending }) => {
                     onClick={handleVerifyEmail}
                     disabled={otp.length !== 6 || verificationPending}
                     sx={{
-                        backgroundColor: '#0066FF',
-                        '&:hover': { backgroundColor: '#0052CC' },
+                        backgroundColor: colors.primary,
+                        '&:hover': { backgroundColor: colors.primaryDark },
                         fontWeight: 'bold'
                     }}
                 >

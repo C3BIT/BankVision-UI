@@ -28,6 +28,7 @@ import {
 import { useWebSocket } from '../../context/WebSocketContext';
 import { publicPostFile } from '../../services/apiCaller';
 import { BD_GEO, DISTRICTS } from '../../utils/bdGeo';
+import { colors } from '../../theme/tokens';
 
 const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
   const { socket } = useWebSocket();
@@ -267,7 +268,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
               position: 'absolute',
               top: -8,
               right: -8,
-              color: '#666666',
+              color: colors.textSecondary,
               '&:hover': { backgroundColor: '#F0F0F0' },
             }}
           >
@@ -278,7 +279,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
           sx={{
             fontSize: '1.25rem',
             fontWeight: 600,
-            color: '#0066FF',
+            color: colors.primary,
             mb: 2,
             textAlign: 'center',
           }}
@@ -289,7 +290,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
         <Typography
           sx={{
             fontSize: '0.875rem',
-            color: '#666666',
+            color: colors.textSecondary,
             mb: 2,
             textAlign: 'center',
           }}
@@ -319,10 +320,10 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
               }
             }}
           >
-            <Typography sx={{ fontSize: '0.75rem', color: '#666666', mb: 0.5, fontWeight: 600 }}>
+            <Typography sx={{ fontSize: '0.75rem', color: colors.textSecondary, mb: 0.5, fontWeight: 600 }}>
               Current {addressType === 'present' ? 'Present' : 'Permanent'} Address:
             </Typography>
-            <Typography sx={{ fontSize: '0.813rem', color: '#1A1A1A', lineHeight: 1.4 }}>
+            <Typography sx={{ fontSize: '0.813rem', color: colors.textPrimary, lineHeight: 1.4 }}>
               {currentAddress[addressType].addressLine1}
               {currentAddress[addressType].addressLine2 && `, ${currentAddress[addressType].addressLine2}`}
               <br />
@@ -347,13 +348,13 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
                 textTransform: 'none',
                 fontSize: '0.875rem',
                 fontWeight: 500,
-                borderColor: '#E0E0E0',
-                color: '#666666',
+                borderColor: colors.border,
+                color: colors.textSecondary,
                 '&.Mui-selected': {
-                  backgroundColor: '#0066FF',
+                  backgroundColor: colors.primary,
                   color: '#FFFFFF',
                   '&:hover': {
-                    backgroundColor: '#0052CC',
+                    backgroundColor: colors.primaryDark,
                   },
                 },
               },
@@ -369,7 +370,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
           sx={{
             fontSize: '0.875rem',
             fontWeight: 500,
-            color: '#666666',
+            color: colors.textSecondary,
             mb: 2,
           }}
         >
@@ -381,7 +382,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
           <Typography
             sx={{
               fontSize: '0.75rem',
-              color: '#999999',
+              color: colors.textMuted,
               mb: 0.5,
             }}
           >
@@ -398,16 +399,16 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
             }}
             sx={{
               '& .MuiOutlinedInput-root': {
-                backgroundColor: '#FFFFFF',
+                backgroundColor: colors.surface,
                 fontSize: '0.875rem',
                 '& fieldset': {
-                  borderColor: '#E0E0E0',
+                  borderColor: colors.border,
                 },
                 '&:hover fieldset': {
-                  borderColor: '#0066FF',
+                  borderColor: colors.primary,
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#0066FF',
+                  borderColor: colors.primary,
                   borderWidth: 2,
                 },
               },
@@ -420,7 +421,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
           <Typography
             sx={{
               fontSize: '0.75rem',
-              color: '#999999',
+              color: colors.textMuted,
               mb: 0.5,
             }}
           >
@@ -437,16 +438,16 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
             }}
             sx={{
               '& .MuiOutlinedInput-root': {
-                backgroundColor: '#FFFFFF',
+                backgroundColor: colors.surface,
                 fontSize: '0.875rem',
                 '& fieldset': {
-                  borderColor: '#E0E0E0',
+                  borderColor: colors.border,
                 },
                 '&:hover fieldset': {
-                  borderColor: '#0066FF',
+                  borderColor: colors.primary,
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#0066FF',
+                  borderColor: colors.primary,
                   borderWidth: 2,
                 },
               },
@@ -461,7 +462,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
             <Typography
               sx={{
                 fontSize: '0.75rem',
-                color: '#999999',
+                color: colors.textMuted,
                 mb: 0.5,
               }}
             >
@@ -479,16 +480,16 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
                 }}
                 displayEmpty
                 sx={{
-                  backgroundColor: '#FFFFFF',
+                  backgroundColor: colors.surface,
                   fontSize: '0.875rem',
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#E0E0E0',
+                    borderColor: colors.border,
                   },
                   '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#0066FF',
+                    borderColor: colors.primary,
                   },
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#0066FF',
+                    borderColor: colors.primary,
                     borderWidth: 2,
                   },
                 }}
@@ -508,7 +509,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
             <Typography
               sx={{
                 fontSize: '0.75rem',
-                color: '#999999',
+                color: colors.textMuted,
                 mb: 0.5,
               }}
             >
@@ -525,16 +526,16 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
               }}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: '#FFFFFF',
+                  backgroundColor: colors.surface,
                   fontSize: '0.875rem',
                   '& fieldset': {
-                    borderColor: '#E0E0E0',
+                    borderColor: colors.border,
                   },
                   '&:hover fieldset': {
-                    borderColor: '#0066FF',
+                    borderColor: colors.primary,
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#0066FF',
+                    borderColor: colors.primary,
                     borderWidth: 2,
                   },
                 },
@@ -548,7 +549,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
           <Typography
             sx={{
               fontSize: '0.75rem',
-              color: '#999999',
+              color: colors.textMuted,
               mb: 0.5,
             }}
           >
@@ -565,16 +566,16 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
               displayEmpty
               disabled={!district}
               sx={{
-                backgroundColor: '#FFFFFF',
+                backgroundColor: colors.surface,
                 fontSize: '0.875rem',
                 '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#E0E0E0',
+                  borderColor: colors.border,
                 },
                 '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#0066FF',
+                  borderColor: colors.primary,
                 },
                 '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#0066FF',
+                  borderColor: colors.primary,
                   borderWidth: 2,
                 },
               }}
@@ -597,7 +598,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
             sx={{
               fontSize: '0.875rem',
               fontWeight: 600,
-              color: '#1A1A1A',
+              color: colors.textPrimary,
               mb: 1,
             }}
           >
@@ -606,7 +607,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
           <Typography
             sx={{
               fontSize: '0.75rem',
-              color: '#666666',
+              color: colors.textSecondary,
               mb: 2,
             }}
           >
@@ -633,12 +634,12 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
               py: 1.5,
               textTransform: 'none',
               fontWeight: 500,
-              borderColor: '#E0E0E0',
-              color: '#666666',
+              borderColor: colors.border,
+              color: colors.textSecondary,
               borderStyle: 'dashed',
               borderWidth: 2,
               '&:hover': {
-                borderColor: '#0066FF',
+                borderColor: colors.primary,
                 backgroundColor: '#F0F7FF',
               },
             }}
@@ -664,11 +665,11 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
                     alignItems: 'center',
                     gap: 1.5,
                     p: 1.5,
-                    backgroundColor: '#F5F5F5',
+                    backgroundColor: colors.background,
                     borderRadius: 1,
                   }}
                 >
-                  <Box sx={{ color: '#0066FF', display: 'flex' }}>
+                  <Box sx={{ color: colors.primary, display: 'flex' }}>
                     {getFileIcon(file.type)}
                   </Box>
                   <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -676,7 +677,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
                       sx={{
                         fontSize: '0.875rem',
                         fontWeight: 500,
-                        color: '#1A1A1A',
+                        color: colors.textPrimary,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
@@ -687,7 +688,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
                     <Typography
                       sx={{
                         fontSize: '0.75rem',
-                        color: '#999999',
+                        color: colors.textMuted,
                       }}
                     >
                       {formatFileSize(file.size)}
@@ -697,7 +698,7 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
                     size="small"
                     onClick={() => handleRemoveFile(index)}
                     sx={{
-                      color: '#FF4444',
+                      color: colors.error,
                       '&:hover': {
                         backgroundColor: '#FFE5E5',
                       },
@@ -727,15 +728,15 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
             textTransform: 'none',
             fontWeight: 600,
             fontSize: '1rem',
-            backgroundColor: '#0066FF',
+            backgroundColor: colors.primary,
             color: '#FFFFFF',
             borderRadius: '8px',
             '&:hover': {
-              backgroundColor: '#0052CC',
+              backgroundColor: colors.primaryDark,
             },
             '&.Mui-disabled': {
-              backgroundColor: '#E0E0E0',
-              color: '#999999',
+              backgroundColor: colors.border,
+              color: colors.textMuted,
             },
           }}
           variant="contained"

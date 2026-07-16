@@ -29,6 +29,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { sendOtpToCustomer } from '../../../redux/auth/customerSlice';
 import { publicPost } from '../../../services/apiCaller';
 import { BD_GEO, DISTRICTS } from '../../../utils/bdGeo';
+import Captcha from '../../Captcha/Captcha';
+import { colors } from '../../../styles/tokens';
 
 const API_BASE = (API_URL || '').replace('/api', '');
 const getDocUrl = (path) => {
@@ -60,6 +62,9 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState(null);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [captchaAnswer, setCaptchaAnswer] = useState('');
+  const [captchaId, setCaptchaId] = useState(null);
+  const captchaRef = useRef(null);
 
   // Separate timeouts for each field
   const typingTimeoutsRef = useRef({});
@@ -150,14 +155,19 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
   const isValidAddress = addressLine1 && district && upazila && postCode && (customerDocuments.length > 0 || documentsWaived);
 
   const handleSendOtpChangeAddress = async () => {
-    if (!isValidAddress) return;
+    if (!isValidAddress || !captchaAnswer.trim()) return;
 
     setIsSendingOtp(true);
     setError(null);
 
     try {
       await dispatch(
-        sendOtpToCustomer({ phone: accountDetails?.mobileNumber, checkDuplicate: false })
+        sendOtpToCustomer({
+          phone: accountDetails?.mobileNumber,
+          checkDuplicate: false,
+          captchaId,
+          captchaAnswer,
+        })
       ).unwrap();
 
       setOtpSent(true);
@@ -172,6 +182,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
       }
     } catch (err) {
       setError(err.data?.message || err.message || 'Failed to send OTP');
+      captchaRef.current?.refresh();
     } finally {
       setIsSendingOtp(false);
     }
@@ -230,9 +241,9 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
       padding: '20px',
       display: 'flex',
       flexDirection: 'column',
-      backgroundColor: '#FFFFFF',
+      backgroundColor: colors.surface,
       borderRadius: '12px',
-      border: '1px solid #E0E0E0',
+      border: `1px solid ${colors.border}`,
       boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
       gap: 2
     }}>
@@ -241,7 +252,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
         onClick={onBack}
         sx={{
           alignSelf: 'flex-start',
-          color: '#1A1A1A',
+          color: colors.textPrimary,
           '&:hover': {
             backgroundColor: '#F0F0F0'
           }
@@ -250,11 +261,11 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
         Back
       </Button>
 
-      <Typography variant="h6" sx={{ color: '#1A1A1A', fontWeight: 'medium' }}>
+      <Typography variant="h6" sx={{ color: colors.textPrimary, fontWeight: 'medium' }}>
         Customer Address Update
       </Typography>
 
-      <Divider sx={{ borderColor: '#E0E0E0' }} />
+      <Divider sx={{ borderColor: colors.border }} />
 
       {/* Current Address */}
       <Box>
@@ -267,23 +278,23 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
           variant="outlined"
           InputProps={{
             readOnly: true,
-            sx: { color: '#1A1A1A' }
+            sx: { color: colors.textPrimary }
           }}
           multiline
           rows={2}
           sx={{
             mt: 0.5,
             '& .MuiOutlinedInput-root': {
-              backgroundColor: '#F5F5F5',
+              backgroundColor: colors.background,
               '& fieldset': {
-                borderColor: '#E0E0E0',
+                borderColor: colors.border,
               },
             },
           }}
         />
       </Box>
 
-      <Divider sx={{ borderColor: '#E0E0E0' }} />
+      <Divider sx={{ borderColor: colors.border }} />
 
       {/* Address Type Toggle */}
       <Box>
@@ -308,12 +319,12 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
               flex: 1,
               py: 1.5,
               color: '#666',
-              borderColor: '#E0E0E0',
+              borderColor: colors.border,
               '&.Mui-selected': {
-                backgroundColor: '#0066FF',
+                backgroundColor: colors.primary,
                 color: '#FFFFFF',
                 '&:hover': {
-                  backgroundColor: '#0052CC',
+                  backgroundColor: colors.primaryDark,
                 },
               },
             },
@@ -353,10 +364,10 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
               mt: 0.5,
               '& .MuiOutlinedInput-root': {
                 backgroundColor: '#FAFAFA',
-                color: '#1A1A1A',
-                '& fieldset': { borderColor: '#E0E0E0' },
+                color: colors.textPrimary,
+                '& fieldset': { borderColor: colors.border },
                 '&:hover fieldset': { borderColor: '#BDBDBD' },
-                '&.Mui-focused fieldset': { borderColor: '#0066FF', borderWidth: 2 },
+                '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: 2 },
               },
               '& .MuiFormHelperText-root': { color: '#666', fontSize: '0.7rem' },
             }}
@@ -387,10 +398,10 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
               mt: 0.5,
               '& .MuiOutlinedInput-root': {
                 backgroundColor: '#FAFAFA',
-                color: '#1A1A1A',
-                '& fieldset': { borderColor: '#E0E0E0' },
+                color: colors.textPrimary,
+                '& fieldset': { borderColor: colors.border },
                 '&:hover fieldset': { borderColor: '#BDBDBD' },
-                '&.Mui-focused fieldset': { borderColor: '#0066FF', borderWidth: 2 },
+                '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: 2 },
               },
               '& .MuiFormHelperText-root': { color: '#666', fontSize: '0.7rem' },
             }}
@@ -421,10 +432,10 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
                 displayEmpty
                 sx={{
                   backgroundColor: '#FAFAFA',
-                  color: '#1A1A1A',
-                  '& .MuiOutlinedInput-notchedOutline': { borderColor: '#E0E0E0' },
+                  color: colors.textPrimary,
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: colors.border },
                   '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#BDBDBD' },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#0066FF', borderWidth: 2 },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: colors.primary, borderWidth: 2 },
                 }}
               >
                 <MenuItem value="" disabled>
@@ -460,10 +471,10 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
                 mt: 0.5,
                 '& .MuiOutlinedInput-root': {
                   backgroundColor: '#FAFAFA',
-                  color: '#1A1A1A',
-                  '& fieldset': { borderColor: '#E0E0E0' },
+                  color: colors.textPrimary,
+                  '& fieldset': { borderColor: colors.border },
                   '&:hover fieldset': { borderColor: '#BDBDBD' },
-                  '&.Mui-focused fieldset': { borderColor: '#0066FF', borderWidth: 2 },
+                  '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: 2 },
                 },
               }}
             />
@@ -490,10 +501,10 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
               displayEmpty
               sx={{
                 backgroundColor: '#FAFAFA',
-                color: '#1A1A1A',
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#E0E0E0' },
+                color: colors.textPrimary,
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: colors.border },
                 '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#BDBDBD' },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#0066FF', borderWidth: 2 },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: colors.primary, borderWidth: 2 },
               }}
             >
               <MenuItem value="" disabled>
@@ -507,7 +518,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
         </Box>
       </Box>
 
-      <Divider sx={{ borderColor: '#E0E0E0' }} />
+      <Divider sx={{ borderColor: colors.border }} />
 
       {/* Customer Uploaded Documents */}
       <Box>
@@ -519,9 +530,9 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
             backgroundColor: '#F8F9FA',
             borderRadius: '12px',
             p: 2,
-            border: '1px solid #E0E0E0'
+            border: `1px solid ${colors.border}`
           }}>
-            <Typography variant="subtitle2" sx={{ color: '#1A1A1A', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="subtitle2" sx={{ color: colors.textPrimary, mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
               <InsertDriveFile fontSize="small" />
               Customer Documents ({customerDocuments.length})
             </Typography>
@@ -530,7 +541,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
                 <ListItem
                   key={index}
                   sx={{
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: colors.surface,
                     borderRadius: '6px',
                     mb: 0.5,
                     py: 0.5,
@@ -543,7 +554,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
                   <ListItemText
                     primary={file.name || file.originalName}
                     primaryTypographyProps={{
-                      sx: { color: '#1A1A1A', fontSize: '0.85rem' }
+                      sx: { color: colors.textPrimary, fontSize: '0.85rem' }
                     }}
                   />
                   <Link
@@ -551,7 +562,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     sx={{
-                      color: '#4CAF50',
+                      color: colors.success,
                       display: 'flex',
                       alignItems: 'center',
                       gap: 0.5,
@@ -576,7 +587,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
                   onChange={(e) => setDocumentsWaived(e.target.checked)}
                   disabled={verified}
                   size="small"
-                  sx={{ color: '#FF9800', '&.Mui-checked': { color: '#FF9800' } }}
+                  sx={{ color: colors.warning, '&.Mui-checked': { color: colors.warning } }}
                 />
               }
               label={
@@ -610,15 +621,23 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
 
       {/* OTP and Submit Handling */}
       {!isLoading && !otpSent && !verified && isValidAddress && (
+        <Captcha
+          ref={captchaRef}
+          value={captchaAnswer}
+          onChange={(e) => setCaptchaAnswer(e.target.value)}
+          onCaptchaIdChange={setCaptchaId}
+        />
+      )}
+      {!isLoading && !otpSent && !verified && isValidAddress && (
         <Button
           fullWidth
           variant="contained"
           onClick={handleSendOtpChangeAddress}
-          disabled={isSendingOtp}
+          disabled={isSendingOtp || !captchaAnswer.trim()}
           sx={{
             py: 1.5,
             backgroundColor: '#2196F3',
-            '&:hover': { backgroundColor: '#1976D2' },
+            '&:hover': { backgroundColor: colors.primary },
             '&:disabled': { backgroundColor: '#90CAF9' },
             borderRadius: '6px',
             color: 'white',
@@ -639,7 +658,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
             OTP sent successfully to {accountDetails?.mobileNumber}
           </Alert>
 
-          <Divider sx={{ borderColor: '#E0E0E0', my: 1 }} />
+          <Divider sx={{ borderColor: colors.border, my: 1 }} />
 
           <Box>
             <Typography variant="caption" sx={{ color: '#666' }}>
@@ -663,10 +682,10 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
                 mt: 0.5,
                 '& .MuiOutlinedInput-root': {
                   backgroundColor: '#FAFAFA',
-                  color: '#1A1A1A',
-                  '& fieldset': { borderColor: '#E0E0E0' },
+                  color: colors.textPrimary,
+                  '& fieldset': { borderColor: colors.border },
                   '&:hover fieldset': { borderColor: '#BDBDBD' },
-                  '&.Mui-focused fieldset': { borderColor: '#0066FF', borderWidth: 2 },
+                  '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: 2 },
                 },
               }}
             />
@@ -679,8 +698,8 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
             disabled={isVerifying || otp.length !== 6}
             sx={{
               py: 1.5,
-              backgroundColor: '#4CAF50',
-              '&:hover': { backgroundColor: '#388E3C' },
+              backgroundColor: colors.success,
+              '&:hover': { backgroundColor: colors.success },
               '&:disabled': { backgroundColor: '#A5D6A7' },
               borderRadius: '6px',
               color: 'white',
@@ -712,8 +731,8 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
             onClick={onBack}
             sx={{
               py: 1.5,
-              backgroundColor: '#4CAF50',
-              '&:hover': { backgroundColor: '#388E3C' },
+              backgroundColor: colors.success,
+              '&:hover': { backgroundColor: colors.success },
               borderRadius: '6px',
               color: 'white',
               fontWeight: 'bold'

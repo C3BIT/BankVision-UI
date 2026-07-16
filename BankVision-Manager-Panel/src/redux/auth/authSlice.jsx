@@ -27,6 +27,8 @@ export const registerUser = createAsyncThunk(
     try {
       const response = await publicPost("/otp/send", {
         email: userData.email,
+        captchaId: userData.captchaId,
+        captchaAnswer: userData.captchaAnswer,
       });
       return response.data;
     } catch (err) {
@@ -40,11 +42,13 @@ export const registerUser = createAsyncThunk(
 
 export const loginManager = createAsyncThunk(
   "auth/loginManager",
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, password, captchaId, captchaAnswer }, { rejectWithValue }) => {
     try {
       const response = await publicPost("/manager/login", {
         email,
         password,
+        captchaId,
+        captchaAnswer,
       });
       return response.data;
     } catch (err) {

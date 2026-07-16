@@ -32,6 +32,7 @@ import {
 import PropTypes from 'prop-types';
 import { useWebSocket } from '../../providers/WebSocketProvider';
 import { useSelector } from 'react-redux';
+import { colors } from '../../styles/tokens';
 
 const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete }) => {
   const accountDetails = useSelector((state) => state.customerAccounts.accountDetails);
@@ -167,11 +168,11 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
     if (!requestData) return null;
     switch (requestData.type) {
       case 'phone':
-        return <PhoneIcon sx={{ fontSize: 40, color: '#0066FF' }} />;
+        return <PhoneIcon sx={{ fontSize: 40, color: colors.primary }} />;
       case 'email':
-        return <EmailIcon sx={{ fontSize: 40, color: '#0066FF' }} />;
+        return <EmailIcon sx={{ fontSize: 40, color: colors.primary }} />;
       case 'address':
-        return <HomeIcon sx={{ fontSize: 40, color: '#0066FF' }} />;
+        return <HomeIcon sx={{ fontSize: 40, color: colors.primary }} />;
       default:
         return null;
     }
@@ -254,13 +255,13 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
 
       return (
         <Box>
-          <Typography sx={{ fontSize: '0.875rem', color: '#666666', mb: 2 }}>
+          <Typography sx={{ fontSize: '0.875rem', color: colors.textSecondary, mb: 2 }}>
             Customer wants to update their {requestData.addressType} address:
           </Typography>
 
           <Box
             sx={{
-              backgroundColor: '#F5F5F5',
+              backgroundColor: colors.background,
               borderRadius: 2,
               p: 2,
               mb: 2,
@@ -269,11 +270,11 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
             <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, mb: 1 }}>
               New Address:
             </Typography>
-            <Typography sx={{ fontSize: '0.875rem', color: '#1A1A1A' }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textPrimary }}>
               {addressData.addressLine1}
               {addressData.addressLine2 && `, ${addressData.addressLine2}`}
             </Typography>
-            <Typography sx={{ fontSize: '0.875rem', color: '#1A1A1A' }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textPrimary }}>
               {addressData.upazila}, {addressData.district}
               {addressData.postCode && ` - ${addressData.postCode}`}
             </Typography>
@@ -294,14 +295,14 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                       alignItems: 'center',
                       gap: 1.5,
                       p: 1.5,
-                      backgroundColor: '#FFFFFF',
-                      border: '1px solid #E0E0E0',
+                      backgroundColor: colors.surface,
+                      border: `1px solid ${colors.border}`,
                       borderRadius: 1,
                       cursor: 'pointer',
                       transition: 'all 0.2s',
                       '&:hover': {
                         backgroundColor: '#F0F7FF',
-                        borderColor: '#0066FF',
+                        borderColor: colors.primary,
                         transform: 'translateY(-1px)',
                         boxShadow: '0 2px 8px rgba(0,102,255,0.1)',
                       },
@@ -316,7 +317,7 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                           height: 48,
                           borderRadius: 1,
                           overflow: 'hidden',
-                          backgroundColor: '#F5F5F5',
+                          backgroundColor: colors.background,
                           flexShrink: 0,
                         }}
                       >
@@ -336,11 +337,11 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                           width: 48,
                           height: 48,
                           borderRadius: 1,
-                          backgroundColor: '#F5F5F5',
+                          backgroundColor: colors.background,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          color: '#0066FF',
+                          color: colors.primary,
                           flexShrink: 0,
                         }}
                       >
@@ -354,7 +355,7 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                         sx={{
                           fontSize: '0.875rem',
                           fontWeight: 600,
-                          color: '#1A1A1A',
+                          color: colors.textPrimary,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap',
@@ -365,7 +366,7 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                       <Typography
                         sx={{
                           fontSize: '0.75rem',
-                          color: '#666666',
+                          color: colors.textSecondary,
                           mt: 0.25,
                         }}
                       >
@@ -374,7 +375,7 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                     </Box>
 
                     {/* Open Icon */}
-                    <OpenIcon sx={{ fontSize: 20, color: '#0066FF' }} />
+                    <OpenIcon sx={{ fontSize: 20, color: colors.primary }} />
                   </Box>
                 ))}
               </Box>
@@ -405,7 +406,7 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
 
     return (
       <Box>
-        <Typography sx={{ fontSize: '0.875rem', color: '#666666', mb: 2 }}>
+        <Typography sx={{ fontSize: '0.875rem', color: colors.textSecondary, mb: 2 }}>
           Customer wants to change their {requestData.type}:
         </Typography>
 
@@ -420,14 +421,14 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
           <Box sx={{ flex: 1 }}>
-            <Typography sx={{ fontSize: '0.75rem', color: '#999999', mb: 0.5 }}>
+            <Typography sx={{ fontSize: '0.75rem', color: colors.textMuted, mb: 0.5 }}>
               Current {requestData.type === 'phone' ? 'Number' : 'Email'}:
             </Typography>
             <Typography
               sx={{
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                color: '#FF4444',
+                color: colors.error,
                 backgroundColor: '#FFE5E5',
                 p: 1.5,
                 borderRadius: 1,
@@ -438,10 +439,10 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
             </Typography>
           </Box>
 
-          <Typography sx={{ fontSize: '1.5rem', color: '#999999' }}>→</Typography>
+          <Typography sx={{ fontSize: '1.5rem', color: colors.textMuted }}>→</Typography>
 
           <Box sx={{ flex: 1, position: 'relative' }}>
-            <Typography sx={{ fontSize: '0.75rem', color: '#999999', mb: 0.5 }}>
+            <Typography sx={{ fontSize: '0.75rem', color: colors.textMuted, mb: 0.5 }}>
               New {requestData.type === 'phone' ? 'Number' : 'Email'}:
             </Typography>
             <Box sx={{ position: 'relative' }}>
@@ -449,7 +450,7 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                 sx={{
                   fontSize: '0.875rem',
                   fontWeight: 600,
-                  color: '#4CAF50',
+                  color: colors.success,
                   backgroundColor: '#E5F7E5',
                   p: 1.5,
                   borderRadius: 1,
@@ -466,7 +467,7 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                     right: 8,
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    color: '#4CAF50',
+                    color: colors.success,
                     fontSize: 24,
                   }}
                 />
@@ -532,12 +533,12 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                 sx={{
                   fontSize: '1.25rem',
                   fontWeight: 600,
-                  color: '#1A1A1A',
+                  color: colors.textPrimary,
                 }}
               >
                 {getTitle()}
               </Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: '#666666' }}>
+              <Typography sx={{ fontSize: '0.875rem', color: colors.textSecondary }}>
                 From: {customerName || customerPhone}
               </Typography>
             </Box>
@@ -560,15 +561,15 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
               sx={{
                 mt: 2,
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: '#FFFFFF',
+                  backgroundColor: colors.surface,
                   '& fieldset': {
-                    borderColor: '#E0E0E0',
+                    borderColor: colors.border,
                   },
                   '&:hover fieldset': {
-                    borderColor: '#0066FF',
+                    borderColor: colors.primary,
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#0066FF',
+                    borderColor: colors.primary,
                     borderWidth: 2,
                   },
                 },
@@ -587,10 +588,10 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                 py: 1.5,
                 textTransform: 'none',
                 fontWeight: 600,
-                backgroundColor: '#4CAF50',
+                backgroundColor: colors.success,
                 color: '#FFFFFF',
                 '&:hover': {
-                  backgroundColor: '#43A047',
+                  backgroundColor: colors.success,
                 },
               }}
               variant="contained"
@@ -607,10 +608,10 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                   py: 1.5,
                   textTransform: 'none',
                   fontWeight: 600,
-                  color: '#FF4444',
-                  borderColor: '#FF4444',
+                  color: colors.error,
+                  borderColor: colors.error,
                   '&:hover': {
-                    borderColor: '#D32F2F',
+                    borderColor: colors.error,
                     backgroundColor: '#FFE5E5',
                   },
                 }}
@@ -626,10 +627,10 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                   py: 1.5,
                   textTransform: 'none',
                   fontWeight: 600,
-                  backgroundColor: '#4CAF50',
+                  backgroundColor: colors.success,
                   color: '#FFFFFF',
                   '&:hover': {
-                    backgroundColor: '#43A047',
+                    backgroundColor: colors.success,
                   },
                 }}
                 variant="contained"
@@ -646,7 +647,7 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                 }}
                 sx={{
                   textTransform: 'none',
-                  color: '#666666',
+                  color: colors.textSecondary,
                 }}
               >
                 Cancel
@@ -658,10 +659,10 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
                   py: 1.5,
                   textTransform: 'none',
                   fontWeight: 600,
-                  backgroundColor: '#FF4444',
+                  backgroundColor: colors.error,
                   color: '#FFFFFF',
                   '&:hover': {
-                    backgroundColor: '#D32F2F',
+                    backgroundColor: colors.error,
                   },
                 }}
                 variant="contained"
@@ -705,10 +706,10 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
               top: 16,
               right: 16,
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              color: '#1A1A1A',
+              color: colors.textPrimary,
               zIndex: 10,
               '&:hover': {
-                backgroundColor: '#FFFFFF',
+                backgroundColor: colors.surface,
               },
             }}
           >
@@ -726,10 +727,10 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
               top: 16,
               right: 72,
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              color: '#1A1A1A',
+              color: colors.textPrimary,
               zIndex: 10,
               '&:hover': {
-                backgroundColor: '#FFFFFF',
+                backgroundColor: colors.surface,
               },
             }}
           >

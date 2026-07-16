@@ -15,6 +15,7 @@ import {
   AccountCircle as AccountIcon,
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
+import { colors } from '../../styles/tokens';
 
 const SERVICE_OPTIONS = [
   {
@@ -63,16 +64,16 @@ const ServiceSelector = ({ onServiceSelect, disabled = false }) => {
       elevation={0}
       sx={{
         p: 3,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.surface,
         borderRadius: 2,
-        border: '1px solid #E0E0E0',
+        border: `1px solid ${colors.border}`,
       }}
     >
       <Typography
         sx={{
           fontSize: '1rem',
           fontWeight: 600,
-          color: '#1A1A1A',
+          color: colors.textPrimary,
           mb: 2,
         }}
       >
@@ -82,7 +83,7 @@ const ServiceSelector = ({ onServiceSelect, disabled = false }) => {
       <Typography
         sx={{
           fontSize: '0.875rem',
-          color: '#666666',
+          color: colors.textSecondary,
           mb: 3,
         }}
       >
@@ -99,20 +100,20 @@ const ServiceSelector = ({ onServiceSelect, disabled = false }) => {
           sx={{
             backgroundColor: '#FAFAFA',
             '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#E0E0E0',
+              borderColor: colors.border,
             },
             '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#0066FF',
+              borderColor: colors.primary,
             },
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#0066FF',
+              borderColor: colors.primary,
               borderWidth: 2,
             },
           }}
           renderValue={(selected) => {
             if (!selected) {
               return (
-                <Typography sx={{ color: '#999999', fontSize: '0.875rem' }}>
+                <Typography sx={{ color: colors.textMuted, fontSize: '0.875rem' }}>
                   Select your Service
                 </Typography>
               );
@@ -121,14 +122,14 @@ const ServiceSelector = ({ onServiceSelect, disabled = false }) => {
             const Icon = option?.icon;
             return (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                {Icon && <Icon sx={{ fontSize: 20, color: '#0066FF' }} />}
+                {Icon && <Icon sx={{ fontSize: 20, color: colors.primary }} />}
                 <Typography sx={{ fontSize: '0.875rem' }}>{option?.label}</Typography>
               </Box>
             );
           }}
         >
           <MenuItem value="" disabled>
-            <Typography sx={{ fontSize: '0.875rem', color: '#999999' }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textMuted }}>
               Select your Service
             </Typography>
           </MenuItem>
@@ -137,12 +138,12 @@ const ServiceSelector = ({ onServiceSelect, disabled = false }) => {
             return (
               <MenuItem key={option.value} value={option.value}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-                  <Icon sx={{ fontSize: 20, color: '#0066FF' }} />
+                  <Icon sx={{ fontSize: 20, color: colors.primary }} />
                   <Box>
                     <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                       {option.label}
                     </Typography>
-                    <Typography sx={{ fontSize: '0.75rem', color: '#666666' }}>
+                    <Typography sx={{ fontSize: '0.75rem', color: colors.textSecondary }}>
                       {option.description}
                     </Typography>
                   </Box>
@@ -163,7 +164,7 @@ const ServiceSelector = ({ onServiceSelect, disabled = false }) => {
             mb: 3,
           }}
         >
-          <Typography sx={{ fontSize: '0.875rem', color: '#0066FF', fontWeight: 500 }}>
+          <Typography sx={{ fontSize: '0.875rem', color: colors.primary, fontWeight: 500 }}>
             {selectedOption.description}
           </Typography>
         </Box>
@@ -179,15 +180,15 @@ const ServiceSelector = ({ onServiceSelect, disabled = false }) => {
           textTransform: 'none',
           fontWeight: 600,
           fontSize: '1rem',
-          backgroundColor: '#0066FF',
+          backgroundColor: colors.primary,
           color: '#FFFFFF',
           borderRadius: '8px',
           '&:hover': {
-            backgroundColor: '#0052CC',
+            backgroundColor: colors.primaryDark,
           },
           '&.Mui-disabled': {
-            backgroundColor: '#E0E0E0',
-            color: '#999999',
+            backgroundColor: colors.border,
+            color: colors.textMuted,
           },
         }}
         variant="contained"

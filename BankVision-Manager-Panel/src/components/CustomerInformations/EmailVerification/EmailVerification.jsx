@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, Typography, TextField, Button, CircularProgress, Alert, Chip } from '@mui/material';
 import PropTypes from 'prop-types';
 import { ArrowBack, Send, HourglassEmpty, CheckCircle } from '@mui/icons-material';
+import { colors } from '../../../styles/tokens';
 
 const EmailVerification = ({ email, verificationPending, onSendOTP, onResendOTP, onVerifyOTP, otpSent, isVerified, onBack }) => {
     const [otp, setOtp] = useState('');
@@ -116,8 +117,8 @@ const EmailVerification = ({ email, verificationPending, onSendOTP, onResendOTP,
                             onClick={handleVerify}
                             disabled={otp.length !== 6 || verificationPending}
                             sx={{
-                                backgroundColor: '#0066FF',
-                                '&:hover': { backgroundColor: '#0052CC' }
+                                backgroundColor: colors.primary,
+                                '&:hover': { backgroundColor: colors.primaryDark }
                             }}
                         >
                             Verify Manually
@@ -156,7 +157,7 @@ const EmailVerification = ({ email, verificationPending, onSendOTP, onResendOTP,
                     disabled
                     sx={{
                         py: 1.5,
-                        background: 'linear-gradient(to right, #4CAF50, #45a049)',
+                        background: `linear-gradient(to right, ${colors.success}, #45a049)`,
                         borderRadius: '8px',
                         opacity: 0.7,
                     }}
@@ -174,9 +175,9 @@ const EmailVerification = ({ email, verificationPending, onSendOTP, onResendOTP,
                         py: 1.5,
                         background: otpSent || isVerified
                             ? '#ccc'
-                            : 'linear-gradient(to right, #4CAF50, #45a049)',
+                            : `linear-gradient(to right, ${colors.success}, #45a049)`,
                         '&:hover': {
-                            background: 'linear-gradient(to right, #388E3C, #2e7d32)',
+                            background: `linear-gradient(to right, ${colors.success}, #2e7d32)`,
                         },
                         borderRadius: '8px',
                         fontWeight: '700',

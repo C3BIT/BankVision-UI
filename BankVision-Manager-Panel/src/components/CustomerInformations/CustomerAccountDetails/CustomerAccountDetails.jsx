@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { fetchCustomerDetailsByAccount } from '../../../redux/customer/customerAccountsSlice';
+import { colors } from '../../../styles/tokens';
 
 const AccountDetailsSkeleton = () => (
   <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -47,7 +48,7 @@ const CustomerAccountDetails = ({ selectedAccount, customerPhone, onServiceSelec
         bgcolor: '#EFF1F94D',
         borderRadius: '12px',
         p: 3,
-        border: '1px solid #e0e0e0',
+        border: `1px solid ${colors.border}`,
       }}>
         <Typography variant="h6" sx={{
           color: 'white',
@@ -107,7 +108,7 @@ const CustomerAccountDetails = ({ selectedAccount, customerPhone, onServiceSelec
         bgcolor: "#EFF1F94D",
         borderRadius: '12px',
         p: 3,
-        border: '1px solid #e0e0e0',
+        border: `1px solid ${colors.border}`,
       }}>
         <Typography variant="h6" sx={{
           color: 'white',
@@ -132,7 +133,7 @@ const CustomerAccountDetails = ({ selectedAccount, customerPhone, onServiceSelec
                 display: 'flex',
                 alignItems: 'center',
                 cursor: 'pointer',
-                border: '1px solid #e0e0e0',
+                border: `1px solid ${colors.border}`,
                 '&:hover': {
                   backgroundColor: 'rgba(239, 241, 249, 0.4)'
                 }
@@ -146,7 +147,7 @@ const CustomerAccountDetails = ({ selectedAccount, customerPhone, onServiceSelec
                 justifyContent: 'center',
                 borderRadius: '50%',
                 backgroundColor: '#f0f4f8',
-                border: '1px solid #e0e0e0',
+                border: `1px solid ${colors.border}`,
                 mr: 2
               }}>
                 {service.icon}
@@ -164,9 +165,9 @@ const CustomerAccountDetails = ({ selectedAccount, customerPhone, onServiceSelec
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: '50%',
-                  backgroundColor: '#4CAF50',
+                  backgroundColor: colors.success,
                   '&:hover': {
-                    backgroundColor: '#43A047',
+                    backgroundColor: colors.success,
                   }
                 }}
               >

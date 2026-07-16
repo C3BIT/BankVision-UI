@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import PropTypes from 'prop-types';
 import { FiberManualRecord } from '@mui/icons-material';
+import { colors } from '../../theme/tokens';
 
 const CallTimer = ({ startTime, isActive, variant = 'default', showRecordingDot = true }) => {
   const [elapsed, setElapsed] = useState(0);
@@ -111,7 +112,7 @@ const CallTimer = ({ startTime, isActive, variant = 'default', showRecordingDot 
         <FiberManualRecord
           sx={{
             fontSize: { xs: 10, sm: 12 },
-            color: '#FF4444',
+            color: colors.error,
             animation: 'pulse 1.5s ease-in-out infinite',
             '@keyframes pulse': {
               '0%, 100%': {

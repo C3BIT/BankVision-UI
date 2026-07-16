@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 import { useWebSocket } from '../../providers/WebSocketProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { compareFaces, fetchCustomerImage } from '../../redux/customer/customerImageSlice';
+import { colors } from '../../styles/tokens';
 
 const FaceVerificationModal = ({ open, onClose, customerName }) => {
   const [currentImage, setCurrentImage] = useState(null);
@@ -165,7 +166,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
             <Typography sx={{ fontWeight: 600, fontSize: '1.125rem', mb: 0.5 }}>
               Recent Image
             </Typography>
-            <Typography sx={{ fontSize: '0.875rem', color: '#666' }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textSecondary }}>
               Account most recent image
             </Typography>
           </Box>
@@ -173,7 +174,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
             <Typography sx={{ fontWeight: 600, fontSize: '1.125rem', mb: 0.5 }}>
               Current Image
             </Typography>
-            <Typography sx={{ fontSize: '0.875rem', color: '#666' }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textSecondary }}>
               Current video call image
             </Typography>
           </Box>
@@ -186,7 +187,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
             sx={{
               flex: 1,
               height: 250,
-              backgroundColor: '#F5F5F5',
+              backgroundColor: colors.background,
               borderRadius: 2,
               overflow: 'hidden',
               display: 'flex',
@@ -205,7 +206,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
                 }}
               />
             ) : (
-              <Typography sx={{ color: '#999' }}>No profile image</Typography>
+              <Typography sx={{ color: colors.textMuted }}>No profile image</Typography>
             )}
           </Box>
 
@@ -214,7 +215,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
             sx={{
               flex: 1,
               height: 250,
-              backgroundColor: '#F5F5F5',
+              backgroundColor: colors.background,
               borderRadius: 2,
               overflow: 'hidden',
               display: 'flex',
@@ -242,7 +243,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
                       position: 'absolute',
                       top: 8,
                       right: 8,
-                      backgroundColor: '#10B981',
+                      backgroundColor: colors.success,
                       borderRadius: '50%',
                       p: 0.5,
                     }}
@@ -252,7 +253,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
                 )}
               </>
             ) : (
-              <Typography sx={{ color: '#999' }}>Waiting for capture...</Typography>
+              <Typography sx={{ color: colors.textMuted }}>Waiting for capture...</Typography>
             )}
           </Box>
         </Box>
@@ -265,7 +266,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
                 {matchPercentage}% Matched
               </Typography>
             </Box>
-            <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 1 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textSecondary, mb: 1 }}>
               At least 90% have to be matched to proceed
             </Typography>
             <LinearProgress
@@ -276,7 +277,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
                 borderRadius: 1,
                 backgroundColor: '#E5E7EB',
                 '& .MuiLinearProgress-bar': {
-                  backgroundColor: matchPercentage >= 90 ? '#10B981' : '#EF4444',
+                  backgroundColor: matchPercentage >= 90 ? colors.success : colors.error,
                   borderRadius: 1,
                 },
               }}
@@ -296,9 +297,9 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
                 textTransform: 'none',
                 fontWeight: 600,
                 fontSize: '1rem',
-                backgroundColor: '#0066FF',
+                backgroundColor: colors.primary,
                 borderRadius: '8px',
-                '&:hover': { backgroundColor: '#0052CC' },
+                '&:hover': { backgroundColor: colors.primaryDark },
               }}
             >
               Capture Image
@@ -319,9 +320,9 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
                     textTransform: 'none',
                     fontWeight: 600,
                     fontSize: '1rem',
-                    backgroundColor: '#4CAF50',
+                    backgroundColor: colors.success,
                     borderRadius: '8px',
-                    '&:hover': { backgroundColor: '#43A047' },
+                    '&:hover': { backgroundColor: colors.success },
                   }}
                 >
                   Accept
@@ -336,11 +337,11 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
                     textTransform: 'none',
                     fontWeight: 600,
                     fontSize: '1rem',
-                    borderColor: '#FF9800',
-                    color: '#FF9800',
+                    borderColor: colors.warning,
+                    color: colors.warning,
                     borderRadius: '8px',
                     '&:hover': {
-                      borderColor: '#F57C00',
+                      borderColor: colors.warning,
                       backgroundColor: '#FFF3E0',
                     },
                   }}
@@ -360,7 +361,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
                     textTransform: 'none',
                     fontWeight: 600,
                     fontSize: '1rem',
-                    backgroundColor: '#EF4444',
+                    backgroundColor: colors.error,
                     borderRadius: '8px',
                     flex: 1,
                     '&:hover': { backgroundColor: '#DC2626' },
@@ -377,12 +378,12 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
                     textTransform: 'none',
                     fontWeight: 600,
                     fontSize: '1rem',
-                    borderColor: '#0066FF',
-                    color: '#0066FF',
+                    borderColor: colors.primary,
+                    color: colors.primary,
                     borderRadius: '8px',
                     flex: 1,
                     '&:hover': {
-                      borderColor: '#0052CC',
+                      borderColor: colors.primaryDark,
                       backgroundColor: '#E3F2FD',
                     },
                   }}

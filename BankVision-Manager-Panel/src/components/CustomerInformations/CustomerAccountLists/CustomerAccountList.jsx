@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { fetchCustomerAccountsByPhone } from '../../../redux/customer/customerAccountsSlice';
+import { colors } from '../../../styles/tokens';
 
 const ClientAccountList = ({ onAccountSelect, phoneNumber }) => {
   const dispatch = useDispatch();
@@ -60,7 +61,7 @@ const ClientAccountList = ({ onAccountSelect, phoneNumber }) => {
                 display: 'flex',
                 alignItems: 'center',
                 cursor: 'pointer',
-                border: '1px solid #e0e0e0',
+                border: `1px solid ${colors.border}`,
                 '&:hover': {
                   backgroundColor: '#e6e8f0',
                 },
@@ -76,7 +77,7 @@ const ClientAccountList = ({ onAccountSelect, phoneNumber }) => {
                     justifyContent: 'center',
                     borderRadius: '50%',
                     backgroundColor: '#f0f4f8',
-                    border: '1px solid #e0e0e0',
+                    border: `1px solid ${colors.border}`,
                   }}
                 >
                   <AccountBalance sx={{ color: '#555', fontSize: 20 }} />
@@ -105,10 +106,10 @@ const ClientAccountList = ({ onAccountSelect, phoneNumber }) => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: '50%',
-                  backgroundColor: '#4CAF50',
+                  backgroundColor: colors.success,
                   ml: 1,
                   '&:hover': {
-                    backgroundColor: '#43A047',
+                    backgroundColor: colors.success,
                   },
                 }}
               >

@@ -17,11 +17,12 @@ import {
   Brightness1,
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
+import { colors } from '../../styles/tokens';
 
 const STATUS_OPTIONS = [
-  { value: 'online', label: 'Available', color: '#4caf50', icon: Circle },
+  { value: 'online', label: 'Available', color: colors.success, icon: Circle },
   { value: 'busy', label: 'Busy', color: '#f44336', icon: Circle },
-  { value: 'break', label: 'On Break', color: '#ff9800', icon: Coffee },
+  { value: 'break', label: 'On Break', color: colors.warning, icon: Coffee },
   { value: 'lunch', label: 'At Lunch', color: '#2196f3', icon: RestaurantMenu },
   { value: 'prayer', label: 'Prayer Time', color: '#9c27b0', icon: Timer },
   { value: 'not_ready', label: 'Not Ready', color: '#757575', icon: Block },

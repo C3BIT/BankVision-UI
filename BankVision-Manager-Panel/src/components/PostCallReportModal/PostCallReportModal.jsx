@@ -17,6 +17,7 @@ import {
 import PropTypes from "prop-types";
 import { privatePost } from "../../services/apiCaller";
 import { useSelector } from "react-redux";
+import { colors } from "../../styles/tokens";
 
 const SERVICE_TYPE_OPTIONS = [
   { value: "kyc_verification", label: "KYC / Identity Verification" },
@@ -85,7 +86,7 @@ const PostCallReportModal = ({ open, callLogId, referenceNumber, onSubmitted, on
   return (
     <Dialog open={open} onClose={() => {}} maxWidth="sm" fullWidth disableEscapeKeyDown>
       <DialogTitle>
-        <Typography variant="h6" component="span" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
+        <Typography variant="h6" component="span" sx={{ fontWeight: 600, color: colors.textPrimary }}>
           Post-Call Report
         </Typography>
       </DialogTitle>
@@ -118,7 +119,7 @@ const PostCallReportModal = ({ open, callLogId, referenceNumber, onSubmitted, on
                   checked={serviceTypes.includes(opt.value)}
                   onChange={handleServiceTypeChange(opt.value)}
                   size="small"
-                  sx={{ color: "#0066FF", "&.Mui-checked": { color: "#0066FF" } }}
+                  sx={{ color: colors.primary, "&.Mui-checked": { color: colors.primary } }}
                 />
               }
               label={opt.label}
@@ -142,7 +143,7 @@ const PostCallReportModal = ({ open, callLogId, referenceNumber, onSubmitted, on
           sx={{
             "& .MuiOutlinedInput-root": {
               backgroundColor: "#fafafa",
-              "& fieldset": { borderColor: "#e0e0e0" },
+              "& fieldset": { borderColor: colors.border },
             },
           }}
         />

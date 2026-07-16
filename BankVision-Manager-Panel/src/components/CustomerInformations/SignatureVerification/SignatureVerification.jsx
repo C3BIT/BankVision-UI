@@ -16,6 +16,7 @@ import {
 import PropTypes from 'prop-types';
 import api from '../../../services/api';
 import { useWebSocket } from '../../../providers/WebSocketProvider';
+import { colors } from '../../../styles/tokens';
 
 
 const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) => {
@@ -135,7 +136,7 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
         Signature Verification
       </Typography>
 
-      <Typography variant="body2" sx={{ color: '#666', mb: 2 }}>
+      <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 2 }}>
         Request customer to upload signature for verification against bank records
       </Typography>
 
@@ -159,8 +160,8 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
           disabled={requestSent}
           startIcon={requestSent ? <CircularProgress size={20} /> : <Send />}
           sx={{
-            backgroundColor: '#0066FF',
-            '&:hover': { backgroundColor: '#0052CC' },
+            backgroundColor: colors.primary,
+            '&:hover': { backgroundColor: colors.primaryDark },
             py: 1.5,
           }}
         >
@@ -183,7 +184,7 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
                 overflow: 'hidden' // Prevent overflow
               }}
             >
-              <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 700, color: '#0066FF', textTransform: 'uppercase' }}>
+              <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 700, color: colors.primary, textTransform: 'uppercase' }}>
                 Bank Reference Signature
               </Typography>
               {loadingReference ? (
@@ -198,13 +199,13 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
                     height: 'auto',
                     maxHeight: '160px',
                     objectFit: 'contain',
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: colors.surface,
                     p: 1,
                     borderRadius: 1
                   }}
                 />
               ) : (
-                <Typography variant="body2" sx={{ py: 4, color: '#999' }}>No reference found</Typography>
+                <Typography variant="body2" sx={{ py: 4, color: colors.textMuted }}>No reference found</Typography>
               )}
             </Paper>
 
@@ -216,13 +217,13 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
                 p: 2,
                 textAlign: 'center',
                 backgroundColor: '#F8F9FA',
-                border: '1px solid #E0E0E0',
+                border: `1px solid ${colors.border}`,
                 borderRadius: 2,
                 minWidth: '200px',
                 overflow: 'hidden' // Prevent overflow
               }}
             >
-              <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 700, color: '#666', textTransform: 'uppercase' }}>
+              <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 700, color: colors.textSecondary, textTransform: 'uppercase' }}>
                 Customer Uploaded Signature
               </Typography>
               <Box
@@ -234,7 +235,7 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
                   height: 'auto',
                   maxHeight: '160px',
                   objectFit: 'contain',
-                  backgroundColor: '#FFFFFF',
+                  backgroundColor: colors.surface,
                   p: 1,
                   borderRadius: 1
                 }}
@@ -273,7 +274,7 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
             fullWidth
             onClick={handleReset}
             disabled={decisionPending}
-            sx={{ color: '#666' }}
+            sx={{ color: colors.textSecondary }}
           >
             Re-request Signature
           </Button>

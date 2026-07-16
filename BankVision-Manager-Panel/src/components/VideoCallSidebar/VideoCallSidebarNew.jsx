@@ -34,6 +34,7 @@ import {
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import { useWebSocket } from '../../providers/WebSocketProvider';
+import { colors } from '../../styles/tokens';
 import FaceVerificationModal from '../FaceVerificationModal/FaceVerificationModal';
 import SignatureVerification from '../CustomerInformations/SignatureVerification/SignatureVerification';
 import AccountActivation from '../CustomerInformations/AccountActivation/AccountActivation';
@@ -254,20 +255,20 @@ const VideoCallSidebarNew = ({
     textTransform: 'none',
     fontWeight: 500,
     justifyContent: 'flex-start',
-    borderColor: active ? '#10B981' : '#E0E0E0',
-    color: '#1A1A1A',
-    backgroundColor: active ? '#F0FDF4' : '#FFFFFF',
-    '&:hover': { borderColor: active ? '#10B981' : '#0066FF', backgroundColor: active ? '#F0FDF4' : '#F0F7FF' },
+    borderColor: active ? '#10B981' : colors.border,
+    color: colors.textPrimary,
+    backgroundColor: active ? '#F0FDF4' : colors.surface,
+    '&:hover': { borderColor: active ? '#10B981' : colors.primary, backgroundColor: active ? '#F0FDF4' : '#F0F7FF' },
     '&:disabled': { opacity: 0.5 },
   });
 
   return (
     <>
-      <Box sx={{ minHeight: '100%', backgroundColor: '#FFFFFF', p: 2 }}>
+      <Box sx={{ minHeight: '100%', backgroundColor: colors.surface, p: 2 }}>
 
         {/* Client's Information */}
         <Box sx={{ mb: 1.5 }}>
-          <Typography sx={{ fontWeight: 700, fontSize: '0.8125rem', color: '#1A1A1A', mb: 0.75, mt: 1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <Typography sx={{ fontWeight: 700, fontSize: '0.8125rem', color: colors.textPrimary, mb: 0.75, mt: 1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Client's Information
           </Typography>
 
@@ -297,7 +298,7 @@ const VideoCallSidebarNew = ({
             {/* CBS Profile Photo — right side */}
             <Box sx={{
               width: 60, height: 72, borderRadius: 1, overflow: 'hidden', flexShrink: 0,
-              border: '1px solid #E0E0E0', backgroundColor: '#F5F5F5',
+              border: `1px solid ${colors.border}`, backgroundColor: colors.background,
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             }}>
               {profileImage
@@ -309,8 +310,8 @@ const VideoCallSidebarNew = ({
 
           {/* Pre-Call Verification Info */}
           {verificationInfo && (
-            <Box sx={{ mt: 1, p: 1, backgroundColor: '#F5F5F5', borderRadius: 1 }}>
-              <Typography sx={{ fontWeight: 600, fontSize: '0.75rem', color: '#1A1A1A', mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Box sx={{ mt: 1, p: 1, backgroundColor: colors.background, borderRadius: 1 }}>
+              <Typography sx={{ fontWeight: 600, fontSize: '0.75rem', color: colors.textPrimary, mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <VerifiedUserIcon sx={{ fontSize: 14 }} /> Pre-Call Verification
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
@@ -318,14 +319,14 @@ const VideoCallSidebarNew = ({
                   label={verificationInfo.method === 'phone' ? 'Phone' : 'Email'}
                   size="small"
                   icon={verificationInfo.method === 'phone' ? <PhoneIcon /> : <EmailIcon />}
-                  sx={{ height: 18, fontSize: '0.65rem', backgroundColor: verificationInfo.method === 'phone' ? '#E3F2FD' : '#FFF3E0', color: verificationInfo.method === 'phone' ? '#1976D2' : '#F57C00' }}
+                  sx={{ height: 18, fontSize: '0.65rem', backgroundColor: verificationInfo.method === 'phone' ? '#E3F2FD' : '#FFF3E0', color: verificationInfo.method === 'phone' ? colors.primary : colors.warning }}
                 />
                 <Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{verificationInfo.phoneOrEmail || 'N/A'}</Typography>
                 <Chip
                   label={verificationInfo.isInternal ? 'Internal' : 'External'}
                   size="small"
                   icon={<PersonIcon />}
-                  sx={{ height: 18, fontSize: '0.65rem', backgroundColor: verificationInfo.isInternal ? '#E8F5E9' : '#FFF3E0', color: verificationInfo.isInternal ? '#2E7D32' : '#F57C00', fontWeight: 600 }}
+                  sx={{ height: 18, fontSize: '0.65rem', backgroundColor: verificationInfo.isInternal ? '#E8F5E9' : '#FFF3E0', color: verificationInfo.isInternal ? '#2E7D32' : colors.warning, fontWeight: 600 }}
                 />
               </Box>
             </Box>
@@ -333,9 +334,9 @@ const VideoCallSidebarNew = ({
         </Box>
 
         {/* Verification Summary — compact horizontal chips */}
-        <Box sx={{ mb: 1.5, p: 1, backgroundColor: '#F8F9FA', borderRadius: 1, border: '1px solid #E0E0E0' }}>
+        <Box sx={{ mb: 1.5, p: 1, backgroundColor: '#F8F9FA', borderRadius: 1, border: `1px solid ${colors.border}` }}>
           <Typography sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#555', mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            <VerifiedUserIcon sx={{ fontSize: 13, color: '#0066FF' }} /> Verification Status
+            <VerifiedUserIcon sx={{ fontSize: 13, color: colors.primary }} /> Verification Status
           </Typography>
           <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
             {[
@@ -354,7 +355,7 @@ const VideoCallSidebarNew = ({
                   fontSize: '0.65rem',
                   fontWeight: 600,
                   backgroundColor: ok ? '#E8F5E9' : fail ? '#FFEBEE' : '#FFF3E0',
-                  color: ok ? '#2E7D32' : fail ? '#D32F2F' : '#F57C00',
+                  color: ok ? '#2E7D32' : fail ? colors.error : colors.warning,
                   '& .MuiChip-icon': { marginLeft: '4px' },
                 }}
               />
@@ -418,8 +419,8 @@ const VideoCallSidebarNew = ({
                     </Box>
                   </Button>
 
-                  <Box sx={{ py: 0.75, px: 1.5, border: '1px solid', borderColor: faceVerificationStatus === 'verified' ? '#10B981' : '#E0E0E0', borderRadius: 1, backgroundColor: faceVerificationStatus === 'verified' ? '#F0FDF4' : '#FFFFFF', display: 'flex', alignItems: 'center', gap: 1 }}>
-                    {faceVerificationStatus === 'verified' ? <CheckCircleIcon sx={{ color: '#10B981', fontSize: 18 }} /> : <FaceIcon sx={{ color: '#0066FF', fontSize: 18 }} />}
+                  <Box sx={{ py: 0.75, px: 1.5, border: '1px solid', borderColor: faceVerificationStatus === 'verified' ? '#10B981' : colors.border, borderRadius: 1, backgroundColor: faceVerificationStatus === 'verified' ? '#F0FDF4' : colors.surface, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {faceVerificationStatus === 'verified' ? <CheckCircleIcon sx={{ color: '#10B981', fontSize: 18 }} /> : <FaceIcon sx={{ color: colors.primary, fontSize: 18 }} />}
                     <Box>
                       <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>Face Verification</Typography>
                       <Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{faceVerificationStatus === 'verified' ? 'Verified ✓ - Passive monitoring active' : 'Passive - Auto-verifying via CBS...'}</Typography>
@@ -464,12 +465,12 @@ const VideoCallSidebarNew = ({
                     { icon: <AccountIcon />, label: 'Dormant Account Activation', sub: 'Activate dormant account', onClick: () => setShowAccountActivation(true) },
                   ].map(({ icon, label, sub, onClick }) => (
                     <Button key={label} fullWidth variant="outlined" disabled={!selectedAccountNumber} onClick={onClick} startIcon={icon}
-                      sx={{ py: 0.75, textTransform: 'none', fontWeight: 500, justifyContent: 'flex-start', borderColor: '#E0E0E0', color: '#1A1A1A', backgroundColor: '#FFFFFF', '&:hover': { borderColor: '#0066FF', backgroundColor: '#F0F7FF' } }}>
+                      sx={{ py: 0.75, textTransform: 'none', fontWeight: 500, justifyContent: 'flex-start', borderColor: colors.border, color: colors.textPrimary, backgroundColor: colors.surface, '&:hover': { borderColor: colors.primary, backgroundColor: '#F0F7FF' } }}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1 }}>
                         <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>{label}</Typography>
                         <Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{sub}</Typography>
                       </Box>
-                      <EditIcon sx={{ fontSize: 16, color: '#0066FF' }} />
+                      <EditIcon sx={{ fontSize: 16, color: colors.primary }} />
                     </Button>
                   ))}
                 </Box>
@@ -507,15 +508,15 @@ const VideoCallSidebarNew = ({
               <List sx={{ p: 0 }}>
                 {accounts.map((account, index) => (
                   <ListItem key={index} onClick={() => { if (onAccountSelect) onAccountSelect(account.id); dispatch(setSelectedAccountNumber(account.id)); }}
-                    sx={{ px: 1.5, py: 0.75, mb: 0.5, borderRadius: 1, cursor: 'pointer', border: selectedAccountNumber === account.id ? '2px solid #0066FF' : '2px solid transparent', backgroundColor: selectedAccountNumber === account.id ? '#E8F0FF' : '#F8F9FA', '&:hover': { backgroundColor: selectedAccountNumber === account.id ? '#D4E5FF' : '#E9ECEF' } }}>
+                    sx={{ px: 1.5, py: 0.75, mb: 0.5, borderRadius: 1, cursor: 'pointer', border: selectedAccountNumber === account.id ? `2px solid ${colors.primary}` : '2px solid transparent', backgroundColor: selectedAccountNumber === account.id ? '#E8F0FF' : '#F8F9FA', '&:hover': { backgroundColor: selectedAccountNumber === account.id ? '#D4E5FF' : '#E9ECEF' } }}>
                     <ListItemIcon sx={{ minWidth: 32 }}>
-                      <AccountIcon sx={{ color: selectedAccountNumber === account.id ? '#0066FF' : '#666', fontSize: 20 }} />
+                      <AccountIcon sx={{ color: selectedAccountNumber === account.id ? colors.primary : '#666', fontSize: 20 }} />
                     </ListItemIcon>
                     <ListItemText
-                      primary={<Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: selectedAccountNumber === account.id ? '#0066FF' : '#1A1A1A' }}>A/C: {account.id}</Typography>}
+                      primary={<Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: selectedAccountNumber === account.id ? colors.primary : colors.textPrimary }}>A/C: {account.id}</Typography>}
                       secondary={<Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{account.type}, {account.branch}</Typography>}
                     />
-                    {selectedAccountNumber === account.id ? <CheckCircleIcon sx={{ color: '#0066FF', fontSize: 18 }} /> : <IconButton size="small"><ChevronRightIcon sx={{ fontSize: 18 }} /></IconButton>}
+                    {selectedAccountNumber === account.id ? <CheckCircleIcon sx={{ color: colors.primary, fontSize: 18 }} /> : <IconButton size="small"><ChevronRightIcon sx={{ fontSize: 18 }} /></IconButton>}
                   </ListItem>
                 ))}
               </List>
@@ -532,7 +533,7 @@ const VideoCallSidebarNew = ({
               <List sx={{ p: 0 }}>
                 {cards.map((card, index) => (
                   <ListItem key={index} sx={{ px: 1.5, py: 0.75, mb: 0.5, backgroundColor: '#F8F9FA', borderRadius: 1, cursor: 'pointer', '&:hover': { backgroundColor: '#E9ECEF' } }}>
-                    <ListItemIcon sx={{ minWidth: 32 }}><CardIcon sx={{ color: '#0066FF', fontSize: 20 }} /></ListItemIcon>
+                    <ListItemIcon sx={{ minWidth: 32 }}><CardIcon sx={{ color: colors.primary, fontSize: 20 }} /></ListItemIcon>
                     <ListItemText
                       primary={<Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>{card.number}</Typography>}
                       secondary={<Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{card.type} - {card.category}</Typography>}
@@ -554,7 +555,7 @@ const VideoCallSidebarNew = ({
               <List sx={{ p: 0 }}>
                 {loans.map((loan, index) => (
                   <ListItem key={index} sx={{ px: 1.5, py: 0.75, mb: 0.5, backgroundColor: '#F8F9FA', borderRadius: 1, cursor: 'pointer', '&:hover': { backgroundColor: '#E9ECEF' } }}>
-                    <ListItemIcon sx={{ minWidth: 32 }}><LoanIcon sx={{ color: '#0066FF', fontSize: 20 }} /></ListItemIcon>
+                    <ListItemIcon sx={{ minWidth: 32 }}><LoanIcon sx={{ color: colors.primary, fontSize: 20 }} /></ListItemIcon>
                     <ListItemText
                       primary={<Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>{loan.number}</Typography>}
                       secondary={<Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{loan.type} - {loan.category}</Typography>}

@@ -1,4 +1,5 @@
 import { createTheme } from '@mui/material/styles';
+import { colors, gradients } from './theme/tokens';
 
 const theme = createTheme({
     typography: {
@@ -6,18 +7,34 @@ const theme = createTheme({
         h1: {
             fontSize: '2rem',
             fontWeight: 600,
+            background: gradients.brand,
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
         },
         h4: {
             fontSize: '1.75rem',
             fontWeight: 600,
+            background: gradients.brand,
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
         },
         h5: {
             fontSize: '1.5rem',
             fontWeight: 600,
+            background: gradients.brand,
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
         },
         h6: {
             fontSize: '1.25rem',
             fontWeight: 600,
+            background: gradients.brand,
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
         },
         button: {
             textTransform: 'none',
@@ -26,20 +43,21 @@ const theme = createTheme({
     },
     palette: {
         primary: {
-            main: '#0066FF',
-            contrastText: '#FFFFFF',
+            main: colors.primary,
+            dark: colors.primaryDark,
+            contrastText: colors.surface,
         },
         secondary: {
-            main: '#FF4444',
-            contrastText: '#FFFFFF',
+            main: colors.error,
+            contrastText: colors.surface,
         },
         background: {
-            default: '#F5F5F5',
-            paper: '#FFFFFF',
+            default: colors.background,
+            paper: colors.surface,
         },
         text: {
-            primary: '#1A1A1A',
-            secondary: '#666666',
+            primary: colors.textPrimary,
+            secondary: colors.textSecondary,
         },
     },
     shape: {
@@ -62,6 +80,15 @@ const theme = createTheme({
                         transition: 'transform 0.2s ease-in-out',
                     },
                 },
+                containedPrimary: {
+                    background: gradients.brand,
+                    '&:hover': {
+                        background: gradients.brand,
+                    },
+                    '&.Mui-disabled': {
+                        background: 'rgba(0, 0, 0, 0.12)',
+                    },
+                },
             },
         },
         MuiPaper: {
@@ -78,9 +105,9 @@ const theme = createTheme({
             styleOverrides: {
                 root: {
                     borderRadius: 8,
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: colors.surface,
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#0066FF',
+                        borderColor: colors.primary,
                         borderWidth: 2,
                     },
                 },

@@ -18,6 +18,7 @@ import {
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCustomerAccountsByPhone, fetchCustomerDetailsByAccount } from '../../redux/customer/customerAccountsSlice';
+import { colors } from '../../styles/tokens';
 
 const maskAccountNumber = (accountNumber) => {
   if (!accountNumber) return '';
@@ -74,7 +75,7 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
         width: '100%',
         height: '100%',
         overflowY: 'auto',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.surface,
       }}
     >
       {/* Client's Information */}
@@ -83,7 +84,7 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
           sx={{
             fontSize: '1rem',
             fontWeight: 600,
-            color: '#1A1A1A',
+            color: colors.textPrimary,
             mb: 2,
           }}
         >
@@ -92,37 +93,37 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Typography sx={{ fontSize: '0.875rem', color: '#666666', minWidth: 70 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textSecondary, minWidth: 70 }}>
               Name:
             </Typography>
-            <Typography sx={{ fontSize: '0.875rem', color: '#1A1A1A', fontWeight: 500 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textPrimary, fontWeight: 500 }}>
               {customerInfo.name}
             </Typography>
           </Box>
 
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Typography sx={{ fontSize: '0.875rem', color: '#666666', minWidth: 70 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textSecondary, minWidth: 70 }}>
               Mobile:
             </Typography>
-            <Typography sx={{ fontSize: '0.875rem', color: '#1A1A1A', fontWeight: 500 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textPrimary, fontWeight: 500 }}>
               {customerInfo.mobile}
             </Typography>
           </Box>
 
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Typography sx={{ fontSize: '0.875rem', color: '#666666', minWidth: 70 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textSecondary, minWidth: 70 }}>
               E-mail:
             </Typography>
-            <Typography sx={{ fontSize: '0.875rem', color: '#1A1A1A', fontWeight: 500 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textPrimary, fontWeight: 500 }}>
               {customerInfo.email}
             </Typography>
           </Box>
 
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Typography sx={{ fontSize: '0.875rem', color: '#666666', minWidth: 70 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textSecondary, minWidth: 70 }}>
               Address:
             </Typography>
-            <Typography sx={{ fontSize: '0.875rem', color: '#1A1A1A', fontWeight: 500 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textPrimary, fontWeight: 500 }}>
               {customerInfo.address}
             </Typography>
           </Box>
@@ -137,7 +138,7 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
           sx={{
             fontSize: '1rem',
             fontWeight: 600,
-            color: '#1A1A1A',
+            color: colors.textPrimary,
             mb: 2,
           }}
         >
@@ -159,7 +160,7 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
                   mb: 1,
                   backgroundColor: '#FAFAFA',
                   borderRadius: 2,
-                  border: '1px solid #E0E0E0',
+                  border: `1px solid ${colors.border}`,
                   cursor: 'pointer',
                   '&:hover': {
                     backgroundColor: '#F0F0F0',
@@ -178,29 +179,29 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
                       justifyContent: 'center',
                     }}
                   >
-                    <DescriptionIcon sx={{ fontSize: 18, color: '#0066FF' }} />
+                    <DescriptionIcon sx={{ fontSize: 18, color: colors.primary }} />
                   </Box>
                 </ListItemIcon>
 
                 <ListItemText
                   primary={
-                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#1A1A1A' }}>
+                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.textPrimary }}>
                       A/C : {account.accountNumber}
                     </Typography>
                   }
                   secondary={
-                    <Typography sx={{ fontSize: '0.75rem', color: '#666666', mt: 0.5 }}>
+                    <Typography sx={{ fontSize: '0.75rem', color: colors.textSecondary, mt: 0.5 }}>
                       {account.accountType || 'Savings Account'}, {account.branch || 'Main Branch'}
                     </Typography>
                   }
                 />
 
-                <ChevronRightIcon sx={{ fontSize: 20, color: '#999999' }} />
+                <ChevronRightIcon sx={{ fontSize: 20, color: colors.textMuted }} />
               </ListItem>
             ))}
           </List>
         ) : (
-          <Typography sx={{ fontSize: '0.875rem', color: '#999999', textAlign: 'center', py: 2 }}>
+          <Typography sx={{ fontSize: '0.875rem', color: colors.textMuted, textAlign: 'center', py: 2 }}>
             No accounts found
           </Typography>
         )}
@@ -214,7 +215,7 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
           sx={{
             fontSize: '1rem',
             fontWeight: 600,
-            color: '#1A1A1A',
+            color: colors.textPrimary,
             mb: 2,
           }}
         >
@@ -231,7 +232,7 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
                   mb: 1,
                   backgroundColor: '#FAFAFA',
                   borderRadius: 2,
-                  border: '1px solid #E0E0E0',
+                  border: `1px solid ${colors.border}`,
                   cursor: 'pointer',
                   '&:hover': {
                     backgroundColor: '#F0F0F0',
@@ -250,29 +251,29 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
                       justifyContent: 'center',
                     }}
                   >
-                    <CreditCardIcon sx={{ fontSize: 18, color: '#FF9800' }} />
+                    <CreditCardIcon sx={{ fontSize: 18, color: colors.warning }} />
                   </Box>
                 </ListItemIcon>
 
                 <ListItemText
                   primary={
-                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#1A1A1A' }}>
+                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.textPrimary }}>
                       {maskCardNumber(card.number || card.cardNumber)}
                     </Typography>
                   }
                   secondary={
-                    <Typography sx={{ fontSize: '0.75rem', color: '#666666', mt: 0.5 }}>
+                    <Typography sx={{ fontSize: '0.75rem', color: colors.textSecondary, mt: 0.5 }}>
                       {card.type || card.cardType || 'Card'} - {card.category || card.tier || 'Standard'}
                     </Typography>
                   }
                 />
 
-                <ChevronRightIcon sx={{ fontSize: 20, color: '#999999' }} />
+                <ChevronRightIcon sx={{ fontSize: 20, color: colors.textMuted }} />
               </ListItem>
             ))}
           </List>
         ) : (
-          <Typography sx={{ fontSize: '0.875rem', color: '#999999', textAlign: 'center', py: 2 }}>
+          <Typography sx={{ fontSize: '0.875rem', color: colors.textMuted, textAlign: 'center', py: 2 }}>
             No cards found
           </Typography>
         )}
@@ -286,7 +287,7 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
           sx={{
             fontSize: '1rem',
             fontWeight: 600,
-            color: '#1A1A1A',
+            color: colors.textPrimary,
             mb: 2,
           }}
         >
@@ -303,7 +304,7 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
                   mb: 1,
                   backgroundColor: '#FAFAFA',
                   borderRadius: 2,
-                  border: '1px solid #E0E0E0',
+                  border: `1px solid ${colors.border}`,
                   cursor: 'pointer',
                   '&:hover': {
                     backgroundColor: '#F0F0F0',
@@ -322,29 +323,29 @@ const CustomerInfoPanel = ({ customerPhone, customerName, onAccountSelect }) => 
                       justifyContent: 'center',
                     }}
                   >
-                    <AccountBalanceIcon sx={{ fontSize: 18, color: '#4CAF50' }} />
+                    <AccountBalanceIcon sx={{ fontSize: 18, color: colors.success }} />
                   </Box>
                 </ListItemIcon>
 
                 <ListItemText
                   primary={
-                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#1A1A1A' }}>
+                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.textPrimary }}>
                       {maskCardNumber(loan.number || loan.loanNumber)}
                     </Typography>
                   }
                   secondary={
-                    <Typography sx={{ fontSize: '0.75rem', color: '#666666', mt: 0.5 }}>
+                    <Typography sx={{ fontSize: '0.75rem', color: colors.textSecondary, mt: 0.5 }}>
                       {loan.type || loan.loanType || 'Loan'} - {loan.status || 'Active'}
                     </Typography>
                   }
                 />
 
-                <ChevronRightIcon sx={{ fontSize: 20, color: '#999999' }} />
+                <ChevronRightIcon sx={{ fontSize: 20, color: colors.textMuted }} />
               </ListItem>
             ))}
           </List>
         ) : (
-          <Typography sx={{ fontSize: '0.875rem', color: '#999999', textAlign: 'center', py: 2 }}>
+          <Typography sx={{ fontSize: '0.875rem', color: colors.textMuted, textAlign: 'center', py: 2 }}>
             No loans found
           </Typography>
         )}

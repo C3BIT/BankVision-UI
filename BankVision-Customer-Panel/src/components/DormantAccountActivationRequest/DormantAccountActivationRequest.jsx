@@ -4,6 +4,8 @@ import { CheckCircle, HourglassEmpty } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
+import { colors, gradients } from '../../theme/tokens';
+import BrandLogo from '../BrandLogo/BrandLogo';
 
 const debounce = (func, delay) => {
     let t;
@@ -17,10 +19,10 @@ const inputSx = {
         '& fieldset': { borderColor: 'rgba(0,0,0,0.1)' },
         '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.6)' },
         '&.Mui-focused fieldset': { borderColor: '#7C3AED', borderWidth: '1.5px' },
-        '&.Mui-error fieldset': { borderColor: '#D32F2F' },
+        '&.Mui-error fieldset': { borderColor: colors.error },
     },
     '& .MuiInputLabel-root.Mui-focused': { color: '#7C3AED' },
-    '& .MuiInputAdornment-root p': { color: '#666', fontSize: '0.85rem', fontWeight: 500 },
+    '& .MuiInputAdornment-root p': { color: colors.textSecondary, fontSize: '0.85rem', fontWeight: 500 },
 };
 
 const DormantAccountActivationRequest = ({ socket }) => {
@@ -179,6 +181,7 @@ const DormantAccountActivationRequest = ({ socket }) => {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2 }}>
+            <BrandLogo size="small" />
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
                     Dormant Account Activation
@@ -294,14 +297,14 @@ const DormantAccountActivationRequest = ({ socket }) => {
                 sx={{
                     mt: 1,
                     background: canSubmit
-                        ? 'linear-gradient(90deg, #7C3AED 0%, #9F67F5 100%)'
+                        ? gradients.brand
                         : undefined,
                     color: 'white',
                     fontWeight: 600,
                     py: 1.2,
                     borderRadius: '8px',
                     '&:hover': {
-                        background: 'linear-gradient(90deg, #6D28D9 0%, #8B5CF6 100%)',
+                        background: gradients.brand,
                     },
                     '&.Mui-disabled': { background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.4)' },
                 }}

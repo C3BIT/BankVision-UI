@@ -1,5 +1,6 @@
 import { Box, Paper } from '@mui/material';
 import PropTypes from 'prop-types';
+import { colors } from '../../styles/tokens';
 
 const VideoCallLayout = ({
   children,
@@ -16,7 +17,7 @@ const VideoCallLayout = ({
         height: 'calc(100vh - 64px)',
         display: 'flex',
         flexDirection: 'row',
-        backgroundColor: '#F5F5F5',
+        backgroundColor: colors.background,
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -29,7 +30,7 @@ const VideoCallLayout = ({
           position: 'relative',
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#F5F5F5',
+          backgroundColor: colors.background,
           p: 2,
         }}
       >
@@ -81,10 +82,10 @@ const VideoCallLayout = ({
         sx={{
           flex: '0 0 30%',
           height: '100%',
-          backgroundColor: '#FFFFFF',
+          backgroundColor: colors.surface,
           overflowY: 'auto',
           overflowX: 'hidden',
-          borderLeft: '1px solid #E0E0E0',
+          borderLeft: `1px solid ${colors.border}`,
           scrollbarWidth: 'thin',
         }}
       >

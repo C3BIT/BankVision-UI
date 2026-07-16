@@ -16,6 +16,7 @@ import {
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import api from '../../services/api';
+import { colors } from '../../styles/tokens';
 
 const PassiveFaceVerification = ({
   videoElement,
@@ -516,15 +517,15 @@ const PassiveFaceVerification = ({
       <Box
         sx={{
           p: 2,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: colors.surface,
           borderRadius: 2,
-          border: '1px solid #E0E0E0',
+          border: `1px solid ${colors.border}`,
           mb: 2,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-          <FaceIcon sx={{ color: '#999', fontSize: 20 }} />
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#999' }}>
+          <FaceIcon sx={{ color: colors.textMuted, fontSize: 20 }} />
+          <Typography variant="subtitle2" sx={{ fontWeight: 600, color: colors.textMuted }}>
             Passive Face Verification
           </Typography>
         </Box>
@@ -549,28 +550,28 @@ const PassiveFaceVerification = ({
     <Box
       sx={{
         p: 2,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.surface,
         borderRadius: 2,
-        border: '1px solid #E0E0E0',
+        border: `1px solid ${colors.border}`,
         mb: 2,
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-        <FaceIcon sx={{ color: '#0066FF', fontSize: 20 }} />
+        <FaceIcon sx={{ color: colors.primary, fontSize: 20 }} />
         <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
           Passive Face Verification
         </Typography>
       </Box>
 
       {verificationStatus === 'idle' && (
-        <Typography variant="body2" sx={{ color: '#666', fontSize: '0.75rem' }}>
+        <Typography variant="body2" sx={{ color: colors.textSecondary, fontSize: '0.75rem' }}>
           Starting verification...
         </Typography>
       )}
 
       {verificationStatus === 'capturing' && (
         <Box>
-          <Typography variant="body2" sx={{ color: '#666', fontSize: '0.75rem', mb: 1 }}>
+          <Typography variant="body2" sx={{ color: colors.textSecondary, fontSize: '0.75rem', mb: 1 }}>
             Capturing frame... (Attempt {captureAttempts}/{MAX_ATTEMPTS})
           </Typography>
           <LinearProgress sx={{ height: 4, borderRadius: 2 }} />
@@ -579,7 +580,7 @@ const PassiveFaceVerification = ({
 
       {verificationStatus === 'verifying' && (
         <Box>
-          <Typography variant="body2" sx={{ color: '#666', fontSize: '0.75rem', mb: 1 }}>
+          <Typography variant="body2" sx={{ color: colors.textSecondary, fontSize: '0.75rem', mb: 1 }}>
             Verifying face match...
           </Typography>
           <LinearProgress sx={{ height: 4, borderRadius: 2 }} />

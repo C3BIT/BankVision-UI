@@ -1,5 +1,6 @@
 import { Box, Typography, Paper } from '@mui/material';
 import PropTypes from 'prop-types';
+import { colors } from '../../styles/tokens';
 
 const AccountInfoDisplay = ({ accountDetails }) => {
   if (!accountDetails) {
@@ -10,10 +11,10 @@ const AccountInfoDisplay = ({ accountDetails }) => {
           p: 3,
           backgroundColor: '#FAFAFA',
           borderRadius: 2,
-          border: '1px solid #E0E0E0',
+          border: `1px solid ${colors.border}`,
         }}
       >
-        <Typography sx={{ fontSize: '0.875rem', color: '#999999', textAlign: 'center' }}>
+        <Typography sx={{ fontSize: '0.875rem', color: colors.textMuted, textAlign: 'center' }}>
           No account selected
         </Typography>
       </Paper>
@@ -37,14 +38,14 @@ const AccountInfoDisplay = ({ accountDetails }) => {
         p: 3,
         backgroundColor: '#FAFAFA',
         borderRadius: 2,
-        border: '1px solid #E0E0E0',
+        border: `1px solid ${colors.border}`,
       }}
     >
       <Typography
         sx={{
           fontSize: '1rem',
           fontWeight: 600,
-          color: '#1A1A1A',
+          color: colors.textPrimary,
           mb: 2,
         }}
       >
@@ -54,40 +55,40 @@ const AccountInfoDisplay = ({ accountDetails }) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         {/* Account Number */}
         <Box>
-          <Typography sx={{ fontSize: '0.75rem', color: '#999999', mb: 0.5 }}>
+          <Typography sx={{ fontSize: '0.75rem', color: colors.textMuted, mb: 0.5 }}>
             A/C Number
           </Typography>
-          <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#1A1A1A' }}>
+          <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.textPrimary }}>
             {accountDetails.accountNumber || 'N/A'}
           </Typography>
         </Box>
 
         {/* Branch Name */}
         <Box>
-          <Typography sx={{ fontSize: '0.75rem', color: '#999999', mb: 0.5 }}>
+          <Typography sx={{ fontSize: '0.75rem', color: colors.textMuted, mb: 0.5 }}>
             Branch Name
           </Typography>
-          <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: '#1A1A1A' }}>
+          <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.textPrimary }}>
             {accountDetails.branch || accountDetails.branchName || 'N/A'}
           </Typography>
         </Box>
 
         {/* Opening Date */}
         <Box>
-          <Typography sx={{ fontSize: '0.75rem', color: '#999999', mb: 0.5 }}>
+          <Typography sx={{ fontSize: '0.75rem', color: colors.textMuted, mb: 0.5 }}>
             Opening Date
           </Typography>
-          <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: '#1A1A1A' }}>
+          <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.textPrimary }}>
             {formatDate(accountDetails.openingDate || accountDetails.createdAt)}
           </Typography>
         </Box>
 
         {/* Matured Date */}
         <Box>
-          <Typography sx={{ fontSize: '0.75rem', color: '#999999', mb: 0.5 }}>
+          <Typography sx={{ fontSize: '0.75rem', color: colors.textMuted, mb: 0.5 }}>
             Matured Date
           </Typography>
-          <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: '#1A1A1A' }}>
+          <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.textPrimary }}>
             {formatDate(accountDetails.maturedDate || accountDetails.maturityDate)}
           </Typography>
         </Box>
@@ -95,10 +96,10 @@ const AccountInfoDisplay = ({ accountDetails }) => {
         {/* Account Type */}
         {accountDetails.accountType && (
           <Box>
-            <Typography sx={{ fontSize: '0.75rem', color: '#999999', mb: 0.5 }}>
+            <Typography sx={{ fontSize: '0.75rem', color: colors.textMuted, mb: 0.5 }}>
               Account Type
             </Typography>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: '#1A1A1A' }}>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.textPrimary }}>
               {accountDetails.accountType}
             </Typography>
           </Box>
@@ -107,14 +108,14 @@ const AccountInfoDisplay = ({ accountDetails }) => {
         {/* Account Status */}
         {accountDetails.status && (
           <Box>
-            <Typography sx={{ fontSize: '0.75rem', color: '#999999', mb: 0.5 }}>
+            <Typography sx={{ fontSize: '0.75rem', color: colors.textMuted, mb: 0.5 }}>
               Status
             </Typography>
             <Typography
               sx={{
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                color: accountDetails.status === 'active' ? '#4CAF50' : '#FF9800',
+                color: accountDetails.status === 'active' ? colors.success : colors.warning,
               }}
             >
               {accountDetails.status.toUpperCase()}

@@ -9,6 +9,7 @@ import {
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import { useWebSocket } from '../../providers/WebSocketProvider';
+import { colors } from '../../styles/tokens';
 import OTPVerificationPanel from '../OTPVerificationPanel/OTPVerificationPanel';
 import CustomerInfoPanel from '../CustomerInfoPanel/CustomerInfoPanel';
 import FaceVerificationPanel from '../FaceVerificationPanel/FaceVerificationPanel';
@@ -67,7 +68,7 @@ const VideoCallSidebar = ({
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.surface,
       }}
     >
       {/* Tabs Navigation */}
@@ -75,7 +76,7 @@ const VideoCallSidebar = ({
         sx={{
           borderBottom: 1,
           borderColor: 'divider',
-          backgroundColor: '#F5F5F5',
+          backgroundColor: colors.background,
         }}
       >
         <Tabs
@@ -89,15 +90,15 @@ const VideoCallSidebar = ({
               fontSize: '0.75rem',
               fontWeight: 500,
               minHeight: 64,
-              color: '#666666',
+              color: colors.textSecondary,
               padding: '12px 8px',
               '&.Mui-selected': {
-                color: '#0066FF',
+                color: colors.primary,
                 fontWeight: 600,
               },
             },
             '& .MuiTabs-indicator': {
-              backgroundColor: '#0066FF',
+              backgroundColor: colors.primary,
               height: 3,
             },
           }}

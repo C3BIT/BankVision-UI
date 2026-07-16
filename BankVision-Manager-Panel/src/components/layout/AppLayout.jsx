@@ -16,6 +16,7 @@ import { persistor } from '../../redux/store';
 import { useWebSocket } from '../../providers/WebSocketProvider';
 import api from '../../services/api';
 import BankLogo from '../../assets/icon/bank-logo.svg';
+import { colors } from '../../styles/tokens';
 
 const AppLayout = ({ children }) => {
   const dispatch = useDispatch();
@@ -100,7 +101,7 @@ const AppLayout = ({ children }) => {
         flexDirection: 'column',
         height: '100vh',
         overflow: 'hidden',
-        backgroundColor: '#F5F5F5',
+        backgroundColor: colors.background,
       }}>
         <AppBar
           position="fixed"

@@ -23,6 +23,7 @@ import {
   Refresh,
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
+import { colors } from '../../styles/tokens';
 
 const CallQueue = ({
   queue = [],
@@ -172,9 +173,9 @@ const CallQueue = ({
                   onClick={() => onPickCall(item.customerPhone)}
                   disabled={!canPickCall}
                   sx={{
-                    bgcolor: '#4caf50',
+                    bgcolor: colors.success,
                     '&:hover': { bgcolor: '#388e3c' },
-                    '&:disabled': { bgcolor: '#e0e0e0' },
+                    '&:disabled': { bgcolor: colors.border },
                   }}
                 >
                   Pick

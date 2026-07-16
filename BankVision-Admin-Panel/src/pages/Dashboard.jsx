@@ -41,6 +41,7 @@ import {
 } from 'lucide-react';
 
 import api from '../services/api';
+import { colors } from '../theme/tokens';
 
 // StatCard Component
 const StatCard = ({ title, value, icon, color, subtext, trend }) => (
@@ -190,7 +191,7 @@ const Dashboard = () => {
             title="Online Managers"
             value={stats?.realtime?.onlineManagers || 0}
             icon={<PeopleIcon />}
-            color="#4CAF50"
+            color={colors.success}
             subtext="Available"
           />
         </Grid>
@@ -199,7 +200,7 @@ const Dashboard = () => {
             title="Pending Queue"
             value={stats?.today?.pendingInQueue || 0}
             icon={<AccessTimeIcon />}
-            color="#FF9800"
+            color={colors.warning}
             subtext="Waiting customers"
           />
         </Grid>
@@ -226,11 +227,11 @@ const Dashboard = () => {
                 <AreaChart data={stats?.weeklyTrend || []}>
                   <defs>
                     <linearGradient id="colorCalls" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#0066FF" stopOpacity={0.1} />
-                      <stop offset="95%" stopColor="#0066FF" stopOpacity={0} />
+                      <stop offset="5%" stopColor={colors.primary} stopOpacity={0.1} />
+                      <stop offset="95%" stopColor={colors.primary} stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E0E0E0" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={colors.border} />
                   <XAxis
                     dataKey="date"
                     tickFormatter={(val) => new Date(val).toLocaleDateString('en-US', { weekday: 'short' })}
@@ -248,7 +249,7 @@ const Dashboard = () => {
                   <Area
                     type="monotone"
                     dataKey="calls"
-                    stroke="#0066FF"
+                    stroke={colors.primary}
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorCalls)"
@@ -283,7 +284,7 @@ const Dashboard = () => {
                     sx={{
                       width: `${stats?.today?.identityMatchSuccessRate ?? 0}%`,
                       height: '100%',
-                      bgcolor: '#0066FF',
+                      bgcolor: colors.primary,
                       borderRadius: 4
                     }}
                   />

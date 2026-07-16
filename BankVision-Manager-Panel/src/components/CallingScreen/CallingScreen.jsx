@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { Box, Modal, Typography, Button } from "@mui/material";
 import { PhoneOff, Phone, X as CloseIcon, Rocket } from "lucide-react";
+import { colors } from "../../styles/tokens";
 
 const CallingScreen = ({ open, callTarget, onAccept, onReject, onClose }) => {
   const audioRef = useRef(null);
@@ -89,7 +90,7 @@ const CallingScreen = ({ open, callTarget, onAccept, onReject, onClose }) => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Rocket size={18} color="#4caf50" />
+            <Rocket size={18} color={colors.success} />
             <Typography sx={{ fontWeight: 600, fontSize: "0.9rem" }}>
               Customer support
             </Typography>
@@ -151,7 +152,7 @@ const CallingScreen = ({ open, callTarget, onAccept, onReject, onClose }) => {
                   right: -8,
                   bottom: -8,
                   borderRadius: "50%",
-                  border: "2px solid #4caf50",
+                  border: `2px solid ${colors.success}`,
                   animation: "pulse 1.5s infinite",
                   opacity: 0.7,
                   zIndex: 0,
@@ -257,7 +258,7 @@ const CallingScreen = ({ open, callTarget, onAccept, onReject, onClose }) => {
             startIcon={<PhoneOff size={18} />}
             sx={{
               bgcolor: "#e63946",
-              "&:hover": { bgcolor: "#d32f2f" },
+              "&:hover": { bgcolor: colors.error },
               color: "white",
               py: 1.5,
               borderRadius: 6,
@@ -275,7 +276,7 @@ const CallingScreen = ({ open, callTarget, onAccept, onReject, onClose }) => {
             variant="contained"
             startIcon={<Phone size={18} />}
             sx={{
-              bgcolor: "#4caf50",
+              bgcolor: colors.success,
               "&:hover": { bgcolor: "#388e3c" },
               color: "white",
               py: 1.5,

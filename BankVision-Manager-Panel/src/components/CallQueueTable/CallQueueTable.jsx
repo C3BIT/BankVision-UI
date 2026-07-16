@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { AccessTime as ClockIcon, FiberManualRecord as DotIcon } from '@mui/icons-material';
 import PropTypes from 'prop-types';
+import { colors } from '../../styles/tokens';
 
 const CallQueueTable = ({
   queue = [],
@@ -65,13 +66,13 @@ const CallQueueTable = ({
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
       case 'high':
-        return { bg: '#FFE5E5', color: '#FF4444', label: 'High' };
+        return { bg: '#FFE5E5', color: colors.error, label: 'High' };
       case 'medium':
-        return { bg: '#FFF4E5', color: '#FF9800', label: 'Medium' };
+        return { bg: '#FFF4E5', color: colors.warning, label: 'Medium' };
       case 'low':
-        return { bg: '#E5F7E5', color: '#4CAF50', label: 'Low' };
+        return { bg: '#E5F7E5', color: colors.success, label: 'Low' };
       default:
-        return { bg: '#FFF4E5', color: '#FF9800', label: 'Medium' };
+        return { bg: '#FFF4E5', color: colors.warning, label: 'Medium' };
     }
   };
 
@@ -110,7 +111,7 @@ const CallQueueTable = ({
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1A1A1A' }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: colors.textPrimary }}>
           Clients Call List
         </Typography>
         <Button
@@ -118,7 +119,7 @@ const CallQueueTable = ({
           disabled={loading}
           sx={{
             textTransform: 'none',
-            color: '#0066FF',
+            color: colors.primary,
             '&:hover': { backgroundColor: '#E3F2FD' },
           }}
         >
@@ -130,18 +131,18 @@ const CallQueueTable = ({
         component={Paper}
         elevation={0}
         sx={{
-          border: '1px solid #E0E0E0',
+          border: `1px solid ${colors.border}`,
           borderRadius: 2,
           overflow: 'hidden',
         }}
       >
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: '#F5F5F5' }}>
-              <TableCell sx={{ fontWeight: 600, color: '#666666' }}>Clients Number</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#666666' }}>Waiting Time</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#666666' }}>Priority</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#666666', textAlign: 'right' }}>
+            <TableRow sx={{ backgroundColor: colors.background }}>
+              <TableCell sx={{ fontWeight: 600, color: colors.textSecondary }}>Clients Number</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: colors.textSecondary }}>Waiting Time</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: colors.textSecondary }}>Priority</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: colors.textSecondary, textAlign: 'right' }}>
                 Action
               </TableCell>
             </TableRow>
@@ -159,7 +160,7 @@ const CallQueueTable = ({
                 >
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <DotIcon sx={{ fontSize: 12, color: '#0066FF' }} />
+                      <DotIcon sx={{ fontSize: 12, color: colors.primary }} />
                       <Typography sx={{ fontWeight: 500 }}>
                         {customer.phone || customer.customerPhone || 'Unknown'}
                       </Typography>
@@ -167,8 +168,8 @@ const CallQueueTable = ({
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <ClockIcon sx={{ fontSize: 16, color: '#666666' }} />
-                      <Typography variant="body2" sx={{ color: '#666666' }}>
+                      <ClockIcon sx={{ fontSize: 16, color: colors.textSecondary }} />
+                      <Typography variant="body2" sx={{ color: colors.textSecondary }}>
                         {formatWaitTime(customer.timestamp || customer.joinedAt || customer.queuedAt)}
                       </Typography>
                     </Box>
@@ -204,8 +205,8 @@ const CallQueueTable = ({
                           backgroundColor: '#059669',
                         },
                         '&.Mui-disabled': {
-                          backgroundColor: '#E0E0E0',
-                          color: '#999999',
+                          backgroundColor: colors.border,
+                          color: colors.textMuted,
                         },
                       }}
                     >

@@ -13,6 +13,8 @@ import {
   Alert,
 } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
+import { colors } from '../../theme/tokens';
+import BrandLogo from '../BrandLogo/BrandLogo';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -184,7 +186,7 @@ const VerificationModal = ({
               sx={{
                 fontSize: '1.25rem',
                 fontWeight: 600,
-                color: '#0066FF',
+                color: colors.primary,
                 mb: 3,
               }}
             >
@@ -193,7 +195,7 @@ const VerificationModal = ({
             <Typography
               sx={{
                 fontSize: '0.875rem',
-                color: '#666666',
+                color: colors.textSecondary,
                 mb: 4,
               }}
             >
@@ -214,7 +216,7 @@ const VerificationModal = ({
                     width: 10,
                     height: 10,
                     borderRadius: '50%',
-                    backgroundColor: '#0066FF',
+                    backgroundColor: colors.primary,
                     animation: 'bounce 1.4s infinite ease-in-out',
                     animationDelay: `${index * 0.16}s`,
                     '@keyframes bounce': {
@@ -234,7 +236,7 @@ const VerificationModal = ({
             <Button
               onClick={handleClose}
               sx={{
-                color: '#666666',
+                color: colors.textSecondary,
                 textTransform: 'none',
                 fontWeight: 500,
               }}
@@ -249,7 +251,7 @@ const VerificationModal = ({
                 width: 80,
                 height: 80,
                 borderRadius: '50%',
-                backgroundColor: '#4CAF50',
+                backgroundColor: colors.success,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -262,7 +264,7 @@ const VerificationModal = ({
               sx={{
                 fontSize: '1.125rem',
                 fontWeight: 600,
-                color: '#1A1A1A',
+                color: colors.textPrimary,
                 mb: 1,
               }}
             >
@@ -271,7 +273,7 @@ const VerificationModal = ({
             <Typography
               sx={{
                 fontSize: '0.875rem',
-                color: '#666666',
+                color: colors.textSecondary,
               }}
             >
               Present account is activate successfully
@@ -279,11 +281,14 @@ const VerificationModal = ({
           </Box>
         ) : (
           <>
+            <Box sx={{ mb: 2 }}>
+              <BrandLogo size="small" />
+            </Box>
             <Typography
               sx={{
                 fontSize: '1.25rem',
                 fontWeight: 600,
-                color: '#0066FF',
+                color: colors.primary,
                 mb: 2,
               }}
             >
@@ -293,7 +298,7 @@ const VerificationModal = ({
             <Typography
               sx={{
                 fontSize: '0.875rem',
-                color: '#666666',
+                color: colors.textSecondary,
                 mb: 4,
               }}
             >
@@ -330,14 +335,14 @@ const VerificationModal = ({
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
                       '& fieldset': {
-                        borderColor: displayError ? '#FF4444' : '#E0E0E0',
+                        borderColor: displayError ? colors.error : colors.border,
                         borderWidth: 2,
                       },
                       '&:hover fieldset': {
-                        borderColor: displayError ? '#FF4444' : '#0066FF',
+                        borderColor: displayError ? colors.error : colors.primary,
                       },
                       '&.Mui-focused fieldset': {
-                        borderColor: displayError ? '#FF4444' : '#0066FF',
+                        borderColor: displayError ? colors.error : colors.primary,
                       },
                     },
                   }}
@@ -367,11 +372,11 @@ const VerificationModal = ({
             <Typography
               sx={{
                 fontSize: '0.75rem',
-                color: '#666666',
+                color: colors.textSecondary,
                 mb: 3,
               }}
             >
-              Didn't Get it? <Box component="span" onClick={handleResend} sx={{ color: '#0066FF', cursor: 'pointer', fontWeight: 500 }}>Resend Code</Box>
+              Didn't Get it? <Box component="span" onClick={handleResend} sx={{ color: colors.primary, cursor: 'pointer', fontWeight: 500 }}>Resend Code</Box>
             </Typography>
 
             {/* Buttons */}
@@ -388,10 +393,10 @@ const VerificationModal = ({
                   py: 1.5,
                   textTransform: 'none',
                   fontWeight: 500,
-                  color: '#666666',
-                  borderColor: '#E0E0E0',
+                  color: colors.textSecondary,
+                  borderColor: colors.border,
                   '&:hover': {
-                    borderColor: '#999999',
+                    borderColor: colors.textMuted,
                     backgroundColor: 'transparent',
                   },
                 }}
@@ -407,14 +412,14 @@ const VerificationModal = ({
                   py: 1.5,
                   textTransform: 'none',
                   fontWeight: 600,
-                  backgroundColor: '#0066FF',
+                  backgroundColor: colors.primary,
                   color: '#FFFFFF',
                   '&:hover': {
-                    backgroundColor: '#0052CC',
+                    backgroundColor: colors.primaryDark,
                   },
                   '&.Mui-disabled': {
-                    backgroundColor: '#E0E0E0',
-                    color: '#999999',
+                    backgroundColor: colors.border,
+                    color: colors.textMuted,
                   },
                 }}
                 variant="contained"

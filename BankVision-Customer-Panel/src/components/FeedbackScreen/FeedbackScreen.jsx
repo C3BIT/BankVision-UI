@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, Typography, TextField, Button, IconButton } from '@mui/material';
 import { Star, StarBorder } from '@mui/icons-material';
 import BrandLogo from '../BrandLogo/BrandLogo';
+import { colors } from '../../theme/tokens';
 
 const FeedbackScreen = ({ onSubmit, onSkip }) => {
   const [rating, setRating] = useState(0);
@@ -19,7 +20,7 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        backgroundColor: '#F5F5F5',
+        backgroundColor: colors.background,
         padding: 2,
       }}
     >
@@ -40,7 +41,7 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
           sx={{
             fontSize: '1.5rem',
             fontWeight: 600,
-            color: '#0066FF',
+            color: colors.primary,
             mb: 4,
           }}
         >
@@ -50,7 +51,7 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
         {/* Feedback Card */}
         <Box
           sx={{
-            backgroundColor: '#FFFFFF',
+            backgroundColor: colors.surface,
             borderRadius: 3,
             boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
             p: 4,
@@ -61,7 +62,7 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
             sx={{
               fontSize: '1rem',
               fontWeight: 500,
-              color: '#1A1A1A',
+              color: colors.textPrimary,
               mb: 1,
             }}
           >
@@ -71,7 +72,7 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
             sx={{
               fontSize: '1rem',
               fontWeight: 500,
-              color: '#1A1A1A',
+              color: colors.textPrimary,
               mb: 2,
             }}
           >
@@ -82,7 +83,7 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
           <Typography
             sx={{
               fontSize: '0.875rem',
-              color: '#666666',
+              color: colors.textSecondary,
               mb: 3,
             }}
           >
@@ -122,7 +123,7 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
                 {star <= (hoverRating || rating) ? (
                   <Star sx={{ fontSize: 40, color: '#FFA500', pointerEvents: 'none' }} />
                 ) : (
-                  <StarBorder sx={{ fontSize: 40, color: '#E0E0E0', pointerEvents: 'none' }} />
+                  <StarBorder sx={{ fontSize: 40, color: colors.border, pointerEvents: 'none' }} />
                 )}
               </IconButton>
             ))}
@@ -146,7 +147,7 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
             <Typography
               sx={{
                 fontSize: '0.75rem',
-                color: '#4CAF50',
+                color: colors.success,
                 mb: 2,
                 textAlign: 'center',
               }}
@@ -159,7 +160,7 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
           <Typography
             sx={{
               fontSize: '0.875rem',
-              color: '#666666',
+              color: colors.textSecondary,
               mb: 1,
               textAlign: 'left',
             }}
@@ -178,20 +179,20 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
             sx={{
               mb: 3,
               '& .MuiOutlinedInput-root': {
-                backgroundColor: '#FFFFFF',
+                backgroundColor: colors.surface,
                 '& fieldset': {
-                  borderColor: '#E0E0E0',
+                  borderColor: colors.border,
                 },
                 '&:hover fieldset': {
-                  borderColor: '#0066FF',
+                  borderColor: colors.primary,
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#0066FF',
+                  borderColor: colors.primary,
                   borderWidth: 2,
                 },
               },
               '& .MuiInputBase-input::placeholder': {
-                color: '#999999',
+                color: colors.textMuted,
                 opacity: 1,
               },
             }}
@@ -211,10 +212,10 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
                 py: 1.5,
                 textTransform: 'none',
                 fontWeight: 500,
-                color: '#666666',
-                borderColor: '#E0E0E0',
+                color: colors.textSecondary,
+                borderColor: colors.border,
                 '&:hover': {
-                  borderColor: '#999999',
+                  borderColor: colors.textMuted,
                   backgroundColor: 'transparent',
                 },
               }}
@@ -230,14 +231,14 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
                 py: 1.5,
                 textTransform: 'none',
                 fontWeight: 600,
-                backgroundColor: '#0066FF',
+                backgroundColor: colors.primary,
                 color: '#FFFFFF',
                 '&:hover': {
-                  backgroundColor: '#0052CC',
+                  backgroundColor: colors.primaryDark,
                 },
                 '&.Mui-disabled': {
-                  backgroundColor: '#E0E0E0',
-                  color: '#999999',
+                  backgroundColor: colors.border,
+                  color: colors.textMuted,
                 },
               }}
               variant="contained"

@@ -12,6 +12,7 @@ import {
 import PropTypes from 'prop-types';
 import api from '../../services/api';
 import { useWebSocket } from '../../providers/WebSocketProvider';
+import { colors } from '../../styles/tokens';
 
 const StatCard = ({ icon, label, value, loading = false }) => (
   <Box
@@ -22,7 +23,7 @@ const StatCard = ({ icon, label, value, loading = false }) => (
       p: 2,
       backgroundColor: '#FAFAFA',
       borderRadius: 2,
-      border: '1px solid #E0E0E0',
+      border: `1px solid ${colors.border}`,
     }}
   >
     {/* Icon */}
@@ -35,7 +36,7 @@ const StatCard = ({ icon, label, value, loading = false }) => (
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#0066FF',
+        color: colors.primary,
         flexShrink: 0,
       }}
     >
@@ -47,7 +48,7 @@ const StatCard = ({ icon, label, value, loading = false }) => (
       <Typography
         sx={{
           fontSize: '0.75rem',
-          color: '#666666',
+          color: colors.textSecondary,
           mb: 0.5,
         }}
       >
@@ -60,7 +61,7 @@ const StatCard = ({ icon, label, value, loading = false }) => (
           sx={{
             fontSize: '1.5rem',
             fontWeight: 700,
-            color: '#1A1A1A',
+            color: colors.textPrimary,
           }}
         >
           {value}
@@ -157,7 +158,7 @@ const PerformanceOverview = ({ managerEmail }) => {
         variant="h6"
         sx={{
           fontWeight: 600,
-          color: '#1A1A1A',
+          color: colors.textPrimary,
           mb: 2,
         }}
       >

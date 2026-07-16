@@ -8,6 +8,7 @@ import {
   DeleteOutline as ClearIcon,
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
+import { colors } from '../../styles/tokens';
 
 const COLORS = [
   { name: 'Black', value: '#1A1A1A' },
@@ -333,7 +334,7 @@ const CollaborativeWhiteboard = ({ open, onClose, socket, role }) => {
             size="small"
             onClick={() => setTool('pen')}
             sx={{
-              color: tool === 'pen' ? '#0066FF' : '#CCC',
+              color: tool === 'pen' ? colors.primary : '#CCC',
               backgroundColor: tool === 'pen' ? 'rgba(0,102,255,0.15)' : 'transparent',
               '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' },
             }}
@@ -348,7 +349,7 @@ const CollaborativeWhiteboard = ({ open, onClose, socket, role }) => {
             size="small"
             onClick={() => setTool('eraser')}
             sx={{
-              color: tool === 'eraser' ? '#FF9800' : '#CCC',
+              color: tool === 'eraser' ? colors.warning : '#CCC',
               backgroundColor: tool === 'eraser' ? 'rgba(255,152,0,0.15)' : 'transparent',
               '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' },
             }}
@@ -375,7 +376,7 @@ const CollaborativeWhiteboard = ({ open, onClose, socket, role }) => {
                   borderRadius: '50%',
                   backgroundColor: c.value,
                   border: color === c.value && tool === 'pen'
-                    ? '2px solid #0066FF'
+                    ? `2px solid ${colors.primary}`
                     : '2px solid transparent',
                   outline: color === c.value && tool === 'pen'
                     ? '1px solid rgba(0,102,255,0.5)'
@@ -414,7 +415,7 @@ const CollaborativeWhiteboard = ({ open, onClose, socket, role }) => {
               onClick={handleClear}
               disabled={strokes.length === 0}
               sx={{
-                color: strokes.length > 0 ? '#FF4444' : '#666',
+                color: strokes.length > 0 ? colors.error : '#666',
                 '&:hover': { backgroundColor: 'rgba(255,68,68,0.1)' },
               }}
             >
@@ -446,7 +447,7 @@ const CollaborativeWhiteboard = ({ open, onClose, socket, role }) => {
         ref={containerRef}
         sx={{
           flex: 1,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: colors.surface,
           cursor: tool === 'eraser' ? 'cell' : 'crosshair',
           touchAction: 'none',
         }}

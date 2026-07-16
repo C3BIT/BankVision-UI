@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { resetVerification } from "../../redux/auth/customerSlice";
 import { Box, Paper, Typography, CircularProgress, Alert, Grid, Container, IconButton, Fab, Badge, Dialog, DialogContent } from "@mui/material";
 import { Chat as ChatIcon, Close as CloseIcon } from "@mui/icons-material";
-import axios from "axios";
+import { apiClient } from "../../services/apiCaller";
 import StartVerification from "../../components/StartVerification/StartVerification";
 import BrandLogo from "../../components/BrandLogo/BrandLogo";
 import VideoCallControls from "../../components/VideoCallControls/VideoCallControls";
@@ -24,6 +24,7 @@ import HoldScreen from "../../components/HoldScreen/HoldScreen";
 import CaptureCustomerImage from "../../components/CaptureCustomerImage/CaptureCustomerImage";
 import SignatureUpload from "../../components/SignatureUpload/SignatureUpload";
 import CollaborativeWhiteboard from "../../components/CollaborativeWhiteboard/CollaborativeWhiteboard";
+import { colors } from "../../theme/tokens";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -150,7 +151,7 @@ const Home = () => {
 
       try {
         console.log('🔍 Checking customer in database (optional):', customerPhone);
-        const response = await axios.post(`${API_URL}/customer/find-phone`, {
+        const response = await apiClient.post(`${API_URL}/customer/find-phone`, {
           phone: customerPhone
         });
 
@@ -204,7 +205,7 @@ const Home = () => {
         throw new Error('Connection lost. Please try again.');
       }
       
-      const response = await axios.post(`${API_URL}/otp/verify-phone`, {
+      const response = await apiClient.post(`${API_URL}/otp/verify-phone`, {
         phone: phone,
         otp: otp
       });
@@ -250,7 +251,7 @@ const Home = () => {
 
       // Verify email OTP and notify manager
       
-      const response = await axios.post(`${API_URL}/otp/verify-email`, {
+      const response = await apiClient.post(`${API_URL}/otp/verify-email`, {
         email: currentAccountData?.email || '',
         otp: otp
       });
@@ -685,7 +686,7 @@ const Home = () => {
       
       const callDuration = callStartTime ? Math.floor((Date.now() - callStartTime) / 1000) : 0;
 
-      const response = await axios.post(`${API_URL}/feedback`, {
+      const response = await apiClient.post(`${API_URL}/feedback`, {
         customerPhone: phone,
         managerEmail: managerEmail,
         rating: rating,
@@ -885,10 +886,12 @@ const Home = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            height: "100vh",
+            // dvh accounts for mobile browser chrome (address bar) so the
+            // available height is accurate instead of vh's fixed layout value.
+            height: { xs: "100dvh", sm: "100vh" },
             overflowY: "auto",
-            backgroundColor: "#F5F5F5",
-            padding: 2,
+            backgroundColor: colors.background,
+            padding: { xs: 1.5, sm: 2 },
           }}
         >
           <Box
@@ -899,7 +902,7 @@ const Home = () => {
             }}
           >
             {/* Bank Logo */}
-            <Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: { xs: 1.5, sm: 4 } }}>
               <BrandLogo size="medium" />
             </Box>
 
@@ -907,10 +910,10 @@ const Home = () => {
             <Typography
               variant="h1"
               sx={{
-                fontSize: { xs: '1.75rem', sm: '2rem' },
+                fontSize: { xs: '1.4rem', sm: '2rem' },
                 fontWeight: 600,
-                color: '#0066FF',
-                mb: 1,
+                color: colors.primary,
+                mb: { xs: 0.5, sm: 1 },
               }}
             >
               Video Banking
@@ -919,9 +922,9 @@ const Home = () => {
             {/* Subtitle */}
             <Typography
               sx={{
-                fontSize: '0.875rem',
-                color: '#666666',
-                mb: 4,
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                color: colors.textSecondary,
+                mb: { xs: 1.5, sm: 4 },
               }}
             >
               Verify your identity to start video banking
@@ -931,9 +934,9 @@ const Home = () => {
             <Paper
               elevation={0}
               sx={{
-                p: 4,
+                p: { xs: 2, sm: 4 },
                 borderRadius: 3,
-                backgroundColor: "#FFFFFF",
+                backgroundColor: colors.surface,
                 boxShadow: "0 2px 12px rgba(0, 0, 0, 0.08)",
               }}
             >
@@ -945,7 +948,7 @@ const Home = () => {
               {callStatus === "connecting" && !showCallModal && (
                 <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 3 }}>
                   <CircularProgress size={24} color="primary" />
-                  <Typography sx={{ ml: 2, color: '#666666' }}>Connecting...</Typography>
+                  <Typography sx={{ ml: 2, color: colors.textSecondary }}>Connecting...</Typography>
                 </Box>
               )}
 
@@ -1033,7 +1036,7 @@ const Home = () => {
             width: '100%',
             height: '100vh',
             zIndex: 9999,
-            backgroundColor: '#F5F5F5',
+            backgroundColor: colors.background,
           }}
         >
           <FeedbackScreen

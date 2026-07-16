@@ -17,6 +17,7 @@ import { ArrowBack, CheckCircle, Visibility, AccountBalance, Cancel as CancelIco
 import PropTypes from 'prop-types';
 import { useWebSocket } from '../../../providers/WebSocketProvider';
 import { useSelector } from 'react-redux';
+import { colors } from '../../../styles/tokens';
 
 const DormantAccountActivation = ({ onBack }) => {
   const { accountDetails } = useSelector((state) => state.customerAccounts);
@@ -163,9 +164,9 @@ const DormantAccountActivation = ({ onBack }) => {
         padding: '20px',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.surface,
         borderRadius: '12px',
-        border: '1px solid #E0E0E0',
+        border: `1px solid ${colors.border}`,
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
         gap: 2
       }}>
@@ -174,14 +175,14 @@ const DormantAccountActivation = ({ onBack }) => {
           onClick={onBack}
           sx={{
             alignSelf: 'flex-start',
-            color: '#1A1A1A',
+            color: colors.textPrimary,
             '&:hover': { backgroundColor: '#F0F0F0' }
           }}
         >
           Back
         </Button>
 
-        <Typography variant="h6" sx={{ color: '#1A1A1A', fontWeight: 'medium' }}>
+        <Typography variant="h6" sx={{ color: colors.textPrimary, fontWeight: 'medium' }}>
           Dormant Account Activation
         </Typography>
 
@@ -195,7 +196,7 @@ const DormantAccountActivation = ({ onBack }) => {
           />
         )}
 
-        <Divider sx={{ borderColor: '#E0E0E0' }} />
+        <Divider sx={{ borderColor: colors.border }} />
 
         <Box>
           <Typography variant="caption" sx={{ color: '#666' }}>
@@ -205,18 +206,18 @@ const DormantAccountActivation = ({ onBack }) => {
             fullWidth
             value={accountDetails?.accountNumber || 'N/A'}
             variant="outlined"
-            InputProps={{ readOnly: true, sx: { color: '#1A1A1A' } }}
+            InputProps={{ readOnly: true, sx: { color: colors.textPrimary } }}
             sx={{
               mt: 0.5,
               '& .MuiOutlinedInput-root': {
-                backgroundColor: '#F5F5F5',
-                '& fieldset': { borderColor: '#E0E0E0' },
+                backgroundColor: colors.background,
+                '& fieldset': { borderColor: colors.border },
               },
             }}
           />
         </Box>
 
-        <Divider sx={{ borderColor: '#E0E0E0' }} />
+        <Divider sx={{ borderColor: colors.border }} />
 
         <Box>
           <Typography variant="caption" sx={{ color: '#666' }}>
@@ -248,10 +249,10 @@ const DormantAccountActivation = ({ onBack }) => {
               mt: 0.5,
               '& .MuiOutlinedInput-root': {
                 backgroundColor: '#FAFAFA',
-                color: '#1A1A1A',
-                '& fieldset': { borderColor: '#E0E0E0' },
+                color: colors.textPrimary,
+                '& fieldset': { borderColor: colors.border },
                 '&:hover fieldset': { borderColor: '#BDBDBD' },
-                '&.Mui-focused fieldset': { borderColor: '#0066FF', borderWidth: 2 },
+                '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: 2 },
               },
               '& .MuiFormHelperText-root': { color: '#666', fontSize: '0.7rem' },
             }}
@@ -288,17 +289,17 @@ const DormantAccountActivation = ({ onBack }) => {
               mt: 0.5,
               '& .MuiOutlinedInput-root': {
                 backgroundColor: '#FAFAFA',
-                color: '#1A1A1A',
-                '& fieldset': { borderColor: '#E0E0E0' },
+                color: colors.textPrimary,
+                '& fieldset': { borderColor: colors.border },
                 '&:hover fieldset': { borderColor: '#BDBDBD' },
-                '&.Mui-focused fieldset': { borderColor: '#0066FF', borderWidth: 2 },
+                '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: 2 },
               },
               '& .MuiFormHelperText-root': { color: '#666', fontSize: '0.7rem' },
             }}
           />
         </Box>
 
-        <Divider sx={{ borderColor: '#E0E0E0' }} />
+        <Divider sx={{ borderColor: colors.border }} />
 
         <Typography variant="caption" sx={{ color: '#666', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
           Monthly Transaction Estimate (Customer Provided)
@@ -312,7 +313,7 @@ const DormantAccountActivation = ({ onBack }) => {
               value={extraFields.estDepositCount || ''}
               InputProps={{ readOnly: true }}
               placeholder="Waiting for customer..."
-              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: '#F5F5F5' } }}
+              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: colors.background } }}
             />
           </Box>
           <Box sx={{ flex: 1 }}>
@@ -322,7 +323,7 @@ const DormantAccountActivation = ({ onBack }) => {
               value={extraFields.estDepositAmount || ''}
               InputProps={{ readOnly: true, startAdornment: <InputAdornment position="start">BDT</InputAdornment> }}
               placeholder="Waiting..."
-              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: '#F5F5F5' } }}
+              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: colors.background } }}
             />
           </Box>
         </Box>
@@ -335,7 +336,7 @@ const DormantAccountActivation = ({ onBack }) => {
               value={extraFields.estWithdrawCount || ''}
               InputProps={{ readOnly: true }}
               placeholder="Waiting for customer..."
-              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: '#F5F5F5' } }}
+              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: colors.background } }}
             />
           </Box>
           <Box sx={{ flex: 1 }}>
@@ -345,7 +346,7 @@ const DormantAccountActivation = ({ onBack }) => {
               value={extraFields.estWithdrawAmount || ''}
               InputProps={{ readOnly: true, startAdornment: <InputAdornment position="start">BDT</InputAdornment> }}
               placeholder="Waiting..."
-              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: '#F5F5F5' } }}
+              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: colors.background } }}
             />
           </Box>
         </Box>
@@ -357,11 +358,11 @@ const DormantAccountActivation = ({ onBack }) => {
             value={extraFields.dormancyReason || ''}
             InputProps={{ readOnly: true }}
             placeholder="Waiting for customer..."
-            sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: '#F5F5F5' } }}
+            sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: colors.background } }}
           />
         </Box>
 
-        <Divider sx={{ borderColor: '#E0E0E0' }} />
+        <Divider sx={{ borderColor: colors.border }} />
 
         {!isLoading && customerTypedNew && customerTypedConfirm && (
           <Box>
@@ -399,8 +400,8 @@ const DormantAccountActivation = ({ onBack }) => {
               onClick={onBack}
               sx={{
                 py: 1.5,
-                backgroundColor: '#4CAF50',
-                '&:hover': { backgroundColor: '#388E3C' },
+                backgroundColor: colors.success,
+                '&:hover': { backgroundColor: colors.success },
                 borderRadius: '6px',
                 color: 'white',
                 fontWeight: 'bold',
@@ -421,8 +422,8 @@ const DormantAccountActivation = ({ onBack }) => {
             sx={{
               py: 1.5,
               backgroundColor: '#2196F3',
-              '&:hover': { backgroundColor: '#1976D2' },
-              '&:disabled': { backgroundColor: '#1976D2', opacity: 0.85 },
+              '&:hover': { backgroundColor: colors.primary },
+              '&:disabled': { backgroundColor: colors.primary, opacity: 0.85 },
               borderRadius: '6px',
               color: 'white',
               fontWeight: 'bold',
@@ -472,13 +473,13 @@ const DormantAccountActivation = ({ onBack }) => {
                 justifyContent: 'center',
               }}
             >
-              <AccountBalance sx={{ fontSize: 40, color: '#0066FF' }} />
+              <AccountBalance sx={{ fontSize: 40, color: colors.primary }} />
             </Box>
             <Box>
-              <Typography sx={{ fontSize: '1.25rem', fontWeight: 600, color: '#1A1A1A' }}>
+              <Typography sx={{ fontSize: '1.25rem', fontWeight: 600, color: colors.textPrimary }}>
                 Dormant Account Activation
               </Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: '#666666' }}>
+              <Typography sx={{ fontSize: '0.875rem', color: colors.textSecondary }}>
                 From: {accountDetails?.name || accountDetails?.mobileNumber}
               </Typography>
             </Box>
@@ -486,21 +487,21 @@ const DormantAccountActivation = ({ onBack }) => {
 
           <Divider sx={{ mb: 3 }} />
 
-          <Typography sx={{ fontSize: '0.875rem', color: '#666666', mb: 2 }}>
+          <Typography sx={{ fontSize: '0.875rem', color: colors.textSecondary, mb: 2 }}>
             Manager is requesting to reactivate dormant account:
           </Typography>
 
-          <Box sx={{ backgroundColor: '#F5F5F5', borderRadius: 2, p: 2, mb: 2 }}>
+          <Box sx={{ backgroundColor: colors.background, borderRadius: 2, p: 2, mb: 2 }}>
             <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, mb: 1 }}>
               Account Number:
             </Typography>
-            <Typography sx={{ fontSize: '0.875rem', color: '#1A1A1A', fontFamily: 'monospace', letterSpacing: 1 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.textPrimary, fontFamily: 'monospace', letterSpacing: 1 }}>
               {customerTypedNew}
             </Typography>
           </Box>
 
           {(extraFields.estDepositCount || extraFields.estDepositAmount || extraFields.estWithdrawCount || extraFields.estWithdrawAmount || extraFields.dormancyReason) && (
-            <Box sx={{ backgroundColor: '#F5F5F5', borderRadius: 2, p: 2, mb: 2 }}>
+            <Box sx={{ backgroundColor: colors.background, borderRadius: 2, p: 2, mb: 2 }}>
               <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, mb: 1.5, color: '#444' }}>
                 Transaction Estimates &amp; Dormancy Reason
               </Typography>
@@ -543,9 +544,9 @@ const DormantAccountActivation = ({ onBack }) => {
                 py: 1.5,
                 textTransform: 'none',
                 fontWeight: 600,
-                color: '#FF4444',
-                borderColor: '#FF4444',
-                '&:hover': { borderColor: '#D32F2F', backgroundColor: '#FFE5E5' },
+                color: colors.error,
+                borderColor: colors.error,
+                '&:hover': { borderColor: colors.error, backgroundColor: '#FFE5E5' },
               }}
               variant="outlined"
             >
@@ -560,10 +561,10 @@ const DormantAccountActivation = ({ onBack }) => {
                 py: 1.5,
                 textTransform: 'none',
                 fontWeight: 600,
-                backgroundColor: '#4CAF50',
+                backgroundColor: colors.success,
                 color: '#FFFFFF',
-                '&:hover': { backgroundColor: '#43A047' },
-                '&:disabled': { backgroundColor: '#4CAF50', opacity: 0.8 },
+                '&:hover': { backgroundColor: colors.success },
+                '&:disabled': { backgroundColor: colors.success, opacity: 0.8 },
               }}
               variant="contained"
             >

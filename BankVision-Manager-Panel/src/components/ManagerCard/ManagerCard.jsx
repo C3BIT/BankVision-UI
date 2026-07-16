@@ -9,6 +9,7 @@ import {
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
+import { colors } from '../../styles/tokens';
 
 const STATUS_OPTIONS = [
   { value: 'online', label: 'Online', color: '#4CAF50', icon: CheckCircle },
@@ -40,7 +41,7 @@ const ManagerCard = ({ currentStatus = 'online', onStatusChange }) => {
     <Paper
       elevation={0}
       sx={{
-        background: 'linear-gradient(135deg, #0066FF 0%, #0052CC 100%)',
+        background: colors.primary,
         borderRadius: 3,
         p: 3,
         color: '#FFFFFF',

@@ -10,6 +10,7 @@ import {
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import VirtualBackgroundMenu from '../VirtualBackgroundMenu/VirtualBackgroundMenu';
+import { colors } from '../../styles/tokens';
 
 const VideoControls = ({
   audioEnabled = true,
@@ -45,13 +46,13 @@ const VideoControls = ({
           sx={{
             width: 56,
             height: 56,
-            backgroundColor: speakerEnabled ? '#0066FF' : '#FF4444',
+            backgroundColor: speakerEnabled ? colors.primary : colors.error,
             color: '#FFFFFF',
             '&:hover': {
-              backgroundColor: speakerEnabled ? '#0052CC' : '#D32F2F',
+              backgroundColor: speakerEnabled ? colors.primaryDark : colors.error,
             },
             '&.Mui-disabled': {
-              backgroundColor: '#999999',
+              backgroundColor: colors.textMuted,
               color: '#CCCCCC',
             },
           }}
@@ -72,13 +73,13 @@ const VideoControls = ({
           sx={{
             width: 56,
             height: 56,
-            backgroundColor: audioEnabled ? '#0066FF' : '#FF4444',
+            backgroundColor: audioEnabled ? colors.primary : colors.error,
             color: '#FFFFFF',
             '&:hover': {
-              backgroundColor: audioEnabled ? '#0052CC' : '#D32F2F',
+              backgroundColor: audioEnabled ? colors.primaryDark : colors.error,
             },
             '&.Mui-disabled': {
-              backgroundColor: '#999999',
+              backgroundColor: colors.textMuted,
               color: '#CCCCCC',
             },
           }}
@@ -99,13 +100,13 @@ const VideoControls = ({
           sx={{
             width: 56,
             height: 56,
-            backgroundColor: videoEnabled ? '#0066FF' : '#FF4444',
+            backgroundColor: videoEnabled ? colors.primary : colors.error,
             color: '#FFFFFF',
             '&:hover': {
-              backgroundColor: videoEnabled ? '#0052CC' : '#D32F2F',
+              backgroundColor: videoEnabled ? colors.primaryDark : colors.error,
             },
             '&.Mui-disabled': {
-              backgroundColor: '#999999',
+              backgroundColor: colors.textMuted,
               color: '#CCCCCC',
             },
           }}
@@ -126,13 +127,13 @@ const VideoControls = ({
           sx={{
             width: 56,
             height: 56,
-            backgroundColor: whiteboardOpen ? '#FF9800' : '#0066FF',
+            backgroundColor: whiteboardOpen ? colors.warning : colors.primary,
             color: '#FFFFFF',
             '&:hover': {
-              backgroundColor: whiteboardOpen ? '#F57C00' : '#0052CC',
+              backgroundColor: whiteboardOpen ? colors.warning : colors.primaryDark,
             },
             '&.Mui-disabled': {
-              backgroundColor: '#999999',
+              backgroundColor: colors.textMuted,
               color: '#CCCCCC',
             },
           }}
@@ -163,15 +164,15 @@ const VideoControls = ({
           textTransform: 'none',
           fontWeight: 600,
           fontSize: '1rem',
-          backgroundColor: '#FF4444',
+          backgroundColor: colors.error,
           color: '#FFFFFF',
           borderRadius: '24px',
           minWidth: 140,
           '&:hover': {
-            backgroundColor: '#D32F2F',
+            backgroundColor: colors.error,
           },
           '&.Mui-disabled': {
-            backgroundColor: '#999999',
+            backgroundColor: colors.textMuted,
             color: '#CCCCCC',
           },
         }}

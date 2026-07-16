@@ -10,6 +10,7 @@ import {
   Chat,
   CallEnd,
 } from '@mui/icons-material';
+import { colors } from '../../theme/tokens';
 
 const VideoCallControls = ({
   isMuted = false,
@@ -30,10 +31,10 @@ const VideoCallControls = ({
   const controlButtonStyle = {
     width: { xs: 40, sm: 48 },
     height: { xs: 40, sm: 48 },
-    backgroundColor: '#0066FF',
+    backgroundColor: colors.primary,
     color: '#FFFFFF',
     '&:hover': {
-      backgroundColor: '#0052CC',
+      backgroundColor: colors.primaryDark,
       transform: 'scale(1.05)',
     },
     transition: 'all 0.2s ease-in-out',
@@ -43,12 +44,12 @@ const VideoCallControls = ({
   const endCallButtonStyle = {
     width: { xs: '100%', sm: 56 },
     height: { xs: 40, sm: 56 },
-    backgroundColor: '#FF4444',
+    backgroundColor: colors.error,
     color: '#FFFFFF',
     borderRadius: { xs: '20px', sm: '50%' },
     px: { xs: 3, sm: 0 },
     '&:hover': {
-      backgroundColor: '#CC0000',
+      backgroundColor: colors.error,
       transform: 'scale(1.05)',
     },
     transition: 'all 0.2s ease-in-out',
@@ -102,9 +103,9 @@ const VideoCallControls = ({
           <IconButton
             sx={{
               ...controlButtonStyle,
-              backgroundColor: whiteboardOpen ? '#FF9800' : '#0066FF',
+              backgroundColor: whiteboardOpen ? colors.warning : colors.primary,
               '&:hover': {
-                backgroundColor: whiteboardOpen ? '#F57C00' : '#0052CC',
+                backgroundColor: whiteboardOpen ? colors.warning : colors.primaryDark,
                 transform: 'scale(1.05)',
               },
             }}
@@ -153,7 +154,7 @@ const VideoCallControls = ({
       {isMobile && (
         <Box
           sx={{
-            backgroundColor: '#FF4444',
+            backgroundColor: colors.error,
             borderRadius: '20px',
             px: 4,
             py: 1,
@@ -162,7 +163,7 @@ const VideoCallControls = ({
             color: '#FFFFFF',
             cursor: 'pointer',
             '&:hover': {
-              backgroundColor: '#CC0000',
+              backgroundColor: colors.error,
             },
             boxShadow: '0 2px 12px rgba(255, 68, 68, 0.4)',
           }}
@@ -175,7 +176,7 @@ const VideoCallControls = ({
       {!isMobile && (
         <Box
           sx={{
-            backgroundColor: '#FF4444',
+            backgroundColor: colors.error,
             borderRadius: '24px',
             px: 3,
             py: 1.25,
@@ -189,7 +190,7 @@ const VideoCallControls = ({
             boxShadow: '0 4px 12px rgba(255, 68, 68, 0.4)',
             transition: 'all 0.2s ease',
             '&:hover': {
-              backgroundColor: '#CC0000',
+              backgroundColor: colors.error,
               boxShadow: '0 6px 16px rgba(255, 68, 68, 0.5)',
               transform: 'scale(1.05)',
             },

@@ -13,7 +13,9 @@ import PropTypes from 'prop-types';
 import { useWebSocket } from '../../providers/WebSocketProvider';
 import { useSelector } from 'react-redux';
 import { publicPost } from '../../services/apiCaller';
+import Captcha from '../Captcha/Captcha';
 import debounce from 'lodash/debounce';
+import { colors } from '../../styles/tokens';
 
 /**
  * Generic manager-side change request panel.
@@ -48,6 +50,9 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState('');
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
+  const [captchaAnswer, setCaptchaAnswer] = useState('');
+  const [captchaId, setCaptchaId] = useState(null);
+  const captchaRef = useRef(null);
   const typingTimeoutNewRef = useRef(null);
   const typingTimeoutConfirmRef = useRef(null);
 
@@ -122,6 +127,7 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
   const canSubmit =
     !isLoading && !otpSent && !verified && hasAccountSelected &&
     isValid && valuesMatch && !isSameAsCurrent && !duplicateWarning && !isCheckingDuplicate;
+  const canSendOtp = canSubmit && Boolean(captchaAnswer.trim());
 
   // ── Emit manager typing to customer ───────────────────────────────────────
   const emitManagerTyping = (eventName, value, timeoutRef) => {
@@ -134,11 +140,11 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
 
   // ── OTP send ──────────────────────────────────────────────────────────────
   const handleSendOtp = async () => {
-    if (!canSubmit) return;
+    if (!canSendOtp) return;
     setIsSendingOtp(true);
     setError(null);
     try {
-      await sendOtpFn(newValue);
+      await sendOtpFn(newValue, captchaId, captchaAnswer);
       setOtpSent(true);
       setOtp('');
       if (socket) {
@@ -149,6 +155,7 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
       }
     } catch (err) {
       setError(err.message || 'Failed to send OTP');
+      captchaRef.current?.refresh();
     } finally {
       setIsSendingOtp(false);
     }
@@ -199,34 +206,34 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
   return (
     <Box sx={{
       width: '100%', padding: '20px', display: 'flex', flexDirection: 'column',
-      backgroundColor: '#FFFFFF', borderRadius: '12px',
-      border: '1px solid #E0E0E0', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', gap: 2,
+      backgroundColor: colors.surface, borderRadius: '12px',
+      border: `1px solid ${colors.border}`, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', gap: 2,
     }}>
       <Button
         startIcon={<ArrowBack />}
         onClick={onBack}
-        sx={{ alignSelf: 'flex-start', color: '#1A1A1A', '&:hover': { backgroundColor: '#F0F0F0' } }}
+        sx={{ alignSelf: 'flex-start', color: colors.textPrimary, '&:hover': { backgroundColor: '#F0F0F0' } }}
       >
         Back
       </Button>
 
-      <Typography variant="h6" sx={{ color: '#1A1A1A', fontWeight: 'medium' }}>
+      <Typography variant="h6" sx={{ color: colors.textPrimary, fontWeight: 'medium' }}>
         {config.label}
       </Typography>
 
-      <Divider sx={{ borderColor: '#E0E0E0' }} />
+      <Divider sx={{ borderColor: colors.border }} />
 
       {/* Current value (read-only) */}
       <Box>
         <Typography variant="caption" sx={{ color: '#666' }}>{config.currentLabel}</Typography>
         <TextField
           fullWidth value={currentValue || 'Not available'} variant="outlined"
-          InputProps={{ readOnly: true, sx: { color: '#1A1A1A' } }}
-          sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: '#F5F5F5', '& fieldset': { borderColor: '#E0E0E0' } } }}
+          InputProps={{ readOnly: true, sx: { color: colors.textPrimary } }}
+          sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: colors.background, '& fieldset': { borderColor: colors.border } } }}
         />
       </Box>
 
-      <Divider sx={{ borderColor: '#E0E0E0' }} />
+      <Divider sx={{ borderColor: colors.border }} />
 
       {/* New value */}
       <Box>
@@ -248,10 +255,10 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
           sx={{
             mt: 0.5,
             '& .MuiOutlinedInput-root': {
-              backgroundColor: '#FAFAFA', color: '#1A1A1A',
-              '& fieldset': { borderColor: '#E0E0E0' },
+              backgroundColor: '#FAFAFA', color: colors.textPrimary,
+              '& fieldset': { borderColor: colors.border },
               '&:hover fieldset': { borderColor: '#BDBDBD' },
-              '&.Mui-focused fieldset': { borderColor: '#0066FF', borderWidth: 2 },
+              '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: 2 },
             },
             '& .MuiFormHelperText-root': { color: '#666', fontSize: '0.7rem' },
           }}
@@ -278,10 +285,10 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
           sx={{
             mt: 0.5,
             '& .MuiOutlinedInput-root': {
-              backgroundColor: '#FAFAFA', color: '#1A1A1A',
-              '& fieldset': { borderColor: '#E0E0E0' },
+              backgroundColor: '#FAFAFA', color: colors.textPrimary,
+              '& fieldset': { borderColor: colors.border },
               '&:hover fieldset': { borderColor: '#BDBDBD' },
-              '&.Mui-focused fieldset': { borderColor: '#0066FF', borderWidth: 2 },
+              '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: 2 },
             },
             '& .MuiFormHelperText-root': { color: '#666', fontSize: '0.7rem' },
           }}
@@ -314,13 +321,21 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
         </Alert>
       )}
 
-      {/* Submit on behalf button */}
+      {/* Captcha + submit on behalf button */}
+      {canSubmit && (
+        <Captcha
+          ref={captchaRef}
+          value={captchaAnswer}
+          onChange={(e) => setCaptchaAnswer(e.target.value)}
+          onCaptchaIdChange={setCaptchaId}
+        />
+      )}
       {canSubmit && (
         <Button
-          fullWidth variant="contained" onClick={handleSendOtp} disabled={isSendingOtp}
+          fullWidth variant="contained" onClick={handleSendOtp} disabled={isSendingOtp || !captchaAnswer.trim()}
           sx={{
             py: 1.5, backgroundColor: '#2196F3', borderRadius: '6px', color: 'white', fontWeight: 'bold',
-            '&:hover': { backgroundColor: '#1976D2' },
+            '&:hover': { backgroundColor: colors.primary },
             '&:disabled': { backgroundColor: '#90CAF9' },
           }}
         >
@@ -334,7 +349,7 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
           <Alert severity="success" sx={{ backgroundColor: 'rgba(76,175,80,0.08)' }}>
             OTP sent successfully to {accountDetails?.mobileNumber}
           </Alert>
-          <Divider sx={{ borderColor: '#E0E0E0' }} />
+          <Divider sx={{ borderColor: colors.border }} />
           <Box>
             <Typography variant="caption" sx={{ color: '#666' }}>Enter 6-Digit OTP</Typography>
             <TextField
@@ -344,9 +359,9 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
               sx={{
                 mt: 0.5,
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: '#FAFAFA', color: '#1A1A1A',
-                  '& fieldset': { borderColor: '#E0E0E0' },
-                  '&.Mui-focused fieldset': { borderColor: '#0066FF', borderWidth: 2 },
+                  backgroundColor: '#FAFAFA', color: colors.textPrimary,
+                  '& fieldset': { borderColor: colors.border },
+                  '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: 2 },
                 },
               }}
             />
@@ -355,8 +370,8 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
             fullWidth variant="contained" onClick={handleVerifyOtp}
             disabled={isVerifying || otp.length !== 6}
             sx={{
-              py: 1.5, backgroundColor: '#4CAF50', borderRadius: '6px', color: 'white', fontWeight: 'bold',
-              '&:hover': { backgroundColor: '#388E3C' },
+              py: 1.5, backgroundColor: colors.success, borderRadius: '6px', color: 'white', fontWeight: 'bold',
+              '&:hover': { backgroundColor: colors.success },
               '&:disabled': { backgroundColor: '#A5D6A7' },
             }}
           >
@@ -377,7 +392,7 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
           </Alert>
           <Button
             fullWidth variant="contained" onClick={onBack}
-            sx={{ py: 1.5, backgroundColor: '#4CAF50', borderRadius: '6px', color: 'white', fontWeight: 'bold', '&:hover': { backgroundColor: '#388E3C' } }}
+            sx={{ py: 1.5, backgroundColor: colors.success, borderRadius: '6px', color: 'white', fontWeight: 'bold', '&:hover': { backgroundColor: colors.success } }}
           >
             Back to Services
           </Button>

@@ -44,13 +44,14 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { colors } from '../theme/tokens';
 
 const STATUS_CONFIG = {
-    online: { color: '#4caf50', bg: '#e8f5e9', label: 'Online' },
+    online: { color: colors.success, bg: '#e8f5e9', label: 'Online' },
     busy: { color: '#f44336', bg: '#ffebee', label: 'Busy' },
-    break: { color: '#ff9800', bg: '#fff3e0', label: 'Break' },
-    lunch: { color: '#ff9800', bg: '#fff3e0', label: 'Lunch' },
-    prayer: { color: '#ff9800', bg: '#fff3e0', label: 'Prayer' },
+    break: { color: colors.warning, bg: '#fff3e0', label: 'Break' },
+    lunch: { color: colors.warning, bg: '#fff3e0', label: 'Lunch' },
+    prayer: { color: colors.warning, bg: '#fff3e0', label: 'Prayer' },
     not_ready: { color: '#9e9e9e', bg: '#f5f5f5', label: 'Not Ready' },
     offline: { color: '#bdbdbd', bg: '#fafafa', label: 'Offline' },
 };
@@ -115,8 +116,8 @@ const ManagerCard = ({ manager, canManageStatus, canDelete, onToggleActive, onRe
                     ) : (
                         <Button fullWidth variant="contained" sx={{
                             borderRadius: 3, py: 1, boxShadow: 'none',
-                            bgcolor: manager.status === 'online' ? '#e8f5e9' : manager.status === 'busy' ? '#ffebee' : '#f5f5f5',
-                            color: manager.status === 'online' ? '#4caf50' : manager.status === 'busy' ? '#f44336' : '#757575',
+                            bgcolor: manager.status === 'online' ? '#e8f5e9' : manager.status === 'busy' ? '#ffebee' : colors.background,
+                            color: manager.status === 'online' ? colors.success : manager.status === 'busy' ? '#f44336' : '#757575',
                             '&:hover': { bgcolor: manager.status === 'online' ? '#c8e6c9' : manager.status === 'busy' ? '#ffcdd2' : '#eeeeee' }
                         }}>
                             {manager.status === 'online' ? 'Active Now' : manager.status === 'busy' ? 'Busy' : STATUS_CONFIG[manager.status]?.label || 'Offline'}
@@ -132,13 +133,13 @@ const ManagerCard = ({ manager, canManageStatus, canDelete, onToggleActive, onRe
                             <>
                                 {canManageStatus && (
                                     <Tooltip title={manager.isActive !== false ? 'Deactivate' : (isPending ? 'Approve' : 'Activate')}>
-                                        <IconButton size="small" onClick={() => onToggleActive(manager)} sx={{ color: manager.isActive !== false ? '#ff9800' : '#4caf50' }}>
+                                        <IconButton size="small" onClick={() => onToggleActive(manager)} sx={{ color: manager.isActive !== false ? colors.warning : colors.success }}>
                                             {manager.isActive !== false ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
                                         </IconButton>
                                     </Tooltip>
                                 )}
                                 <Tooltip title="Reset Password">
-                                    <IconButton size="small" onClick={() => onResetPassword(manager)} sx={{ color: '#1976d2' }}>
+                                    <IconButton size="small" onClick={() => onResetPassword(manager)} sx={{ color: colors.primary }}>
                                         <Lock size={18} />
                                     </IconButton>
                                 </Tooltip>
@@ -316,7 +317,7 @@ const Managers = () => {
                     <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
                         <Table>
                             <TableHead>
-                                <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                                <TableRow sx={{ bgcolor: colors.background }}>
                                     <TableCell sx={{ fontWeight: 700 }}>Manager</TableCell>
                                     <TableCell sx={{ fontWeight: 700 }}>Account</TableCell>
                                     <TableCell sx={{ fontWeight: 700 }}>Live Status</TableCell>
@@ -342,7 +343,7 @@ const Managers = () => {
                                             <TableRow key={mgr.id} hover>
                                                 <TableCell>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                        <Avatar src={mgr.profileImage} sx={{ width: 36, height: 36, bgcolor: '#e3f2fd', color: '#1976d2', fontSize: 14, fontWeight: 700 }}>
+                                                        <Avatar src={mgr.profileImage} sx={{ width: 36, height: 36, bgcolor: '#e3f2fd', color: colors.primary, fontSize: 14, fontWeight: 700 }}>
                                                             {mgr.name?.charAt(0)?.toUpperCase()}
                                                         </Avatar>
                                                         <Box>
@@ -361,14 +362,14 @@ const Managers = () => {
                                                                 size="small"
                                                                 sx={{
                                                                     bgcolor: isPending ? '#fff3e0' : mgr.isActive !== false ? '#e8f5e9' : '#ffebee',
-                                                                    color: isPending ? '#e65100' : mgr.isActive !== false ? '#4caf50' : '#f44336',
+                                                                    color: isPending ? '#e65100' : mgr.isActive !== false ? colors.success : '#f44336',
                                                                     fontWeight: 600, borderRadius: 1
                                                                 }}
                                                             />
                                                         );
                                                     })()}
                                                     {mgr.lockedUntil && new Date(mgr.lockedUntil) > new Date() && (
-                                                        <Chip label="Locked" size="small" sx={{ ml: 0.5, bgcolor: '#fff3e0', color: '#ff9800', fontWeight: 600, borderRadius: 1 }} />
+                                                        <Chip label="Locked" size="small" sx={{ ml: 0.5, bgcolor: '#fff3e0', color: colors.warning, fontWeight: 600, borderRadius: 1 }} />
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
@@ -396,7 +397,7 @@ const Managers = () => {
                                                                             <IconButton
                                                                                 size="small"
                                                                                 onClick={() => handleToggleActive(mgr)}
-                                                                                sx={{ color: mgr.isActive !== false ? '#ff9800' : '#4caf50' }}
+                                                                                sx={{ color: mgr.isActive !== false ? colors.warning : colors.success }}
                                                                             >
                                                                                 {mgr.isActive !== false ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
                                                                             </IconButton>
@@ -406,7 +407,7 @@ const Managers = () => {
                                                                         <IconButton
                                                                             size="small"
                                                                             onClick={() => setResetDialog({ open: true, managerId: mgr.id, managerName: mgr.name, newPassword: '' })}
-                                                                            sx={{ color: '#1976d2' }}
+                                                                            sx={{ color: colors.primary }}
                                                                         >
                                                                             <Lock size={18} />
                                                                         </IconButton>
@@ -456,7 +457,7 @@ const Managers = () => {
                     Overview
                 </Typography>
 
-                <Paper sx={{ p: 3, mb: 2, borderRadius: 4, bgcolor: '#0066FF', color: '#fff' }} elevation={0}>
+                <Paper sx={{ p: 3, mb: 2, borderRadius: 4, bgcolor: colors.primary, color: '#fff' }} elevation={0}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2" sx={{ opacity: 0.9 }}>Active Calls</Typography>
                         <Phone size={20} color="white" />
@@ -466,10 +467,10 @@ const Managers = () => {
                     </Typography>
                 </Paper>
 
-                <Paper sx={{ p: 3, mb: 2, borderRadius: 4, bgcolor: '#fff', border: '1px solid', borderColor: 'divider' }} elevation={0}>
+                <Paper sx={{ p: 3, mb: 2, borderRadius: 4, bgcolor: colors.surface, border: '1px solid', borderColor: 'divider' }} elevation={0}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2" color="text.secondary" fontWeight={600}>Online Managers</Typography>
-                        <Box sx={{ p: 1, bgcolor: '#e8f5e9', borderRadius: 2, color: '#4caf50' }}>
+                        <Box sx={{ p: 1, bgcolor: '#e8f5e9', borderRadius: 2, color: colors.success }}>
                             <Users size={18} />
                         </Box>
                     </Box>
@@ -478,7 +479,7 @@ const Managers = () => {
                     </Typography>
                 </Paper>
 
-                <Paper sx={{ p: 3, mb: 2, borderRadius: 4, bgcolor: '#fff', border: '1px solid', borderColor: 'divider' }} elevation={0}>
+                <Paper sx={{ p: 3, mb: 2, borderRadius: 4, bgcolor: colors.surface, border: '1px solid', borderColor: 'divider' }} elevation={0}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2" color="text.secondary" fontWeight={600}>Busy Managers</Typography>
                         <Box sx={{ p: 1, bgcolor: '#ffebee', borderRadius: 2, color: '#f44336' }}>
@@ -490,10 +491,10 @@ const Managers = () => {
                     </Typography>
                 </Paper>
 
-                <Paper sx={{ p: 3, borderRadius: 4, bgcolor: '#fff', border: '1px solid', borderColor: 'divider' }} elevation={0}>
+                <Paper sx={{ p: 3, borderRadius: 4, bgcolor: colors.surface, border: '1px solid', borderColor: 'divider' }} elevation={0}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2" color="text.secondary" fontWeight={600}>Total Managers</Typography>
-                        <Box sx={{ p: 1, bgcolor: '#e3f2fd', borderRadius: 2, color: '#1976d2' }}>
+                        <Box sx={{ p: 1, bgcolor: '#e3f2fd', borderRadius: 2, color: colors.primary }}>
                             <Users size={18} />
                         </Box>
                     </Box>

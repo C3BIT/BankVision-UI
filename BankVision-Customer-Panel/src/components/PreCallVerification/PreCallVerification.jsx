@@ -1,5 +1,5 @@
 import { API_URL } from '../../config.js';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,9 @@ import {
 } from '@mui/material';
 import { Phone, Email, PersonOff } from '@mui/icons-material';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import { apiClient } from '../../services/apiCaller';
+import Captcha from '../Captcha/Captcha';
+import { colors } from '../../theme/tokens';
 
 const PreCallVerification = ({
   open,
@@ -34,6 +36,9 @@ const PreCallVerification = ({
   const [error, setError] = useState('');
   const [externalPhone, setExternalPhone] = useState('');
   const [guestEmail, setGuestEmail] = useState(''); // For guest email verification
+  const [captchaId, setCaptchaId] = useState('');
+  const [captchaAnswer, setCaptchaAnswer] = useState('');
+  const captchaRef = useRef(null);
 
   
 
@@ -52,6 +57,7 @@ const PreCallVerification = ({
       setError('');
       setExternalPhone('');
       setGuestEmail('');
+      setCaptchaAnswer('');
     }
   }, [open, phone]);
 
@@ -61,7 +67,7 @@ const PreCallVerification = ({
     setVerificationStatus('checking');
 
     try {
-      const response = await axios.post(`${API_URL}/customer/check-verification-status`, {
+      const response = await apiClient.post(`${API_URL}/customer/check-verification-status`, {
         phone: phone
       });
 
@@ -91,13 +97,20 @@ const PreCallVerification = ({
       return;
     }
 
+    if (!captchaAnswer) {
+      setError('Please enter the captcha code');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
       // Send OTP to the phone number provided (this number will be visible to manager, but OTP code won't be)
-      const response = await axios.post(`${API_URL}/otp/send-phone`, {
+      const response = await apiClient.post(`${API_URL}/otp/send-phone`, {
         phone: externalPhone, // Phone number to verify (visible to manager)
+        captchaId: captchaId,
+        captchaAnswer: captchaAnswer,
       });
 
       if (response.data.success) {
@@ -105,22 +118,31 @@ const PreCallVerification = ({
         setError('');
       } else {
         setError(response.data.message || 'Failed to send OTP');
+        setCaptchaAnswer('');
+        captchaRef.current?.refresh();
       }
     } catch (error) {
       console.error('Error sending OTP:', error);
       setError(error.response?.data?.message || 'Failed to send OTP. Please try again.');
+      setCaptchaAnswer('');
+      captchaRef.current?.refresh();
     } finally {
       setLoading(false);
     }
   };
 
   const handleSendEmailOtp = async () => {
+    if (!captchaAnswer) {
+      setError('Please enter the captcha code');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
       // First get customer email from phone
-      const customerResponse = await axios.post(`${API_URL}/customer/find-phone`, {
+      const customerResponse = await apiClient.post(`${API_URL}/customer/find-phone`, {
         phone: phone
       });
 
@@ -138,8 +160,10 @@ const PreCallVerification = ({
       }
 
       // Send OTP to registered email
-      const response = await axios.post(`${API_URL}/otp/send`, {
+      const response = await apiClient.post(`${API_URL}/otp/send`, {
         email: customerEmail,
+        captchaId: captchaId,
+        captchaAnswer: captchaAnswer,
       });
 
       if (response.data.success) {
@@ -147,10 +171,14 @@ const PreCallVerification = ({
         setError('');
       } else {
         setError(response.data.message || 'Failed to send email OTP');
+        setCaptchaAnswer('');
+        captchaRef.current?.refresh();
       }
     } catch (error) {
       console.error('Error sending email OTP:', error);
       setError(error.response?.data?.message || 'Failed to send email OTP. Please try again.');
+      setCaptchaAnswer('');
+      captchaRef.current?.refresh();
     } finally {
       setLoading(false);
     }
@@ -167,7 +195,7 @@ const PreCallVerification = ({
 
     try {
       // Verify OTP - the phone number is visible to manager, but OTP code is not
-      const response = await axios.post(`${API_URL}/otp/verify-phone`, {
+      const response = await apiClient.post(`${API_URL}/otp/verify-phone`, {
         phone: externalPhone, // Verification phone number (visible to manager)
         otp: otp, // OTP code (not visible to manager)
       });
@@ -197,7 +225,7 @@ const PreCallVerification = ({
 
     try {
       // Get customer email from phone
-      const customerResponse = await axios.post(`${API_URL}/customer/find-phone`, {
+      const customerResponse = await apiClient.post(`${API_URL}/customer/find-phone`, {
         phone: phone
       });
 
@@ -215,7 +243,7 @@ const PreCallVerification = ({
       }
 
       // Verify OTP with email
-      const response = await axios.post(`${API_URL}/otp/verify-email`, {
+      const response = await apiClient.post(`${API_URL}/otp/verify-email`, {
         email: customerEmail,
         otp: emailOtp,
       });
@@ -278,7 +306,7 @@ const PreCallVerification = ({
         {verificationStatus === 'phone' && (
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <Phone sx={{ color: '#0066FF' }} />
+              <Phone sx={{ color: colors.primary }} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 Phone Verification
               </Typography>
@@ -303,15 +331,22 @@ const PreCallVerification = ({
                   sx={{ mb: 2 }}
                   InputProps={{
                     startAdornment: (
-                      <Typography sx={{ mr: 1, color: '#666' }}>+88</Typography>
+                      <Typography sx={{ mr: 1, color: colors.textSecondary }}>+88</Typography>
                     ),
                   }}
+                />
+                <Captcha
+                  ref={captchaRef}
+                  value={captchaAnswer}
+                  onChange={setCaptchaAnswer}
+                  onCaptchaIdChange={setCaptchaId}
+                  disabled={loading}
                 />
                 <Button
                   fullWidth
                   variant="contained"
                   onClick={handleSendOtp}
-                  disabled={loading || !externalPhone || externalPhone.length !== 11}
+                  disabled={loading || !externalPhone || externalPhone.length !== 11 || !captchaAnswer}
                   sx={{ mb: 2 }}
                 >
                   {loading ? <CircularProgress size={20} /> : 'Send OTP'}
@@ -364,7 +399,7 @@ const PreCallVerification = ({
         {verificationStatus === 'email' && (
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <Email sx={{ color: '#0066FF' }} />
+              <Email sx={{ color: colors.primary }} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 Email Verification
               </Typography>
@@ -374,15 +409,24 @@ const PreCallVerification = ({
             </Typography>
 
             {!otpSent ? (
-              <Button
-                fullWidth
-                variant="contained"
-                onClick={handleSendEmailOtp}
-                disabled={loading}
-                sx={{ mb: 2 }}
-              >
-                {loading ? <CircularProgress size={20} /> : 'Send OTP to Email'}
-              </Button>
+              <>
+                <Captcha
+                  ref={captchaRef}
+                  value={captchaAnswer}
+                  onChange={setCaptchaAnswer}
+                  onCaptchaIdChange={setCaptchaId}
+                  disabled={loading}
+                />
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={handleSendEmailOtp}
+                  disabled={loading || !captchaAnswer}
+                  sx={{ mb: 2 }}
+                >
+                  {loading ? <CircularProgress size={20} /> : 'Send OTP to Email'}
+                </Button>
+              </>
             ) : (
               <>
                 <Alert severity="success" sx={{ mb: 2 }}>
@@ -430,7 +474,7 @@ const PreCallVerification = ({
         {verificationStatus === 'guest' && (
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <PersonOff sx={{ color: '#FF9800' }} />
+              <PersonOff sx={{ color: colors.warning }} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 Verification Required
               </Typography>
@@ -498,18 +542,25 @@ const PreCallVerification = ({
                       sx={{ mb: 2 }}
                       InputProps={{
                         startAdornment: (
-                          <Typography sx={{ mr: 1, color: '#666' }}>+88</Typography>
+                          <Typography sx={{ mr: 1, color: colors.textSecondary }}>+88</Typography>
                         ),
                       }}
                     />
                     <Alert severity="info" sx={{ mb: 2, fontSize: '0.75rem' }}>
                       This phone number will be visible to the manager to verify your identity. The OTP code will not be visible to the manager.
                     </Alert>
+                    <Captcha
+                      ref={captchaRef}
+                      value={captchaAnswer}
+                      onChange={setCaptchaAnswer}
+                      onCaptchaIdChange={setCaptchaId}
+                      disabled={loading}
+                    />
                     <Button
                       fullWidth
                       variant="contained"
                       onClick={handleSendOtp}
-                      disabled={loading || !externalPhone || externalPhone.length !== 11}
+                      disabled={loading || !externalPhone || externalPhone.length !== 11 || !captchaAnswer}
                       sx={{ mb: 2 }}
                     >
                       {loading ? <CircularProgress size={20} /> : 'Send OTP'}
@@ -576,6 +627,13 @@ const PreCallVerification = ({
                     <Alert severity="info" sx={{ mb: 2, fontSize: '0.75rem' }}>
                       This email address will be visible to the manager to verify your identity. The OTP code will not be visible to the manager.
                     </Alert>
+                    <Captcha
+                      ref={captchaRef}
+                      value={captchaAnswer}
+                      onChange={setCaptchaAnswer}
+                      onCaptchaIdChange={setCaptchaId}
+                      disabled={loading}
+                    />
                     <Button
                       fullWidth
                       variant="contained"
@@ -584,26 +642,36 @@ const PreCallVerification = ({
                           setError('Please enter a valid email address');
                           return;
                         }
+                        if (!captchaAnswer) {
+                          setError('Please enter the captcha code');
+                          return;
+                        }
                         setLoading(true);
                         setError('');
                         try {
-                          const response = await axios.post(`${API_URL}/otp/send`, {
+                          const response = await apiClient.post(`${API_URL}/otp/send`, {
                             email: guestEmail,
+                            captchaId: captchaId,
+                            captchaAnswer: captchaAnswer,
                           });
                           if (response.data.success) {
                             setOtpSent(true);
                             setError('');
                           } else {
                             setError(response.data.message || 'Failed to send email OTP');
+                            setCaptchaAnswer('');
+                            captchaRef.current?.refresh();
                           }
                         } catch (error) {
                           console.error('Error sending email OTP:', error);
                           setError(error.response?.data?.message || 'Failed to send email OTP. Please try again.');
+                          setCaptchaAnswer('');
+                          captchaRef.current?.refresh();
                         } finally {
                           setLoading(false);
                         }
                       }}
-                      disabled={loading || !guestEmail || !guestEmail.includes('@')}
+                      disabled={loading || !guestEmail || !guestEmail.includes('@') || !captchaAnswer}
                       sx={{ mb: 2 }}
                     >
                       {loading ? <CircularProgress size={20} /> : 'Send OTP to Email'}
@@ -639,7 +707,7 @@ const PreCallVerification = ({
                         setLoading(true);
                         setError('');
                         try {
-                          const response = await axios.post(`${API_URL}/otp/verify-email`, {
+                          const response = await apiClient.post(`${API_URL}/otp/verify-email`, {
                             email: guestEmail,
                             otp: emailOtp,
                           });
@@ -690,7 +758,7 @@ const PreCallVerification = ({
           </Box>
         )}
 
-        <Box sx={{ mt: 3, pt: 2, borderTop: '1px solid #E0E0E0' }}>
+        <Box sx={{ mt: 3, pt: 2, borderTop: `1px solid ${colors.border}` }}>
           <Button
             fullWidth
             variant="text"

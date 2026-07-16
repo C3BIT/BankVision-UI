@@ -31,6 +31,8 @@ import OtpInput from '../common/OtpInput';
 import { fetchCustomerDetailsByAccount, updateCustomerAddress } from '../../redux/auth/customerInfoSlice';
 import LoadingButton from '../common/LoadingButton';
 import { publicPostFile } from '../../services/apiCaller';
+import { colors, gradients } from '../../theme/tokens';
+import BrandLogo from '../BrandLogo/BrandLogo';
 
 const ADDRESS_TYPES = [
     { value: 'present', label: 'Present Address' },
@@ -339,6 +341,7 @@ const AddressChangeRequest = ({ currentAddress, socket }) => {
                 </>
             ) : (
                 <>
+                    <BrandLogo size="small" />
                     <Typography variant="h6" sx={{ color: 'white', textAlign: "center", fontWeight: 'medium' }}>
                         Address Update
                     </Typography>
@@ -414,7 +417,7 @@ const AddressChangeRequest = ({ currentAddress, socket }) => {
                                     borderColor: 'rgba(0, 0, 0, 0.1)',
                                 },
                                 '&.Mui-focused fieldset': {
-                                    borderColor: '#4CAF50',
+                                    borderColor: colors.success,
                                 },
                             },
                         }}
@@ -553,14 +556,14 @@ const AddressChangeRequest = ({ currentAddress, socket }) => {
                                 disabled={otp.length !== 6}
                                 sx={{
                                     mt: 3,
-                                    background: 'linear-gradient(90deg, #13A183 0%, #5EBA4F 100%)',
+                                    background: gradients.success,
                                     color: 'white',
                                     '&:hover': {
-                                        background: 'linear-gradient(90deg, #13A183 0%, #5EBA4F 100%)',
+                                        background: gradients.success,
                                         opacity: 0.9,
                                     },
                                     '&.Mui-disabled': {
-                                        background: '#f5f5f5',
+                                        background: colors.background,
                                         color: '#bdbdbd',
                                     },
                                 }}

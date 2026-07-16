@@ -1,6 +1,7 @@
 import { List, ListItem, ListItemIcon, ListItemText, IconButton, Typography, Box } from '@mui/material';
 import { Phone, Email, Home, AccountCircle, ChevronRight } from '@mui/icons-material';
 import PropTypes from 'prop-types';
+import { gradients } from '../../../styles/tokens';
 
 const ServicesList = ({ onServiceSelect }) => {
     const services = [
@@ -55,7 +56,7 @@ const ServicesList = ({ onServiceSelect }) => {
                         <IconButton
                             edge="end"
                             sx={{
-                                background: 'linear-gradient(to right, #13A183, #5EBA4F)',
+                                background: gradients.success,
                                 borderRadius: '50%',
                                 width: 40,
                                 height: 40,

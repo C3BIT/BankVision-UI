@@ -17,9 +17,11 @@ import {
 import { BackgroundProcessor } from "@livekit/track-processors";
 import { useWebSocket } from "../../providers/WebSocketProvider";
 import { publicPost } from "../../services/apiCaller";
+import { toastError } from "../../utils/toast";
+import { colors } from "../../styles/tokens";
 
 // Component for each remote participant's video
-const ParticipantVideo = ({ participant, isLarge, onVideoElementReady, speakerMuted }) => {
+const ParticipantVideo = ({ participant, isLarge, onVideoElementReady, speakerMuted, hidden = false }) => {
   const videoRef = useRef(null);
   const audioRef = useRef(null);
   const [hasVideo, setHasVideo] = useState(false);
@@ -189,6 +191,14 @@ const ParticipantVideo = ({ participant, isLarge, onVideoElementReady, speakerMu
     if (identity.startsWith("supervisor")) return "Supervisor";
     return identity.split("-")[0] || "Participant";
   };
+
+  // Whisper/listen supervisors publish audio into the room but must stay
+  // invisible in the manager's video grid — the component (and its track
+  // subscription effect above, which is unaffected by what we return here)
+  // stays mounted so the audio keeps attaching, it's just not rendered visibly.
+  if (hidden) {
+    return <Box sx={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }} />;
+  }
 
   return (
     <Box
@@ -643,20 +653,25 @@ const OpenViduMeetComponent = forwardRef(({
     }
   }, [isSpeakerMuted, onSpeakerStateChange]);
 
+  // Supervisor whisper/listen sessions publish audio into the room but must
+  // never appear in the manager's video grid.
+  const supervisorParticipants = remoteParticipants.filter(p => p.identity.startsWith('supervisor'));
+  const visibleParticipants = remoteParticipants.filter(p => !p.identity.startsWith('supervisor'));
+
   // Store customer video element ref
   const customerVideoRef = useRef(null);
 
   // Update customer video ref when participants change
   useEffect(() => {
-    if (remoteParticipants.length === 0) {
+    if (visibleParticipants.length === 0) {
       customerVideoRef.current = null;
       console.log('📹 No remote participants, clearing customer video ref');
       return;
     }
 
-    const customerParticipant = remoteParticipants.find(p => 
+    const customerParticipant = visibleParticipants.find(p =>
       p.identity.startsWith('customer')
-    ) || remoteParticipants[0];
+    ) || visibleParticipants[0];
     
     console.log('📹 Looking for customer video, participant:', customerParticipant?.identity);
     
@@ -736,6 +751,7 @@ const OpenViduMeetComponent = forwardRef(({
       }
     } catch (err) {
       console.error('Background processor error:', err.message);
+      toastError('Could not apply background — please try again.');
     }
   }, []);
 
@@ -768,8 +784,10 @@ const OpenViduMeetComponent = forwardRef(({
         backgroundColor: "#1e3a5f",
       }}
     >
-      {/* Participant count indicator */}
-      {remoteParticipants.length > 1 && (
+      {/* Participant count indicator — excludes supervisor whisper/listen sessions,
+          which must stay invisible to the manager's UI even though their audio
+          is subscribed (see the hidden ParticipantVideo pass below). */}
+      {visibleParticipants.length > 1 && (
         <Box
           sx={{
             position: "absolute",
@@ -784,7 +802,7 @@ const OpenViduMeetComponent = forwardRef(({
             fontSize: 12,
           }}
         >
-          {remoteParticipants.length + 1} participants
+          {visibleParticipants.length + 1} participants
         </Box>
       )}
 
@@ -809,7 +827,7 @@ const OpenViduMeetComponent = forwardRef(({
             alignItems: "center",
           }}
         >
-          {remoteParticipants.length === 0 ? (
+          {visibleParticipants.length === 0 ? (
             <Box
               sx={{
                 display: "flex",
@@ -822,8 +840,8 @@ const OpenViduMeetComponent = forwardRef(({
             >
               {(liveKitReconnecting || peerReconnecting) ? (
                 <>
-                  <CircularProgress size={32} sx={{ color: "#ff9800" }} />
-                  <Typography variant="h6" sx={{ color: "#ff9800" }}>
+                  <CircularProgress size={32} sx={{ color: colors.warning }} />
+                  <Typography variant="h6" sx={{ color: colors.warning }}>
                     Customer connection lost — reconnecting...
                   </Typography>
                   <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.6)" }}>
@@ -834,19 +852,19 @@ const OpenViduMeetComponent = forwardRef(({
                 <Typography variant="h6">Waiting for customer to join...</Typography>
               )}
             </Box>
-          ) : remoteParticipants.length === 1 ? (
+          ) : visibleParticipants.length === 1 ? (
             <ParticipantVideo
-              participant={remoteParticipants[0]}
+              participant={visibleParticipants[0]}
               isLarge={true}
               speakerMuted={isSpeakerMuted}
               onVideoElementReady={(videoEl) => {
-                if (remoteParticipants[0].identity.startsWith('customer')) {
+                if (visibleParticipants[0].identity.startsWith('customer')) {
                   customerVideoRef.current = videoEl;
                 }
               }}
             />
           ) : (
-            remoteParticipants.map((participant) => (
+            visibleParticipants.map((participant) => (
               <ParticipantVideo
                 key={participant.identity}
                 participant={participant}
@@ -860,6 +878,18 @@ const OpenViduMeetComponent = forwardRef(({
               />
             ))
           )}
+
+          {/* Supervisor whisper/listen participants: never shown in the grid above,
+              but must stay mounted so ParticipantVideo's track-subscribed effect
+              still attaches their audio — otherwise the manager never hears them. */}
+          {supervisorParticipants.map((participant) => (
+            <ParticipantVideo
+              key={participant.identity}
+              participant={participant}
+              hidden={true}
+              speakerMuted={isSpeakerMuted}
+            />
+          ))}
         </Box>
 
         {/* Local video (picture-in-picture) */}
@@ -872,7 +902,7 @@ const OpenViduMeetComponent = forwardRef(({
             height: 120,
             borderRadius: 2,
             overflow: "hidden",
-            border: isVideoMuted ? "3px solid #666" : "3px solid #4caf50",
+            border: isVideoMuted ? "3px solid #666" : `3px solid ${colors.success}`,
             backgroundColor: "#000",
             zIndex: 1002,
             display: "flex",

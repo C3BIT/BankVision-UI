@@ -12,6 +12,7 @@ import {
 import LogoutIcon from '@mui/icons-material/Logout';
 import PropTypes from 'prop-types';
 import BankLogo from '../../assets/icon/bank-logo.svg';
+import { colors } from '../../styles/tokens';
 
 const AuthLayout = ({ title, subtitle, children }) => {
   const [loading, setLoading] = useState(false);
@@ -45,7 +46,7 @@ const AuthLayout = ({ title, subtitle, children }) => {
         display: 'flex',
         flexDirection: 'column',
         minHeight: '100vh',
-        backgroundColor: '#F5F5F5',
+        backgroundColor: colors.background,
       }}>
         <AppBar
           position="fixed"

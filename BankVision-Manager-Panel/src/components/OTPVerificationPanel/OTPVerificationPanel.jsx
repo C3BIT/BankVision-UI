@@ -16,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import { useWebSocket } from '../../providers/WebSocketProvider';
+import { colors } from '../../styles/tokens';
 
 const OTPVerificationPanel = ({ customerPhone }) => {
   const {
@@ -36,10 +37,10 @@ const OTPVerificationPanel = ({ customerPhone }) => {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Header */}
       <Box>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: '#1A1A1A', mb: 1 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: colors.textPrimary, mb: 1 }}>
           OTP Verification
         </Typography>
-        <Typography variant="body2" sx={{ color: '#666666' }}>
+        <Typography variant="body2" sx={{ color: colors.textSecondary }}>
           Request OTP verification for phone and email before proceeding to face verification.
         </Typography>
       </Box>
@@ -48,9 +49,9 @@ const OTPVerificationPanel = ({ customerPhone }) => {
       <Card
         elevation={0}
         sx={{
-          border: '1px solid #E0E0E0',
+          border: `1px solid ${colors.border}`,
           borderRadius: 2,
-          backgroundColor: phoneVerified ? '#F0F9FF' : '#FFFFFF',
+          backgroundColor: phoneVerified ? '#F0F9FF' : colors.surface,
         }}
       >
         <CardContent>
@@ -61,7 +62,7 @@ const OTPVerificationPanel = ({ customerPhone }) => {
                   width: 40,
                   height: 40,
                   borderRadius: '50%',
-                  backgroundColor: phoneVerified ? '#10B981' : '#0066FF',
+                  backgroundColor: phoneVerified ? colors.success : colors.primary,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -71,10 +72,10 @@ const OTPVerificationPanel = ({ customerPhone }) => {
                 <PhoneIcon sx={{ fontSize: 20 }} />
               </Box>
               <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1A1A1A' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
                   Phone OTP
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#666666', fontSize: '0.875rem' }}>
+                <Typography variant="body2" sx={{ color: colors.textSecondary, fontSize: '0.875rem' }}>
                   {customerPhone || 'No phone number'}
                 </Typography>
               </Box>
@@ -102,7 +103,7 @@ const OTPVerificationPanel = ({ customerPhone }) => {
                 size="small"
                 sx={{
                   backgroundColor: '#F3F4F6',
-                  color: '#666666',
+                  color: colors.textSecondary,
                   fontWeight: 600,
                 }}
               />
@@ -117,16 +118,16 @@ const OTPVerificationPanel = ({ customerPhone }) => {
               onClick={handleRequestPhoneOTP}
               disabled={verificationPending.phone || !customerPhone}
               sx={{
-                backgroundColor: '#0066FF',
+                backgroundColor: colors.primary,
                 textTransform: 'none',
                 fontWeight: 600,
                 py: 1.5,
                 '&:hover': {
-                  backgroundColor: '#0052CC',
+                  backgroundColor: colors.primaryDark,
                 },
                 '&:disabled': {
-                  backgroundColor: '#E0E0E0',
-                  color: '#999999',
+                  backgroundColor: colors.border,
+                  color: colors.textMuted,
                 },
               }}
             >

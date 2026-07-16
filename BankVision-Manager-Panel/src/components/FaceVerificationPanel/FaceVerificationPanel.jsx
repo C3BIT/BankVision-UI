@@ -15,6 +15,7 @@ import PropTypes from 'prop-types';
 import { useWebSocket } from '../../providers/WebSocketProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { compareFaces, fetchCustomerImage } from '../../redux/customer/customerImageSlice';
+import { colors } from '../../styles/tokens';
 
 const FaceVerificationPanel = ({ customerName }) => {
   const [captureState, setCaptureState] = useState('initial'); // initial, capturing, captured, error
@@ -282,7 +283,7 @@ const FaceVerificationPanel = ({ customerName }) => {
           sx={{
             fontSize: '1rem',
             fontWeight: 600,
-            color: '#1A1A1A',
+            color: colors.textPrimary,
             mb: 1,
           }}
         >
@@ -291,7 +292,7 @@ const FaceVerificationPanel = ({ customerName }) => {
         <Typography
           sx={{
             fontSize: '0.75rem',
-            color: '#666666',
+            color: colors.textSecondary,
             mb: 1.5,
           }}
         >
@@ -302,7 +303,7 @@ const FaceVerificationPanel = ({ customerName }) => {
           sx={{
             borderRadius: 2,
             overflow: 'hidden',
-            border: '1px solid #E0E0E0',
+            border: `1px solid ${colors.border}`,
             height: 180,
             display: 'flex',
             justifyContent: 'center',
@@ -324,7 +325,7 @@ const FaceVerificationPanel = ({ customerName }) => {
           ) : (
             <Box sx={{ textAlign: 'center', p: 2 }}>
               <CircularProgress size={24} sx={{ mb: 1 }} />
-              <Typography sx={{ color: '#999999', fontSize: '0.875rem' }}>
+              <Typography sx={{ color: colors.textMuted, fontSize: '0.875rem' }}>
                 Loading profile image...
               </Typography>
             </Box>
@@ -338,7 +339,7 @@ const FaceVerificationPanel = ({ customerName }) => {
           sx={{
             fontSize: '1rem',
             fontWeight: 600,
-            color: '#1A1A1A',
+            color: colors.textPrimary,
             mb: 1,
           }}
         >
@@ -347,7 +348,7 @@ const FaceVerificationPanel = ({ customerName }) => {
         <Typography
           sx={{
             fontSize: '0.75rem',
-            color: '#666666',
+            color: colors.textSecondary,
             mb: 1.5,
           }}
         >
@@ -358,7 +359,7 @@ const FaceVerificationPanel = ({ customerName }) => {
           sx={{
             borderRadius: 2,
             overflow: 'hidden',
-            border: '1px solid #E0E0E0',
+            border: `1px solid ${colors.border}`,
             height: 180,
             display: 'flex',
             justifyContent: 'center',
@@ -370,14 +371,14 @@ const FaceVerificationPanel = ({ customerName }) => {
           {isLoading && captureState === 'capturing' ? (
             <Box sx={{ textAlign: 'center' }}>
               <CircularProgress />
-              <Typography sx={{ mt: 2, fontSize: '0.875rem', color: '#666666' }}>
+              <Typography sx={{ mt: 2, fontSize: '0.875rem', color: colors.textSecondary }}>
                 Waiting for customer...
               </Typography>
             </Box>
           ) : captureState === 'error' ? (
             <Box sx={{ textAlign: 'center', p: 2 }}>
-              <Error sx={{ fontSize: 48, color: '#FF4444', mb: 1 }} />
-              <Typography sx={{ fontSize: '0.875rem', color: '#FF4444' }}>
+              <Error sx={{ fontSize: 48, color: colors.error, mb: 1 }} />
+              <Typography sx={{ fontSize: '0.875rem', color: colors.error }}>
                 {errorMessage || "Request failed"}
               </Typography>
             </Box>
@@ -400,7 +401,7 @@ const FaceVerificationPanel = ({ customerName }) => {
                 width: 80,
                 height: 80,
                 borderRadius: '50%',
-                border: '2px dashed #E0E0E0',
+                border: `2px dashed ${colors.border}`,
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -411,7 +412,7 @@ const FaceVerificationPanel = ({ customerName }) => {
                   width: 40,
                   height: 50,
                   borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-                  border: '2px solid #E0E0E0',
+                  border: `2px solid ${colors.border}`,
                   position: 'relative',
                 }}
               >
@@ -424,7 +425,7 @@ const FaceVerificationPanel = ({ customerName }) => {
                     width: 20,
                     height: 15,
                     borderRadius: '0 0 50% 50%',
-                    border: '2px solid #E0E0E0',
+                    border: `2px solid ${colors.border}`,
                     borderTop: 'none',
                   }}
                 />
@@ -436,8 +437,8 @@ const FaceVerificationPanel = ({ customerName }) => {
         {/* Eye Blinking Indicator */}
         {eyeBlinkPassed && currentImage && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1.5 }}>
-            <RemoveRedEye sx={{ fontSize: 16, color: '#666666' }} />
-            <Typography sx={{ fontSize: '0.75rem', color: '#666666' }}>
+            <RemoveRedEye sx={{ fontSize: 16, color: colors.textSecondary }} />
+            <Typography sx={{ fontSize: '0.75rem', color: colors.textSecondary }}>
               Eye Blinking
             </Typography>
             <Chip
@@ -445,7 +446,7 @@ const FaceVerificationPanel = ({ customerName }) => {
               size="small"
               sx={{
                 backgroundColor: '#E5F7E5',
-                color: '#4CAF50',
+                color: colors.success,
                 fontWeight: 600,
                 fontSize: '0.75rem',
                 height: 20,
@@ -511,15 +512,15 @@ const FaceVerificationPanel = ({ customerName }) => {
             textTransform: 'none',
             fontWeight: 600,
             fontSize: '1rem',
-            backgroundColor: '#0066FF',
+            backgroundColor: colors.primary,
             color: '#FFFFFF',
             borderRadius: '8px',
             '&:hover': {
-              backgroundColor: '#0052CC',
+              backgroundColor: colors.primaryDark,
             },
             '&.Mui-disabled': {
-              backgroundColor: '#E0E0E0',
-              color: '#999999',
+              backgroundColor: colors.border,
+              color: colors.textMuted,
             },
           }}
           variant="contained"
@@ -539,15 +540,15 @@ const FaceVerificationPanel = ({ customerName }) => {
               textTransform: 'none',
               fontWeight: 600,
               fontSize: '1rem',
-              backgroundColor: '#0066FF',
+              backgroundColor: colors.primary,
               color: '#FFFFFF',
               borderRadius: '8px',
               '&:hover': {
-                backgroundColor: '#0052CC',
+                backgroundColor: colors.primaryDark,
               },
               '&.Mui-disabled': {
-                backgroundColor: '#E0E0E0',
-                color: '#999999',
+                backgroundColor: colors.border,
+                color: colors.textMuted,
               },
             }}
             variant="contained"
@@ -570,11 +571,11 @@ const FaceVerificationPanel = ({ customerName }) => {
               textTransform: 'none',
               fontWeight: 500,
               fontSize: '0.875rem',
-              color: '#666666',
-              borderColor: '#E0E0E0',
+              color: colors.textSecondary,
+              borderColor: colors.border,
               borderRadius: '8px',
               '&:hover': {
-                borderColor: '#999999',
+                borderColor: colors.textMuted,
                 backgroundColor: 'transparent',
               },
             }}
@@ -601,12 +602,12 @@ const FaceVerificationPanel = ({ customerName }) => {
                 textTransform: 'none',
                 fontWeight: 600,
                 fontSize: '1rem',
-                backgroundColor: '#4CAF50',
+                backgroundColor: colors.success,
                 color: '#FFFFFF',
                 borderRadius: '8px',
                 maxWidth: '100%',
                 '&:hover': {
-                  backgroundColor: '#43A047',
+                  backgroundColor: colors.success,
                 },
               }}
               variant="contained"
@@ -628,12 +629,12 @@ const FaceVerificationPanel = ({ customerName }) => {
                 textTransform: 'none',
                 fontWeight: 600,
                 fontSize: '1rem',
-                backgroundColor: '#FF4444',
+                backgroundColor: colors.error,
                 color: '#FFFFFF',
                 borderRadius: '8px',
                 flex: 1,
                 '&:hover': {
-                  backgroundColor: '#D32F2F',
+                  backgroundColor: colors.error,
                 },
               }}
               variant="contained"
@@ -648,12 +649,12 @@ const FaceVerificationPanel = ({ customerName }) => {
                 textTransform: 'none',
                 fontWeight: 600,
                 fontSize: '1rem',
-                borderColor: '#0066FF',
-                color: '#0066FF',
+                borderColor: colors.primary,
+                color: colors.primary,
                 borderRadius: '8px',
                 flex: 1,
                 '&:hover': {
-                  borderColor: '#0052CC',
+                  borderColor: colors.primaryDark,
                   backgroundColor: '#E3F2FD',
                 },
               }}
@@ -675,11 +676,11 @@ const FaceVerificationPanel = ({ customerName }) => {
             textTransform: 'none',
             fontWeight: 600,
             fontSize: '1rem',
-            backgroundColor: '#FF9800',
+            backgroundColor: colors.warning,
             color: '#FFFFFF',
             borderRadius: '8px',
             '&:hover': {
-              backgroundColor: '#F57C00',
+              backgroundColor: colors.warning,
             },
           }}
           variant="contained"

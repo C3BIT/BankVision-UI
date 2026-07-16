@@ -1,4 +1,5 @@
 import { WS_URL } from '../../config.js';
+import { colors } from '../../theme/tokens';
 import PropTypes from "prop-types";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Box, IconButton, Typography, CircularProgress, Chip } from "@mui/material";
@@ -314,7 +315,7 @@ const OpenViduMeetComponent = ({
     const getModeColor = () => {
         switch (mode) {
             case "listen": return "#2196f3";
-            case "whisper": return "#ff9800";
+            case "whisper": return colors.warning;
             case "barge": return "#f44336";
             default: return "#2196f3";
         }

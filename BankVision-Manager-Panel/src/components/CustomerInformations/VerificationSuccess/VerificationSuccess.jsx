@@ -1,6 +1,7 @@
 import { Box, Typography, Button } from '@mui/material';
 import PropTypes from 'prop-types';
 import VerifySuccessSvg from '../../../assets/icon/verify-success.svg';
+import { colors } from '../../../styles/tokens';
 
 const VerificationSuccess = ({ onComplete }) => {
     return (
@@ -57,9 +58,9 @@ const VerificationSuccess = ({ onComplete }) => {
                 onClick={onComplete}
                 sx={{
                     py: 1.5,
-                    background: 'linear-gradient(to right, #4CAF50, #45a049)',
+                    background: `linear-gradient(to right, ${colors.success}, #45a049)`,
                     '&:hover': {
-                        background: 'linear-gradient(to right, #388E3C, #2e7d32)',
+                        background: `linear-gradient(to right, ${colors.success}, #2e7d32)`,
                     },
                     borderRadius: '8px',
                 }}

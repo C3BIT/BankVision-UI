@@ -2,16 +2,12 @@ import { Box } from '@mui/material';
 import logoImage from '../../assets/images/bank-logo.png';
 
 const BrandLogo = ({ size = 'medium' }) => {
+  // Responsive heights (xs/sm) so the logo shrinks on short mobile viewports
+  // instead of pushing the rest of the form below the fold.
   const sizes = {
-    small: {
-      height: 40,
-    },
-    medium: {
-      height: 60,
-    },
-    large: {
-      height: 80,
-    },
+    small: { xs: 30, sm: 40 },
+    medium: { xs: 40, sm: 60 },
+    large: { xs: 56, sm: 80 },
   };
 
   const currentSize = sizes[size];
@@ -26,11 +22,12 @@ const BrandLogo = ({ size = 'medium' }) => {
         width: '100%',
       }}
     >
-      <img
+      <Box
+        component="img"
         src={logoImage}
         alt="Mutual Trust Bank PLC"
-        style={{
-          height: currentSize.height,
+        sx={{
+          height: currentSize,
           width: 'auto',
           maxWidth: '100%',
           objectFit: 'contain',

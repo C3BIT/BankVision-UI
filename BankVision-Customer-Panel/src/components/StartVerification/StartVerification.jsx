@@ -1,5 +1,5 @@
 import { API_URL } from '../../config.js';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -16,7 +16,9 @@ import {
   Email as EmailIcon,
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import { apiClient } from '../../services/apiCaller';
+import Captcha from '../Captcha/Captcha';
+import { colors } from '../../theme/tokens';
 
 const StartVerification = ({ onVerified, disabled = false }) => {
   const [verificationMethod, setVerificationMethod] = useState('phone'); // 'phone' or 'email'
@@ -27,6 +29,9 @@ const StartVerification = ({ onVerified, disabled = false }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isTouched, setIsTouched] = useState(false);
+  const [captchaId, setCaptchaId] = useState('');
+  const [captchaAnswer, setCaptchaAnswer] = useState('');
+  const captchaRef = useRef(null);
 
   
   const validPrefixes = ['013', '014', '015', '016', '017', '018', '019'];
@@ -77,18 +82,27 @@ const StartVerification = ({ onVerified, disabled = false }) => {
       }
     }
 
+    if (!captchaAnswer) {
+      setError('Please enter the captcha code');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
       let response;
       if (verificationMethod === 'phone') {
-        response = await axios.post(`${API_URL}/otp/send-phone`, {
+        response = await apiClient.post(`${API_URL}/otp/send-phone`, {
           phone: phone,
+          captchaId: captchaId,
+          captchaAnswer: captchaAnswer,
         });
       } else {
-        response = await axios.post(`${API_URL}/otp/send`, {
+        response = await apiClient.post(`${API_URL}/otp/send`, {
           email: email,
+          captchaId: captchaId,
+          captchaAnswer: captchaAnswer,
         });
       }
 
@@ -143,6 +157,8 @@ const StartVerification = ({ onVerified, disabled = false }) => {
         const errorMsg = response.data?.message || 'Failed to send OTP';
         console.error('❌ OTP send failed:', errorMsg);
         setError(errorMsg);
+        setCaptchaAnswer('');
+        captchaRef.current?.refresh();
       }
     } catch (error) {
       console.error('Error sending OTP:', error);
@@ -175,6 +191,8 @@ const StartVerification = ({ onVerified, disabled = false }) => {
       }
 
       setError(errorMessage);
+      setCaptchaAnswer('');
+      captchaRef.current?.refresh();
     } finally {
       setLoading(false);
     }
@@ -192,12 +210,12 @@ const StartVerification = ({ onVerified, disabled = false }) => {
     try {
       let response;
       if (verificationMethod === 'phone') {
-        response = await axios.post(`${API_URL}/otp/verify-phone`, {
+        response = await apiClient.post(`${API_URL}/otp/verify-phone`, {
           phone: phone,
           otp: otp,
         });
       } else {
-        response = await axios.post(`${API_URL}/otp/verify-email`, {
+        response = await apiClient.post(`${API_URL}/otp/verify-email`, {
           email: email,
           otp: otp,
         });
@@ -268,10 +286,10 @@ const StartVerification = ({ onVerified, disabled = false }) => {
         <>
           <Typography
             sx={{
-              fontSize: '0.875rem',
+              fontSize: { xs: '0.8rem', sm: '0.875rem' },
               fontWeight: 500,
-              color: '#666666',
-              mb: 2,
+              color: colors.textSecondary,
+              mb: { xs: 1, sm: 2 },
             }}
           >
             Start with
@@ -283,18 +301,18 @@ const StartVerification = ({ onVerified, disabled = false }) => {
             onChange={handleMethodChange}
             fullWidth
             sx={{
-              mb: 3,
+              mb: { xs: 1.5, sm: 3 },
               '& .MuiToggleButton-root': {
-                py: 1.5,
+                py: { xs: 1, sm: 1.5 },
                 textTransform: 'none',
                 fontWeight: 500,
-                border: '1px solid #E0E0E0',
+                border: `1px solid ${colors.border}`,
                 '&.Mui-selected': {
-                  backgroundColor: '#0066FF',
+                  backgroundColor: colors.primary,
                   color: '#FFFFFF',
-                  borderColor: '#0066FF',
+                  borderColor: colors.primary,
                   '&:hover': {
-                    backgroundColor: '#0052CC',
+                    backgroundColor: colors.primaryDark,
                   },
                 },
               },
@@ -315,10 +333,10 @@ const StartVerification = ({ onVerified, disabled = false }) => {
             <>
               <Typography
                 sx={{
-                  fontSize: '0.875rem',
+                  fontSize: { xs: '0.8rem', sm: '0.875rem' },
                   fontWeight: 500,
-                  color: '#666666',
-                  mb: 1,
+                  color: colors.textSecondary,
+                  mb: { xs: 0.5, sm: 1 },
                 }}
               >
                 Mobile Number
@@ -334,36 +352,36 @@ const StartVerification = ({ onVerified, disabled = false }) => {
                 margin="none"
                 variant="outlined"
                 sx={{
-                  mb: 2,
+                  mb: { xs: 1, sm: 2 },
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: colors.surface,
                     fontSize: '1rem',
                     '& fieldset': {
-                      borderColor: isError ? '#FF4444' : '#E0E0E0',
+                      borderColor: isError ? colors.error : colors.border,
                     },
                     '&:hover fieldset': {
-                      borderColor: isError ? '#FF4444' : '#0066FF',
+                      borderColor: isError ? colors.error : colors.primary,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: isError ? '#FF4444' : '#0066FF',
+                      borderColor: isError ? colors.error : colors.primary,
                       borderWidth: 2,
                     },
                   },
                   '& .MuiInputBase-input': {
-                    padding: '14px 16px',
+                    padding: { xs: '10px 16px', sm: '14px 16px' },
                   },
                 }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Typography sx={{ color: '#666666', fontWeight: 500 }}>
+                      <Typography sx={{ color: colors.textSecondary, fontWeight: 500 }}>
                         +88
                       </Typography>
                     </InputAdornment>
                   ),
                 }}
               />
-              <Alert severity="info" sx={{ mb: 2, fontSize: '0.75rem' }}>
+              <Alert severity="info" sx={{ mb: { xs: 1, sm: 2 }, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: { xs: 0.25, sm: 1 } }}>
                 This phone number will be visible to the manager to verify your identity. The OTP code will not be visible to the manager.
               </Alert>
             </>
@@ -374,10 +392,10 @@ const StartVerification = ({ onVerified, disabled = false }) => {
             <>
               <Typography
                 sx={{
-                  fontSize: '0.875rem',
+                  fontSize: { xs: '0.8rem', sm: '0.875rem' },
                   fontWeight: 500,
-                  color: '#666666',
-                  mb: 1,
+                  color: colors.textSecondary,
+                  mb: { xs: 0.5, sm: 1 },
                 }}
               >
                 Email Address
@@ -394,55 +412,64 @@ const StartVerification = ({ onVerified, disabled = false }) => {
                 margin="none"
                 variant="outlined"
                 sx={{
-                  mb: 2,
+                  mb: { xs: 1, sm: 2 },
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: colors.surface,
                     fontSize: '1rem',
                     '& fieldset': {
-                      borderColor: isError ? '#FF4444' : '#E0E0E0',
+                      borderColor: isError ? colors.error : colors.border,
                     },
                     '&:hover fieldset': {
-                      borderColor: isError ? '#FF4444' : '#0066FF',
+                      borderColor: isError ? colors.error : colors.primary,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: isError ? '#FF4444' : '#0066FF',
+                      borderColor: isError ? colors.error : colors.primary,
                       borderWidth: 2,
                     },
                   },
                   '& .MuiInputBase-input': {
-                    padding: '14px 16px',
+                    padding: { xs: '10px 16px', sm: '14px 16px' },
                   },
                 }}
               />
-              <Alert severity="info" sx={{ mb: 2, fontSize: '0.75rem' }}>
+              <Alert severity="info" sx={{ mb: { xs: 1, sm: 2 }, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: { xs: 0.25, sm: 1 } }}>
                 This email address will be visible to the manager to verify your identity. The OTP code will not be visible to the manager.
               </Alert>
             </>
           )}
 
+          {/* Captcha */}
+          <Captcha
+            ref={captchaRef}
+            value={captchaAnswer}
+            onChange={setCaptchaAnswer}
+            onCaptchaIdChange={setCaptchaId}
+            disabled={loading || disabled}
+          />
+
           {/* Send OTP Button */}
           <Button
             fullWidth
             variant="contained"
-            disabled={!isInputValid || loading || disabled}
+            disabled={!isInputValid || !captchaAnswer || loading || disabled}
             onClick={handleSendOtp}
             sx={{
-              py: 1.75,
+              py: { xs: 1.25, sm: 1.75 },
               textTransform: 'none',
               fontWeight: 600,
               fontSize: '1rem',
               color: '#FFFFFF',
-              backgroundColor: '#0066FF',
+              backgroundColor: colors.primary,
               borderRadius: '8px',
               boxShadow: 'none',
               '&:hover': {
-                backgroundColor: '#0052CC',
+                backgroundColor: colors.primaryDark,
                 boxShadow: 'none',
                 transform: 'translateY(-1px)',
               },
               '&.Mui-disabled': {
-                backgroundColor: '#E0E0E0',
-                color: '#999999',
+                backgroundColor: colors.border,
+                color: colors.textMuted,
               },
               transition: 'all 0.2s ease-in-out',
             }}
@@ -460,9 +487,9 @@ const StartVerification = ({ onVerified, disabled = false }) => {
             width: '100%',
             mt: 2,
             p: 2,
-            backgroundColor: '#FFFFFF',
+            backgroundColor: colors.surface,
             borderRadius: 2,
-            border: '2px solid #0066FF',
+            border: `2px solid ${colors.primary}`,
           }}
           data-testid="otp-verification-section"
         >
@@ -491,15 +518,15 @@ const StartVerification = ({ onVerified, disabled = false }) => {
           <Box sx={{
             mb: 2,
             p: 2,
-            backgroundColor: '#F5F5F5',
+            backgroundColor: colors.background,
             borderRadius: 2,
-            border: '2px solid #0066FF',
+            border: `2px solid ${colors.primary}`,
           }}>
             <Typography
               sx={{
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                color: '#0066FF',
+                color: colors.primary,
                 mb: 1.5,
                 textAlign: 'center',
               }}
@@ -536,17 +563,17 @@ const StartVerification = ({ onVerified, disabled = false }) => {
                   fontWeight: 700,
                   letterSpacing: '0.8rem',
                   textAlign: 'center',
-                  backgroundColor: '#FFFFFF',
+                  backgroundColor: colors.surface,
                   '& fieldset': {
-                    borderColor: '#0066FF',
+                    borderColor: colors.primary,
                     borderWidth: 3,
                   },
                   '&:hover fieldset': {
-                    borderColor: '#0052CC',
+                    borderColor: colors.primaryDark,
                     borderWidth: 3,
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#0066FF',
+                    borderColor: colors.primary,
                     borderWidth: 3,
                   },
                 },
@@ -579,18 +606,18 @@ const StartVerification = ({ onVerified, disabled = false }) => {
                 fontWeight: 600,
                 fontSize: '1rem',
                 color: '#FFFFFF',
-                backgroundColor: '#0066FF',
+                backgroundColor: colors.primary,
                 borderRadius: '8px',
                 boxShadow: 'none',
                 mb: 1,
                 mt: 2,
                 '&:hover': {
-                  backgroundColor: '#0052CC',
+                  backgroundColor: colors.primaryDark,
                   boxShadow: 'none',
                 },
                 '&.Mui-disabled': {
-                  backgroundColor: '#E0E0E0',
-                  color: '#999999',
+                  backgroundColor: colors.border,
+                  color: colors.textMuted,
                 },
               }}
               startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
@@ -609,7 +636,7 @@ const StartVerification = ({ onVerified, disabled = false }) => {
               disabled={loading || disabled}
               sx={{
                 textTransform: 'none',
-                color: '#666666',
+                color: colors.textSecondary,
               }}
             >
               Change {verificationMethod === 'phone' ? 'Phone Number' : 'Email'}

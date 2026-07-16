@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { CheckCircle, Visibility } from '@mui/icons-material';
 import { useWebSocket } from '../../context/WebSocketContext';
+import { colors } from '../../theme/tokens';
 
 // Debounce utility
 const debounce = (func, delay) => {
@@ -133,7 +134,7 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
           sx={{
             fontSize: '1.25rem',
             fontWeight: 600,
-            color: '#0066FF',
+            color: colors.primary,
             mb: 2,
             textAlign: 'center',
           }}
@@ -157,7 +158,7 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
           sx={{
             fontSize: '0.875rem',
             fontWeight: 500,
-            color: '#666666',
+            color: colors.textSecondary,
             mb: 2,
           }}
         >
@@ -168,7 +169,7 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
         <Typography
           sx={{
             fontSize: '0.75rem',
-            color: '#999999',
+            color: colors.textMuted,
             mb: 2,
             fontStyle: 'italic',
           }}
@@ -181,7 +182,7 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
           <Typography
             sx={{
               fontSize: '0.75rem',
-              color: '#999999',
+              color: colors.textMuted,
               mb: 0.5,
             }}
           >
@@ -193,15 +194,15 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
             disabled
             sx={{
               '& .MuiOutlinedInput-root': {
-                backgroundColor: '#F5F5F5',
+                backgroundColor: colors.background,
                 fontSize: '0.875rem',
                 '& fieldset': {
-                  borderColor: '#E0E0E0',
+                  borderColor: colors.border,
                 },
               },
               '& .Mui-disabled': {
-                color: '#999999',
-                WebkitTextFillColor: '#999999',
+                color: colors.textMuted,
+                WebkitTextFillColor: colors.textMuted,
               },
             }}
           />
@@ -212,7 +213,7 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
           sx={{
             fontSize: '0.875rem',
             fontWeight: 500,
-            color: '#666666',
+            color: colors.textSecondary,
             mb: 2,
           }}
         >
@@ -224,7 +225,7 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
           <Typography
             sx={{
               fontSize: '0.75rem',
-              color: '#999999',
+              color: colors.textMuted,
               mb: 0.5,
             }}
           >
@@ -243,16 +244,16 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
             error={!!error}
             sx={{
               '& .MuiOutlinedInput-root': {
-                backgroundColor: '#FFFFFF',
+                backgroundColor: colors.surface,
                 fontSize: '0.875rem',
                 '& fieldset': {
-                  borderColor: error ? '#FF4444' : '#E0E0E0',
+                  borderColor: error ? colors.error : colors.border,
                 },
                 '&:hover fieldset': {
-                  borderColor: error ? '#FF4444' : '#0066FF',
+                  borderColor: error ? colors.error : colors.primary,
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: error ? '#FF4444' : '#0066FF',
+                  borderColor: error ? colors.error : colors.primary,
                   borderWidth: 2,
                 },
               },
@@ -265,7 +266,7 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
           <Typography
             sx={{
               fontSize: '0.75rem',
-              color: '#999999',
+              color: colors.textMuted,
               mb: 0.5,
             }}
           >
@@ -284,16 +285,16 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
             error={!!error}
             sx={{
               '& .MuiOutlinedInput-root': {
-                backgroundColor: '#FFFFFF',
+                backgroundColor: colors.surface,
                 fontSize: '0.875rem',
                 '& fieldset': {
-                  borderColor: error ? '#FF4444' : '#E0E0E0',
+                  borderColor: error ? colors.error : colors.border,
                 },
                 '&:hover fieldset': {
-                  borderColor: error ? '#FF4444' : '#0066FF',
+                  borderColor: error ? colors.error : colors.primary,
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: error ? '#FF4444' : '#0066FF',
+                  borderColor: error ? colors.error : colors.primary,
                   borderWidth: 2,
                 },
               },
@@ -305,7 +306,7 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
           <Typography
             sx={{
               fontSize: '0.75rem',
-              color: '#FF4444',
+              color: colors.error,
               mb: 2,
               textAlign: 'center',
             }}
@@ -330,10 +331,10 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
                 py: 1.5,
                 textTransform: 'none',
                 fontWeight: 500,
-                color: '#666666',
-                borderColor: '#E0E0E0',
+                color: colors.textSecondary,
+                borderColor: colors.border,
                 '&:hover': {
-                  borderColor: '#999999',
+                  borderColor: colors.textMuted,
                   backgroundColor: 'transparent',
                 },
               }}
@@ -350,10 +351,10 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
                 py: 1.5,
                 textTransform: 'none',
                 fontWeight: 500,
-                color: '#666666',
-                borderColor: '#E0E0E0',
+                color: colors.textSecondary,
+                borderColor: colors.border,
                 '&:hover': {
-                  borderColor: '#999999',
+                  borderColor: colors.textMuted,
                   backgroundColor: 'transparent',
                 },
               }}
@@ -369,14 +370,14 @@ const ActivateDormantAccountModal = ({ open, onClose, accountNumber, onContinue,
                 py: 1.5,
                 textTransform: 'none',
                 fontWeight: 600,
-                backgroundColor: '#0066FF',
+                backgroundColor: colors.primary,
                 color: '#FFFFFF',
                 '&:hover': {
-                  backgroundColor: '#0052CC',
+                  backgroundColor: colors.primaryDark,
                 },
                 '&.Mui-disabled': {
-                  backgroundColor: '#E0E0E0',
-                  color: '#999999',
+                  backgroundColor: colors.border,
+                  color: colors.textMuted,
                 },
               }}
               variant="contained"

@@ -16,7 +16,8 @@ import {
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import { useWebSocket } from '../../context/WebSocketContext';
-import axios from 'axios';
+import { apiClient } from '../../services/apiCaller';
+import { colors } from '../../theme/tokens';
 
 const SignatureUpload = ({ open, onClose }) => {
   const { socket } = useWebSocket();
@@ -77,7 +78,7 @@ const SignatureUpload = ({ open, onClose }) => {
       formData.append('file', signatureFile);
       formData.append('type', 'signature');
 
-      const response = await axios.post(`${API_URL}/image/upload`, formData, {
+      const response = await apiClient.post(`${API_URL}/image/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -181,7 +182,7 @@ const SignatureUpload = ({ open, onClose }) => {
           </Button>
         </Box>
 
-        <Typography variant="body2" sx={{ color: '#666', mb: 3 }}>
+        <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 3 }}>
           Manager has requested your signature. Please upload a clear image of your signature.
         </Typography>
 
@@ -202,13 +203,13 @@ const SignatureUpload = ({ open, onClose }) => {
         {!previewUrl ? (
           <Box
             sx={{
-              border: '2px dashed #E0E0E0',
+              border: `2px dashed ${colors.border}`,
               borderRadius: 2,
               p: 4,
               textAlign: 'center',
               cursor: 'pointer',
               '&:hover': {
-                borderColor: '#0066FF',
+                borderColor: colors.primary,
                 backgroundColor: '#F0F7FF',
               },
             }}
@@ -221,11 +222,11 @@ const SignatureUpload = ({ open, onClose }) => {
               style={{ display: 'none' }}
               onChange={handleFileSelect}
             />
-            <CloudUpload sx={{ fontSize: 48, color: '#999', mb: 2 }} />
-            <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
+            <CloudUpload sx={{ fontSize: 48, color: colors.textMuted, mb: 2 }} />
+            <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 1 }}>
               Click to upload signature image
             </Typography>
-            <Typography variant="caption" sx={{ color: '#999' }}>
+            <Typography variant="caption" sx={{ color: colors.textMuted }}>
               Supported formats: JPG, PNG (Max 5MB)
             </Typography>
           </Box>
@@ -249,9 +250,9 @@ const SignatureUpload = ({ open, onClose }) => {
                   maxWidth: '100%',
                   maxHeight: '200px',
                   objectFit: 'contain',
-                  border: '1px solid #E0E0E0',
+                  border: `1px solid ${colors.border}`,
                   borderRadius: 1,
-                  backgroundColor: '#FFFFFF',
+                  backgroundColor: colors.surface,
                 }}
               />
             </Paper>
@@ -278,8 +279,8 @@ const SignatureUpload = ({ open, onClose }) => {
                 disabled={uploading || uploadSuccess || !signatureFile}
                 startIcon={uploading ? <CircularProgress size={20} /> : <CloudUpload />}
                 sx={{
-                  backgroundColor: '#0066FF',
-                  '&:hover': { backgroundColor: '#0052CC' },
+                  backgroundColor: colors.primary,
+                  '&:hover': { backgroundColor: colors.primaryDark },
                 }}
               >
                 {uploading ? 'Uploading...' : 'Upload Signature'}

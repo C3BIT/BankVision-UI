@@ -43,6 +43,7 @@ import {
     Download,
 } from 'lucide-react';
 import api from '../services/api';
+import { colors } from '../theme/tokens';
 
 const CHANGE_TYPE_CONFIG = {
     phone:              { label: 'Phone',              Icon: Phone,    color: '#1565C0', bg: '#E3F2FD' },
@@ -200,7 +201,7 @@ const ExpandableRow = ({ row }) => {
                             m: 1.5, p: 2,
                             backgroundColor: '#F8F9FA',
                             borderRadius: 2,
-                            border: '1px solid #E0E0E0',
+                            border: `1px solid ${colors.border}`,
                         }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5, flexWrap: 'wrap' }}>
                                 <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
@@ -242,8 +243,8 @@ const ExpandableRow = ({ row }) => {
                                     {row.changeType === 'address' && addressNewValue ? (
                                         <Box sx={{
                                             p: 1.25, borderRadius: 1,
-                                            backgroundColor: row.status === 'approved' ? '#E8F5E9' : '#F5F5F5',
-                                            border: `1px solid ${row.status === 'approved' ? '#C8E6C9' : '#E0E0E0'}`,
+                                            backgroundColor: row.status === 'approved' ? '#E8F5E9' : colors.background,
+                                            border: `1px solid ${row.status === 'approved' ? '#C8E6C9' : colors.border}`,
                                             display: 'flex', flexDirection: 'column', gap: 0.5,
                                         }}>
                                             {(() => {
@@ -269,8 +270,8 @@ const ExpandableRow = ({ row }) => {
                                     ) : activationData ? (
                                         <Box sx={{
                                             p: 1.25, borderRadius: 1,
-                                            backgroundColor: row.status === 'approved' ? '#E8F5E9' : '#F5F5F5',
-                                            border: `1px solid ${row.status === 'approved' ? '#C8E6C9' : '#E0E0E0'}`,
+                                            backgroundColor: row.status === 'approved' ? '#E8F5E9' : colors.background,
+                                            border: `1px solid ${row.status === 'approved' ? '#C8E6C9' : colors.border}`,
                                             display: 'flex', flexDirection: 'column', gap: 0.75,
                                         }}>
                                             {activationData.dormancyReason && (
@@ -296,7 +297,7 @@ const ExpandableRow = ({ row }) => {
                                     ) : (
                                         <Typography variant="body2" sx={{
                                             p: 1, borderRadius: 1,
-                                            backgroundColor: row.status === 'approved' ? '#E8F5E9' : '#F5F5F5',
+                                            backgroundColor: row.status === 'approved' ? '#E8F5E9' : colors.background,
                                             color: row.status === 'approved' ? '#2E7D32' : '#757575',
                                             fontFamily: 'monospace',
                                             wordBreak: 'break-all',
@@ -361,16 +362,16 @@ const ExpandableRow = ({ row }) => {
                                                 sx={{
                                                     display: 'flex', alignItems: 'center', gap: 1.5,
                                                     p: 1.25,
-                                                    backgroundColor: '#FFFFFF',
-                                                    border: '1px solid #E0E0E0',
+                                                    backgroundColor: colors.surface,
+                                                    border: `1px solid ${colors.border}`,
                                                     borderRadius: 1.5,
                                                     cursor: 'pointer',
                                                     transition: 'all 0.15s',
                                                     '&:hover': {
-                                                        borderColor: '#0066FF',
-                                                        backgroundColor: '#F0F7FF',
+                                                        borderColor: colors.primary,
+                                                        backgroundColor: colors.primaryTint,
                                                         transform: 'translateY(-1px)',
-                                                        boxShadow: '0 2px 6px rgba(0,102,255,0.12)',
+                                                        boxShadow: '0 2px 6px rgba(16,156,137,0.12)',
                                                     },
                                                 }}
                                                 onClick={() => window.open(getFullUrl(doc.url || doc.path), '_blank')}
@@ -389,7 +390,7 @@ const ExpandableRow = ({ row }) => {
                                                         </Typography>
                                                     )}
                                                 </Box>
-                                                <ExternalLink size={16} color="#0066FF" />
+                                                <ExternalLink size={16} color={colors.primary} />
                                             </Box>
                                         ))}
                                     </Box>
@@ -547,7 +548,7 @@ const ServiceAuditLog = () => {
 
             <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
                 {/* Toolbar */}
-                <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1.5, borderBottom: '1px solid #E0E0E0', flexWrap: 'wrap' }}>
+                <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1.5, borderBottom: `1px solid ${colors.border}`, flexWrap: 'wrap' }}>
                     <TextField
                         size="small"
                         placeholder="Search customer ID / phone..."
@@ -581,7 +582,7 @@ const ServiceAuditLog = () => {
 
                 {/* Filter bar */}
                 <Collapse in={showFilters}>
-                    <Box sx={{ px: 2, py: 1.5, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center', backgroundColor: '#FAFAFA', borderBottom: '1px solid #E0E0E0' }}>
+                    <Box sx={{ px: 2, py: 1.5, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center', backgroundColor: '#FAFAFA', borderBottom: `1px solid ${colors.border}` }}>
                         <FormControl size="small" sx={{ minWidth: 140 }}>
                             <InputLabel>Status</InputLabel>
                             <Select value={filterStatus} label="Status" onChange={(e) => setFilterStatus(e.target.value)}>
@@ -632,7 +633,7 @@ const ServiceAuditLog = () => {
                     <TableContainer>
                         <Table size="small">
                             <TableHead>
-                                <TableRow sx={{ backgroundColor: '#F5F5F5' }}>
+                                <TableRow sx={{ backgroundColor: colors.background }}>
                                     <TableCell sx={{ width: 40 }} />
                                     <TableCell sx={{ fontWeight: 700 }}>Ref #</TableCell>
                                     <TableCell sx={{ fontWeight: 700 }}>Customer</TableCell>

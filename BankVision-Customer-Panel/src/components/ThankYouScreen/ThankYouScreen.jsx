@@ -20,6 +20,7 @@ import {
   SentimentVerySatisfied
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
+import { colors, gradients } from '../../theme/tokens';
 
 const customIcons = {
   1: {
@@ -104,13 +105,13 @@ const ThankYouScreen = ({
         p: { xs: 3, sm: 4 },
         borderRadius: 3,
         textAlign: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: gradients.brand,
         color: 'white'
       }}
     >
       {/* Success Icon */}
       <Box sx={{ mb: 3 }}>
-        <CheckCircle sx={{ fontSize: 80, color: '#4CAF50' }} />
+        <CheckCircle sx={{ fontSize: 80, color: colors.success }} />
       </Box>
 
       {/* Thank You Message */}
@@ -200,8 +201,8 @@ const ThankYouScreen = ({
             sx={{
               py: 1.5,
               mb: 2,
-              backgroundColor: '#4CAF50',
-              '&:hover': { backgroundColor: '#388E3C' },
+              backgroundColor: colors.success,
+              '&:hover': { backgroundColor: colors.success },
               '&:disabled': { backgroundColor: 'rgba(255,255,255,0.3)' }
             }}
           >
@@ -230,7 +231,7 @@ const ThankYouScreen = ({
               mb: 3,
               backgroundColor: 'rgba(76, 175, 80, 0.2)',
               color: 'white',
-              '& .MuiAlert-icon': { color: '#4CAF50' }
+              '& .MuiAlert-icon': { color: colors.success }
             }}
           >
             Thank you for your feedback!
@@ -243,7 +244,7 @@ const ThankYouScreen = ({
             sx={{
               py: 1.5,
               backgroundColor: 'white',
-              color: '#764ba2',
+              color: colors.primary,
               '&:hover': { backgroundColor: 'rgba(255,255,255,0.9)' }
             }}
           >

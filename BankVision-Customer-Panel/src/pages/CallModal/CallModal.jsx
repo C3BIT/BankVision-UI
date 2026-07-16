@@ -2,6 +2,7 @@ import React from 'react';
 import { Dialog, DialogContent, Box, Typography, Button, Avatar } from '@mui/material';
 import { Person as PersonIcon, Close as CloseIcon } from '@mui/icons-material';
 import BrandLogo from '../../components/BrandLogo/BrandLogo';
+import { colors } from '../../theme/tokens';
 
 const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessage, callStatus }) => {
   const isQueued = callStatus === 'queued' || inQueue;
@@ -14,7 +15,7 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
       fullWidth
       PaperProps={{
         sx: {
-          background: '#FFFFFF',
+          background: colors.surface,
           borderRadius: '16px',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
           overflow: 'visible',
@@ -39,7 +40,7 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
           sx={{
             fontSize: '1.5rem',
             fontWeight: 600,
-            color: '#0066FF',
+            color: colors.primary,
             mb: 4,
           }}
         >
@@ -51,11 +52,11 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
           sx={{
             width: 100,
             height: 100,
-            backgroundColor: '#0066FF',
+            backgroundColor: colors.primary,
             mb: 3,
           }}
         >
-          <PersonIcon sx={{ fontSize: 60, color: '#FFFFFF' }} />
+          <PersonIcon sx={{ fontSize: 60, color: colors.surface }} />
         </Avatar>
 
         {/* Status Message */}
@@ -65,7 +66,7 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
               sx={{
                 fontSize: '1.125rem',
                 fontWeight: 500,
-                color: '#1A1A1A',
+                color: colors.textPrimary,
                 mb: 2,
               }}
             >
@@ -74,7 +75,7 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
             <Typography
               sx={{
                 fontSize: '0.875rem',
-                color: '#666666',
+                color: colors.textSecondary,
                 mb: 2,
               }}
             >
@@ -83,7 +84,7 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
             <Typography
               sx={{
                 fontSize: '0.875rem',
-                color: '#666666',
+                color: colors.textSecondary,
                 mb: 3,
               }}
             >
@@ -97,8 +98,8 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
               onClick={onCancel}
               sx={{
                 textTransform: 'none',
-                borderColor: '#E0E0E0',
-                color: '#666666',
+                borderColor: colors.border,
+                color: colors.textSecondary,
                 fontWeight: 500,
                 px: 3,
                 py: 1,
@@ -118,7 +119,7 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
               sx={{
                 fontSize: '1.125rem',
                 fontWeight: 500,
-                color: '#1A1A1A',
+                color: colors.textPrimary,
                 mb: 2,
               }}
             >
@@ -128,7 +129,7 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
               sx={{
                 fontSize: '1.125rem',
                 fontWeight: 500,
-                color: '#1A1A1A',
+                color: colors.textPrimary,
                 mb: 3,
               }}
             >
@@ -151,7 +152,7 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
                     width: 10,
                     height: 10,
                     borderRadius: '50%',
-                    backgroundColor: '#0066FF',
+                    backgroundColor: colors.primary,
                     animation: 'bounce 1.4s infinite ease-in-out',
                     animationDelay: `${index * 0.16}s`,
                     '@keyframes bounce': {
@@ -176,8 +177,8 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
               onClick={onCancel}
               sx={{
                 textTransform: 'none',
-                borderColor: '#E0E0E0',
-                color: '#666666',
+                borderColor: colors.border,
+                color: colors.textSecondary,
                 fontWeight: 500,
                 px: 3,
                 py: 1,
@@ -216,13 +217,13 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
                 width: 12,
                 height: 12,
                 borderRadius: '50%',
-                backgroundColor: '#4CAF50',
+                backgroundColor: colors.success,
               }}
             />
             <Typography
               sx={{
                 fontSize: '0.875rem',
-                color: '#666666',
+                color: colors.textSecondary,
               }}
             >
               Camera
@@ -244,13 +245,13 @@ const CallModal = ({ open, onClose, onCancel, inQueue, queuePosition, queueMessa
                 width: 12,
                 height: 12,
                 borderRadius: '50%',
-                backgroundColor: '#FF9800',
+                backgroundColor: colors.warning,
               }}
             />
             <Typography
               sx={{
                 fontSize: '0.875rem',
-                color: '#666666',
+                color: colors.textSecondary,
               }}
             >
               Mic

@@ -22,9 +22,9 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    const login = async (email, password) => {
+    const login = async (email, password, captchaId, captchaAnswer) => {
         try {
-            const response = await api.post('/admin/login', { email, password });
+            const response = await api.post('/admin/login', { email, password, captchaId, captchaAnswer });
 
             if (response.data.success) {
                 const { token, admin } = response.data.data;
@@ -40,7 +40,8 @@ export const AuthProvider = ({ children }) => {
             console.error('Login error:', error);
             return {
                 success: false,
-                message: error.response?.data?.message || 'Login failed'
+                message: error.response?.data?.message || 'Login failed',
+                errorCode: error.response?.data?.error?.code
             };
         }
     };

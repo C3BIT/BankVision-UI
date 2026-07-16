@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { gradients } from '../../styles/tokens';
 
 const formatTime = (ms) => {
   const totalSeconds = Math.ceil(ms / 1000);
@@ -97,9 +98,9 @@ const SessionTimeoutDialog = ({ open, remainingTime, onExtend, onLogout }) => {
           variant="contained"
           onClick={onExtend}
           sx={{
-            background: 'linear-gradient(90deg, #13A183 0%, #5EBA4F 100%)',
+            background: gradients.success,
             '&:hover': {
-              background: 'linear-gradient(90deg, #13A183 0%, #5EBA4F 100%)',
+              background: gradients.success,
               opacity: 0.9,
             },
           }}

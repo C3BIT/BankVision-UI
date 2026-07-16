@@ -3,6 +3,7 @@ import { Box, Typography, TextField, Button, CircularProgress, Alert } from '@mu
 import PropTypes from 'prop-types';
 import OtpInput from '../common/OtpInput';
 import VerificationSuccess from '../common/VerificationSuccess';
+import BrandLogo from '../BrandLogo/BrandLogo';
 
 const EmailVerificationScreen = ({
   confirmEmailVerification,
@@ -38,6 +39,9 @@ const EmailVerificationScreen = ({
         <VerificationSuccess type="email" />
       ) : (
         <>
+          <Box sx={{ mb: 2 }}>
+            <BrandLogo size="small" />
+          </Box>
           <Typography variant="h5" sx={{ mb: 3 }}>
             Email Verification
           </Typography>

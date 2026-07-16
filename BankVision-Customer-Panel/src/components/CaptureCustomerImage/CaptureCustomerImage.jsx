@@ -18,6 +18,7 @@ import { CameraAlt, CheckCircle, Close, Error as ErrorIcon } from '@mui/icons-ma
 import { useDispatch } from 'react-redux';
 import { uploadCustomerImage } from '../../redux/auth/customerImageSlice';
 import { useWebSocket } from '../../context/WebSocketContext';
+import { colors } from '../../theme/tokens';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -406,7 +407,7 @@ const CaptureCustomerImage = ({ onClose }) => {
               justifyContent: 'center',
             }}
           >
-            <ErrorIcon sx={{ fontSize: { xs: 48, sm: 64 }, color: '#FF4444', mb: 2 }} />
+            <ErrorIcon sx={{ fontSize: { xs: 48, sm: 64 }, color: colors.error, mb: 2 }} />
             <Typography 
               sx={{ 
                 color: '#FFFFFF', 
@@ -431,13 +432,13 @@ const CaptureCustomerImage = ({ onClose }) => {
               variant="contained"
               onClick={handleCancel}
               sx={{
-                backgroundColor: '#FF4444',
+                backgroundColor: colors.error,
                 color: '#FFFFFF',
                 textTransform: 'none',
                 fontWeight: 600,
                 px: 3,
                 py: 1,
-                '&:hover': { backgroundColor: '#D32F2F' }
+                '&:hover': { backgroundColor: colors.error }
               }}
             >
               Close
@@ -475,10 +476,10 @@ const CaptureCustomerImage = ({ onClose }) => {
                 mx: { xs: 1, sm: 0 },
               }}
             >
-              <CircularProgress sx={{ color: '#0066FF' }} size={isMobile ? 20 : 24} />
+              <CircularProgress sx={{ color: colors.primary }} size={isMobile ? 20 : 24} />
               <Typography 
                 sx={{ 
-                  color: '#1A1A1A', 
+                  color: colors.textPrimary, 
                   fontSize: { xs: '0.813rem', sm: '0.938rem' }, 
                   fontWeight: 500 
                 }}
@@ -506,7 +507,7 @@ const CaptureCustomerImage = ({ onClose }) => {
             >
               <Typography 
                 sx={{ 
-                  color: '#0066FF', 
+                  color: colors.primary, 
                   fontSize: { xs: '0.938rem', sm: '1.125rem' }, 
                   fontWeight: 600,
                   mb: { xs: 0.25, sm: 0.5 },
@@ -516,7 +517,7 @@ const CaptureCustomerImage = ({ onClose }) => {
               </Typography>
               <Typography 
                 sx={{ 
-                  color: '#666666', 
+                  color: colors.textSecondary, 
                   fontSize: { xs: '0.75rem', sm: '0.875rem' }, 
                   textAlign: 'center',
                   lineHeight: { xs: 1.4, sm: 1.5 },
@@ -535,8 +536,8 @@ const CaptureCustomerImage = ({ onClose }) => {
                 disabled={isLoading}
                 fullWidth
                 sx={{
-                  backgroundColor: '#0066FF',
-                  '&:hover': { backgroundColor: '#0052CC' },
+                  backgroundColor: colors.primary,
+                  '&:hover': { backgroundColor: colors.primaryDark },
                   color: 'white',
                   fontWeight: 600,
                   textTransform: 'none',
@@ -545,8 +546,8 @@ const CaptureCustomerImage = ({ onClose }) => {
                   fontSize: { xs: '0.813rem', sm: '0.938rem' },
                   minHeight: { xs: 40, sm: 44 },
                   '&.Mui-disabled': {
-                    backgroundColor: '#E0E0E0',
-                    color: '#999999',
+                    backgroundColor: colors.border,
+                    color: colors.textMuted,
                   },
                 }}
               >
@@ -611,14 +612,14 @@ const CaptureCustomerImage = ({ onClose }) => {
               <CameraAlt 
                 sx={{ 
                   fontSize: { xs: 24, sm: 32 }, 
-                  color: '#0066FF',
+                  color: colors.primary,
                   animation: 'pulse 1s infinite',
                 }} 
               />
               <Box>
                 <Typography 
                   sx={{ 
-                    color: '#1A1A1A', 
+                    color: colors.textPrimary, 
                     fontSize: { xs: '0.875rem', sm: '1rem' }, 
                     fontWeight: 600 
                   }}
@@ -627,7 +628,7 @@ const CaptureCustomerImage = ({ onClose }) => {
                 </Typography>
                 <Typography 
                   sx={{ 
-                    color: '#666666', 
+                    color: colors.textSecondary, 
                     fontSize: { xs: '0.688rem', sm: '0.813rem' } 
                   }}
                 >

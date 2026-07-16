@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 import api from '../services/api';
+import { colors } from '../theme/tokens';
 
 const SERVICE_LABELS = {
     kyc_verification: 'KYC / Identity Verification',
@@ -162,7 +163,7 @@ const Reports = () => {
                     <TableContainer>
                         <Table size="small">
                             <TableHead>
-                                <TableRow sx={{ backgroundColor: '#F5F5F5' }}>
+                                <TableRow sx={{ backgroundColor: colors.background }}>
                                     <TableCell sx={{ fontWeight: 700 }}>Ref #</TableCell>
                                     <TableCell sx={{ fontWeight: 700 }}>Customer</TableCell>
                                     <TableCell sx={{ fontWeight: 700 }}>Manager</TableCell>

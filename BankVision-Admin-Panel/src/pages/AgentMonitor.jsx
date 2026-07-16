@@ -30,13 +30,14 @@ import {
 import { Search, Coffee } from 'lucide-react';
 import api from '../services/api';
 import { useSocket } from '../context/SocketContext';
+import { colors } from '../theme/tokens';
 
 const STATUS_CONFIG = {
-    online: { color: '#4caf50', bg: '#e8f5e9', label: 'Online' },
+    online: { color: colors.success, bg: '#e8f5e9', label: 'Online' },
     busy: { color: '#f44336', bg: '#ffebee', label: 'Busy' },
-    break: { color: '#ff9800', bg: '#fff3e0', label: 'Break' },
-    lunch: { color: '#ff9800', bg: '#fff3e0', label: 'Lunch' },
-    prayer: { color: '#ff9800', bg: '#fff3e0', label: 'Prayer' },
+    break: { color: colors.warning, bg: '#fff3e0', label: 'Break' },
+    lunch: { color: colors.warning, bg: '#fff3e0', label: 'Lunch' },
+    prayer: { color: colors.warning, bg: '#fff3e0', label: 'Prayer' },
     not_ready: { color: '#9e9e9e', bg: '#f5f5f5', label: 'Not Ready' },
     offline: { color: '#bdbdbd', bg: '#fafafa', label: 'Offline' },
 };
@@ -204,16 +205,16 @@ const AgentMonitor = () => {
             {summary && (
                 <Grid container spacing={2} sx={{ mb: 3 }}>
                     <Grid size={{ xs: 6, md: 2.4 }}>
-                        <SummaryCard title="Total Agents" value={summary.total} icon={<PeopleIcon />} color="#1976d2" />
+                        <SummaryCard title="Total Agents" value={summary.total} icon={<PeopleIcon />} color={colors.primary} />
                     </Grid>
                     <Grid size={{ xs: 6, md: 2.4 }}>
-                        <SummaryCard title="Online" value={summary.online} icon={<OnlineIcon />} color="#4caf50" />
+                        <SummaryCard title="Online" value={summary.online} icon={<OnlineIcon />} color={colors.success} />
                     </Grid>
                     <Grid size={{ xs: 6, md: 2.4 }}>
                         <SummaryCard title="In Call" value={summary.inCall} icon={<PhoneIcon />} color="#f44336" />
                     </Grid>
                     <Grid size={{ xs: 6, md: 2.4 }}>
-                        <SummaryCard title="On Break" value={(summary.break || 0) + (summary.lunch || 0) + (summary.prayer || 0)} icon={<Coffee size={24} />} color="#ff9800" />
+                        <SummaryCard title="On Break" value={(summary.break || 0) + (summary.lunch || 0) + (summary.prayer || 0)} icon={<Coffee size={24} />} color={colors.warning} />
                     </Grid>
                     <Grid size={{ xs: 6, md: 2.4 }}>
                         <SummaryCard title="Offline" value={summary.offline + (summary.not_ready || 0)} icon={<OfflineIcon />} color="#9e9e9e" />
@@ -255,7 +256,7 @@ const AgentMonitor = () => {
             <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
                 <Table>
                     <TableHead>
-                        <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                        <TableRow sx={{ bgcolor: colors.background }}>
                             <TableCell sx={{ fontWeight: 700 }}>Agent</TableCell>
                             <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
                             <TableCell sx={{ fontWeight: 700 }}>Activity</TableCell>
@@ -284,7 +285,7 @@ const AgentMonitor = () => {
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                                 <Avatar
                                                     src={mgr.profileImage}
-                                                    sx={{ width: 36, height: 36, bgcolor: '#e3f2fd', color: '#1976d2', fontSize: 14, fontWeight: 700 }}
+                                                    sx={{ width: 36, height: 36, bgcolor: '#e3f2fd', color: colors.primary, fontSize: 14, fontWeight: 700 }}
                                                 >
                                                     {mgr.name?.charAt(0)?.toUpperCase()}
                                                 </Avatar>

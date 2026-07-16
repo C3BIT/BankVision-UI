@@ -2,6 +2,7 @@ import { Box, IconButton, Paper } from '@mui/material';
 import { CloseFullscreen, Fullscreen } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { colors } from '../../styles/tokens';
 
 const PIPVideo = ({ videoElement, onToggleSize, managerName = 'Manager' }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -22,7 +23,7 @@ const PIPVideo = ({ videoElement, onToggleSize, managerName = 'Manager' }) => {
         borderRadius: 2,
         overflow: 'hidden',
         position: 'relative',
-        border: '3px solid #0066FF',
+        border: `3px solid ${colors.primary}`,
         transition: 'all 0.3s ease',
         backgroundColor: '#000000',
       }}
@@ -36,7 +37,7 @@ const PIPVideo = ({ videoElement, onToggleSize, managerName = 'Manager' }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#1A1A1A',
+          backgroundColor: colors.textPrimary,
         }}
       >
         {videoElement || (

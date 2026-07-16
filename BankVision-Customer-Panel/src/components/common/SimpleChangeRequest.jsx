@@ -14,6 +14,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import OtpInput from './OtpInput';
 import LoadingButton from './LoadingButton';
 import { fetchCustomerDetailsByAccount } from '../../redux/auth/customerInfoSlice';
+import { colors, gradients } from '../../theme/tokens';
+import BrandLogo from '../BrandLogo/BrandLogo';
 
 /**
  * Generic single-field change request component (customer side).
@@ -215,6 +217,7 @@ const SimpleChangeRequest = ({
     // ── Form screen ─────────────────────────────────────────────────────────
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', borderRadius: '12px', gap: 2, p: 2 }}>
+            <BrandLogo size="small" />
             <Typography variant="h6" sx={{ color: 'white', textAlign: 'center', fontWeight: 'medium' }}>
                 {config.label}
             </Typography>
@@ -262,7 +265,7 @@ const SimpleChangeRequest = ({
                     borderRadius: '6px',
                     '& .MuiOutlinedInput-root': {
                         '& fieldset': { borderColor: 'rgba(0,0,0,0.1)' },
-                        '&.Mui-focused fieldset': { borderColor: '#4CAF50' },
+                        '&.Mui-focused fieldset': { borderColor: colors.success },
                     },
                 }}
             />
@@ -292,13 +295,13 @@ const SimpleChangeRequest = ({
                         disabled={otp.length !== 6}
                         sx={{
                             mt: 3,
-                            background: 'linear-gradient(90deg, #13A183 0%, #5EBA4F 100%)',
+                            background: gradients.success,
                             color: 'white',
                             '&:hover': {
-                                background: 'linear-gradient(90deg, #13A183 0%, #5EBA4F 100%)',
+                                background: gradients.success,
                                 opacity: 0.9,
                             },
-                            '&.Mui-disabled': { background: '#f5f5f5', color: '#bdbdbd' },
+                            '&.Mui-disabled': { background: colors.background, color: '#bdbdbd' },
                         }}
                     >
                         Verify OTP & Update {config.fieldLabel}

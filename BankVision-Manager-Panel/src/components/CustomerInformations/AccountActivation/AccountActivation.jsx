@@ -17,6 +17,7 @@ import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useWebSocket } from '../../../providers/WebSocketProvider';
 import api from '../../../services/api';
+import { colors } from '../../../styles/tokens';
 
 const steps = ['Enter NID', 'Verify Identity', 'Face Match', 'Complete'];
 
@@ -178,8 +179,8 @@ const AccountActivation = ({ onBack }) => {
               disabled={loading || nidNumber.length < 10}
               sx={{
                 py: 1.5,
-                backgroundColor: '#4CAF50',
-                '&:hover': { backgroundColor: '#388E3C' }
+                backgroundColor: colors.success,
+                '&:hover': { backgroundColor: colors.success }
               }}
             >
               {loading ? <CircularProgress size={24} /> : 'Lookup NID'}
@@ -237,8 +238,8 @@ const AccountActivation = ({ onBack }) => {
               disabled={loading || nidData?.status !== 'valid'}
               sx={{
                 py: 1.5,
-                backgroundColor: '#4CAF50',
-                '&:hover': { backgroundColor: '#388E3C' }
+                backgroundColor: colors.success,
+                '&:hover': { backgroundColor: colors.success }
               }}
             >
               {loading ? <CircularProgress size={24} /> : 'Verify Identity'}
@@ -272,7 +273,7 @@ const AccountActivation = ({ onBack }) => {
                     width: 100,
                     height: 100,
                     mt: 1,
-                    border: customerImage ? '2px solid #4CAF50' : '2px dashed rgba(255,255,255,0.3)'
+                    border: customerImage ? `2px solid ${colors.success}` : '2px dashed rgba(255,255,255,0.3)'
                   }}
                   variant="rounded"
                 >
@@ -309,8 +310,8 @@ const AccountActivation = ({ onBack }) => {
               disabled={loading || !customerImage}
               sx={{
                 py: 1.5,
-                backgroundColor: '#4CAF50',
-                '&:hover': { backgroundColor: '#388E3C' }
+                backgroundColor: colors.success,
+                '&:hover': { backgroundColor: colors.success }
               }}
             >
               {loading ? <CircularProgress size={24} /> : 'Verify Face & Activate'}
@@ -323,9 +324,9 @@ const AccountActivation = ({ onBack }) => {
           <>
             <Box sx={{ textAlign: 'center', mb: 3 }}>
               {verificationResult?.isVerified ? (
-                <CheckCircle sx={{ fontSize: 64, color: '#4CAF50' }} />
+                <CheckCircle sx={{ fontSize: 64, color: colors.success }} />
               ) : (
-                <Warning sx={{ fontSize: 64, color: '#ff9800' }} />
+                <Warning sx={{ fontSize: 64, color: colors.warning }} />
               )}
             </Box>
 
@@ -358,8 +359,8 @@ const AccountActivation = ({ onBack }) => {
               onClick={onBack}
               sx={{
                 py: 1.5,
-                backgroundColor: '#4CAF50',
-                '&:hover': { backgroundColor: '#388E3C' }
+                backgroundColor: colors.success,
+                '&:hover': { backgroundColor: colors.success }
               }}
             >
               Done

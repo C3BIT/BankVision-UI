@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -10,27 +10,35 @@ import {
     CircularProgress
 } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
+import Captcha from '../components/Captcha/Captcha';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [captchaAnswer, setCaptchaAnswer] = useState('');
 
     const { login } = useAuth();
     const navigate = useNavigate();
+    const captchaRef = useRef(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
-        const result = await login(email, password);
+        const captchaId = captchaRef.current?.captchaId;
+        const result = await login(email, password, captchaId, captchaAnswer);
 
         if (result.success) {
             navigate('/dashboard');
         } else {
             setError(result.message || 'Login failed');
+            // Refresh the captcha and clear the answer on any failed attempt,
+            // since a captcha is single-use regardless of why login failed.
+            setCaptchaAnswer('');
+            captchaRef.current?.refresh();
         }
         setLoading(false);
     };
@@ -104,7 +112,14 @@ const Login = () => {
                         disabled={loading}
                         required
                         autoComplete="current-password"
-                        sx={{ mb: 3 }}
+                        sx={{ mb: 1 }}
+                    />
+
+                    <Captcha
+                        ref={captchaRef}
+                        answer={captchaAnswer}
+                        onAnswerChange={setCaptchaAnswer}
+                        disabled={loading}
                     />
 
                     <Button
@@ -112,8 +127,8 @@ const Login = () => {
                         type="submit"
                         variant="contained"
                         size="large"
-                        disabled={loading}
-                        sx={{ height: 48 }}
+                        disabled={loading || !captchaAnswer}
+                        sx={{ height: 48, mt: 2 }}
                     >
                         {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
                     </Button>

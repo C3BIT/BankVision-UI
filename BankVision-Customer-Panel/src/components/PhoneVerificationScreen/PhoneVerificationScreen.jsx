@@ -7,6 +7,8 @@ import OtpInput from '../common/OtpInput';
 
 import VerificationSuccess from '../common/VerificationSuccess';
 import LoadingButton from '../common/LoadingButton';
+import { colors, gradients } from '../../theme/tokens';
+import BrandLogo from '../BrandLogo/BrandLogo';
 
 const PhoneVerificationScreen = ({
   customerPhone,
@@ -69,6 +71,9 @@ const PhoneVerificationScreen = ({
         <VerificationSuccess type="phone" />
       ) : (
         <>
+          <Box sx={{ mb: 2 }}>
+            <BrandLogo size="small" />
+          </Box>
           <Typography variant="h5" sx={{ mb: 3, textAlign: 'center', color: '#272727', fontWeight: '700' }}>
             Phone Verification
           </Typography>
@@ -108,14 +113,14 @@ const PhoneVerificationScreen = ({
             disabled={otp.length !== 6}
             sx={{
               mt: 3,
-              background: 'linear-gradient(90deg, #13A183 0%, #5EBA4F 100%)',
+              background: gradients.success,
               color: 'white',
               '&:hover': {
-                background: 'linear-gradient(90deg, #13A183 0%, #5EBA4F 100%)',
+                background: gradients.success,
                 opacity: 0.9,
               },
               '&.Mui-disabled': {
-                background: '#f5f5f5',
+                background: colors.background,
                 color: '#bdbdbd',
               },
               height: '50px',
@@ -126,10 +131,10 @@ const PhoneVerificationScreen = ({
           </LoadingButton>
 
           <Box sx={{ mt: 2, textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ color: '#666' }}>
+            <Typography variant="body2" sx={{ color: colors.textSecondary }}>
               Didn't receive the code?{' '}
               {resendDisabled ? (
-                <Typography component="span" variant="body2" sx={{ color: '#999' }}>
+                <Typography component="span" variant="body2" sx={{ color: colors.textMuted }}>
                   Resend in {resendTimer}s
                 </Typography>
               ) : (
