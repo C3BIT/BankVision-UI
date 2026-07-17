@@ -18,8 +18,7 @@ import {
     MenuItem,
     useTheme,
     useMediaQuery,
-    Paper,
-    Switch
+    Paper
 } from '@mui/material';
 import {
     LayoutDashboard,
@@ -50,7 +49,6 @@ const MainLayout = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
-    const [whisperMode, setWhisperMode] = useState(false);
 
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -222,19 +220,8 @@ const MainLayout = () => {
                         />
                     </Box>
 
-                    {/* Whisper Toggle & User */}
+                    {/* User */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: 'grey.100', px: 2, py: 0.5, borderRadius: 10 }}>
-                            <Typography variant="caption" fontWeight="bold" color={whisperMode ? 'success.main' : 'text.secondary'}>
-                                Whisper Mode
-                            </Typography>
-                            <Switch
-                                size="small"
-                                checked={whisperMode}
-                                onChange={(e) => setWhisperMode(e.target.checked)}
-                                color="success"
-                            />
-                        </Box>
                         <IconButton sx={{ bgcolor: 'grey.100' }} onClick={handleMenuOpen}>
                             <Headphones size={20} />
                         </IconButton>

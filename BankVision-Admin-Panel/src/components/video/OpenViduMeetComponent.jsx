@@ -260,7 +260,13 @@ const OpenViduMeetComponent = ({
             } catch (err) {
                 console.error("Error connecting to room:", err);
                 if (mounted) {
-                    setError(err.message || "Failed to connect to video call");
+                    const isPermissionDenied =
+                        err.name === "NotAllowedError" || /permission denied/i.test(err.message || "");
+                    setError(
+                        isPermissionDenied
+                            ? "Camera/microphone access was blocked by the browser. Click the camera icon in the address bar, allow access, then try Barge again."
+                            : err.message || "Failed to connect to video call"
+                    );
                     setIsConnecting(false);
                 }
             }

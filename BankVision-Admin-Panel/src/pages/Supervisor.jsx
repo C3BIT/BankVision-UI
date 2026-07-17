@@ -8,7 +8,8 @@ import {
     Button,
     Avatar,
     Chip,
-    Tooltip
+    Tooltip,
+    Alert
 } from '@mui/material';
 import {
     Headphones,
@@ -24,6 +25,7 @@ import OpenViduMeetComponent from '../components/video/OpenViduMeetComponent';
 const Supervisor = () => {
     const [activeCalls, setActiveCalls] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [selectedCall, setSelectedCall] = useState(null); // { roomName, mode, customerName }
 
     const fetchActiveCalls = async () => {
@@ -31,12 +33,16 @@ const Supervisor = () => {
             setLoading(true);
             const response = await api.get('/admin/active-calls');
             if (response.data?.success) {
-                // active calls data structure depends on API. 
-                // Assuming array of { id, customerName, managerName, startTime, roomName }
                 setActiveCalls(response.data.data?.activeCalls || []);
+                setError('');
             }
-        } catch (error) {
-            console.error('Failed to fetch active calls:', error);
+        } catch (err) {
+            console.error('Failed to fetch active calls:', err);
+            setError(
+                err.response?.status === 403
+                    ? 'Your account does not have supervisor privileges to view active calls.'
+                    : 'Failed to load active calls. Retrying automatically…'
+            );
         } finally {
             setLoading(false);
         }
@@ -50,7 +56,7 @@ const Supervisor = () => {
 
     const handleJoin = (call, mode) => {
         setSelectedCall({
-            roomName: call.callRoom || call.roomName || `room-${call.id}`,
+            roomName: call.callRoom || call.roomName,
             mode: mode,
             customerName: call.customerName
         });
@@ -72,7 +78,7 @@ const Supervisor = () => {
                 </Grid>
             ) : (
                 activeCalls.map((call) => (
-                    <Grid item xs={12} md={6} lg={4} key={call.id}>
+                    <Grid item xs={12} md={6} lg={4} key={call.callRoom || call.customerPhone}>
                         <Card sx={{ height: '100%', borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
                             <CardContent>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -163,6 +169,12 @@ const Supervisor = () => {
                     </Button>
                 )}
             </Box>
+
+            {error && !selectedCall && (
+                <Alert severity="warning" sx={{ mb: 3 }} onClose={() => setError('')}>
+                    {error}
+                </Alert>
+            )}
 
             {selectedCall ? (
                 <Box>
