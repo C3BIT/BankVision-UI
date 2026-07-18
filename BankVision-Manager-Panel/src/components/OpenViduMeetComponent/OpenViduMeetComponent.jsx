@@ -653,10 +653,17 @@ const OpenViduMeetComponent = forwardRef(({
     }
   }, [isSpeakerMuted, onSpeakerStateChange]);
 
-  // Supervisor whisper/listen sessions publish audio into the room but must
-  // never appear in the manager's video grid.
-  const supervisorParticipants = remoteParticipants.filter(p => p.identity.startsWith('supervisor'));
-  const visibleParticipants = remoteParticipants.filter(p => !p.identity.startsWith('supervisor'));
+  // Supervisor identities are prefixed with their mode ("supervisor_<mode>_...")
+  // so listen/whisper sessions (audio only, must stay invisible) can be told
+  // apart from barge sessions (audio+video, must render visibly like any
+  // other participant) — previously every supervisor_* identity was hidden
+  // unconditionally, which made barge indistinguishable from whisper.
+  const isBargeSupervisor = (identity) => identity.startsWith('supervisor_barge_');
+  const isHiddenSupervisor = (identity) =>
+    identity.startsWith('supervisor_') && !isBargeSupervisor(identity);
+
+  const hiddenSupervisorParticipants = remoteParticipants.filter(p => isHiddenSupervisor(p.identity));
+  const visibleParticipants = remoteParticipants.filter(p => !isHiddenSupervisor(p.identity));
 
   // Store customer video element ref
   const customerVideoRef = useRef(null);
@@ -881,8 +888,10 @@ const OpenViduMeetComponent = forwardRef(({
 
           {/* Supervisor whisper/listen participants: never shown in the grid above,
               but must stay mounted so ParticipantVideo's track-subscribed effect
-              still attaches their audio — otherwise the manager never hears them. */}
-          {supervisorParticipants.map((participant) => (
+              still attaches their audio — otherwise the manager never hears them.
+              Barge supervisors are NOT in this list — they render in the visible
+              grid above like any other participant. */}
+          {hiddenSupervisorParticipants.map((participant) => (
             <ParticipantVideo
               key={participant.identity}
               participant={participant}

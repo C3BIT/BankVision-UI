@@ -31,10 +31,20 @@ import { publicPost } from '../../../services/apiCaller';
 import { BD_GEO, DISTRICTS } from '../../../utils/bdGeo';
 import Captcha from '../../Captcha/Captcha';
 import { colors } from '../../../styles/tokens';
+import { getAuthToken } from '../../../utils/authToken';
 
 const API_BASE = (API_URL || '').replace('/api', '');
 const getDocUrl = (path) => {
   if (!path) return '#';
+  // Stored document URLs (S3/MinIO) 403 when hit directly — the bucket has
+  // no public-read policy. Route through the authenticated backend proxy
+  // instead, which also self-heals records with a stale storage host baked
+  // into the stored URL.
+  if (path.includes('/uploads/')) {
+    const token = getAuthToken();
+    const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
+    return `${API_BASE}/api/image/view?path=${encodeURIComponent(path)}${tokenParam}`;
+  }
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
   return `${API_BASE}/${path.startsWith('/') ? path.slice(1) : path}`;
 };
@@ -123,13 +133,13 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
 
     socket.on('customer:typing-address-change', handleCustomerTypingAddressChange);
     socket.on('customer:address-documents-uploaded', handleDocumentsUploaded);
-    socket.on('customer:address-document-removed', handleDocumentsUpdated);
+    socket.on('customer:address-documents-updated', handleDocumentsUpdated);
 
     return () => {
       clearTimeout(readyTimer);
       socket.off('customer:typing-address-change', handleCustomerTypingAddressChange);
       socket.off('customer:address-documents-uploaded', handleDocumentsUploaded);
-      socket.off('customer:address-document-removed', handleDocumentsUpdated);
+      socket.off('customer:address-documents-updated', handleDocumentsUpdated);
     };
   }, [socket]);
 

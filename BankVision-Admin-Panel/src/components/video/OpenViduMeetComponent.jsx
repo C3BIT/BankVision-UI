@@ -262,9 +262,10 @@ const OpenViduMeetComponent = ({
                 if (mounted) {
                     const isPermissionDenied =
                         err.name === "NotAllowedError" || /permission denied/i.test(err.message || "");
+                    const device = mode === "whisper" ? "Microphone" : "Camera/microphone";
                     setError(
                         isPermissionDenied
-                            ? "Camera/microphone access was blocked by the browser. Click the camera icon in the address bar, allow access, then try Barge again."
+                            ? `${device} access was blocked by the browser. This usually means it was denied once already and Chrome/Firefox won't prompt again — click the camera icon in the address bar, allow access for this site, then try ${getModeLabel()} again.`
                             : err.message || "Failed to connect to video call"
                     );
                     setIsConnecting(false);
