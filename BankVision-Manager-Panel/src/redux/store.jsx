@@ -10,7 +10,10 @@ import customerImageInfoReducer from './customer/customerImageSlice';
 const persistConfig = {
   key: 'authentication',
   storage,
-  whitelist: ['manager', 'isAuthenticated', 'token'],
+  // Auth is carried by the httpOnly auth_token cookie, not localStorage - only
+  // the display-only manager profile is persisted; isAuthenticated is always
+  // re-derived from the server via fetchCurrentManager on app load.
+  whitelist: ['manager'],
 };
 
 const persistedReducer = persistReducer(persistConfig, authSlice);

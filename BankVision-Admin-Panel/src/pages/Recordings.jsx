@@ -65,14 +65,14 @@ const Recordings = () => {
     }, []);
 
     const handleDownload = (id) => {
-        const token = localStorage.getItem('adminToken');
-        const downloadUrl = `${api.defaults.baseURL}/admin/recordings/${id}/download?token=${token}`;
+        // Auth is carried by the httpOnly auth_token cookie, which the browser
+        // attaches automatically to this same-origin-family navigation.
+        const downloadUrl = `${api.defaults.baseURL}/admin/recordings/${id}/download`;
         window.open(downloadUrl, '_blank');
     };
 
     const getStreamUrl = (id) => {
-        const token = localStorage.getItem('adminToken');
-        return `${api.defaults.baseURL}/admin/recordings/${id}/stream?token=${token}`;
+        return `${api.defaults.baseURL}/admin/recordings/${id}/stream`;
     };
 
     const handlePlay = (recording) => {

@@ -14,11 +14,17 @@ export const fetchCustomerAccountsByPhone = createAsyncThunk(
   }
 );
 
+// Requires manager authentication — /customer/details is customer-session-only
+// (requires the OTP-issued customer_auth_token cookie, which the manager's
+// browser never has on a real two-device call) and always 401ed here, which
+// the global response interceptor treated as an expired manager session and
+// force-logged the manager out mid-call. /cbs/customer/details is the manager
+// panel's own route, gated on call ownership instead.
 export const fetchCustomerDetailsByAccount = createAsyncThunk(
   "customer/fetchCustomerDetailsByAccount",
   async ({ accountNumber, phone }, { rejectWithValue }) => {
     try {
-      const response = await publicPost("/customer/details", { accountNumber, phone });
+      const response = await privatePost("/cbs/customer/details", undefined, { accountNumber, phone });
       // API returns { status, data, message } - extract the data
       return response.data?.data || response.data;
     } catch (err) {
@@ -30,10 +36,9 @@ export const fetchCustomerDetailsByAccount = createAsyncThunk(
 // Fetch accounts from CBS (requires manager authentication)
 export const fetchCBSAccounts = createAsyncThunk(
   "customer/fetchCBSAccounts",
-  async ({ phone }, { getState, rejectWithValue }) => {
+  async ({ phone }, { rejectWithValue }) => {
     try {
-      const token = getState().auth.token;
-      const response = await privatePost("/cbs/customer/accounts", token, { phone });
+      const response = await privatePost("/cbs/customer/accounts", undefined, { phone });
       return response.data?.accounts || [];
     } catch (err) {
       console.error("Error fetching CBS accounts:", err);
@@ -45,10 +50,9 @@ export const fetchCBSAccounts = createAsyncThunk(
 // Fetch cards from CBS (requires manager authentication)
 export const fetchCBSCards = createAsyncThunk(
   "customer/fetchCBSCards",
-  async ({ phone }, { getState, rejectWithValue }) => {
+  async ({ phone }, { rejectWithValue }) => {
     try {
-      const token = getState().auth.token;
-      const response = await privatePost("/cbs/customer/cards", token, { phone });
+      const response = await privatePost("/cbs/customer/cards", undefined, { phone });
       return response.data?.cards || [];
     } catch (err) {
       console.error("Error fetching CBS cards:", err);
@@ -60,10 +64,9 @@ export const fetchCBSCards = createAsyncThunk(
 // Fetch loans from CBS (requires manager authentication)
 export const fetchCBSLoans = createAsyncThunk(
   "customer/fetchCBSLoans",
-  async ({ phone }, { getState, rejectWithValue }) => {
+  async ({ phone }, { rejectWithValue }) => {
     try {
-      const token = getState().auth.token;
-      const response = await privatePost("/cbs/customer/loans", token, { phone });
+      const response = await privatePost("/cbs/customer/loans", undefined, { phone });
       return response.data?.loans || [];
     } catch (err) {
       console.error("Error fetching CBS loans:", err);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Grid, Link, Typography, Stepper, Step, StepLabel } from '@mui/material';
@@ -11,7 +11,6 @@ import FormInput from '../../components/common/FormInput';
 import PasswordInput from '../../components/common/PasswordInput';
 import OtpInput from '../../components/common/OtpInput';
 import LoadingButton from '../../components/common/LoadingButton';
-import Captcha from '../../components/Captcha/Captcha';
 import { registerUser, verifyOtp } from '../../redux/auth/authSlice';
 import Toast from '../../utils/toast';
 import { gradients } from '../../styles/tokens';
@@ -46,10 +45,6 @@ const Signup = () => {
   const [enteredOtp, setEnteredOtp] = useState('');
   const [timeLeft, setTimeLeft] = useState(120);
   const [isExpired, setIsExpired] = useState(false);
-
-  const [captchaAnswer, setCaptchaAnswer] = useState('');
-  const [captchaId, setCaptchaId] = useState(null);
-  const captchaRef = useRef(null);
 
   useEffect(() => {
     if (activeStep !== 1) return;
@@ -118,19 +113,17 @@ const Signup = () => {
     e.preventDefault();
     if (!validateForm()) {
       Toast.error('Please fix the errors in the form');
-      captchaRef.current?.refresh();
       return;
     }
 
     try {
-      await dispatch(registerUser({ ...formData, captchaId, captchaAnswer })).unwrap();
+      await dispatch(registerUser({ ...formData })).unwrap();
       Toast.success('Registration successful! Please verify your email.');
       setActiveStep(1);
     } catch (err) {
       const errorMessage = err.message || 'Failed to send OTP. Please try again.';
       Toast.error(errorMessage);
       setErrors({ submit: errorMessage });
-      captchaRef.current?.refresh();
     }
   };
 
@@ -162,7 +155,7 @@ const Signup = () => {
 
   const handleResendOtp = async () => {
     try {
-      await dispatch(registerUser({ ...formData, captchaId, captchaAnswer })).unwrap();
+      await dispatch(registerUser({ ...formData })).unwrap();
       Toast.info('OTP sent successfully. Please check your email.');
       setTimeLeft(120);
       setIsExpired(false);
@@ -172,7 +165,6 @@ const Signup = () => {
       const errorMessage = err.message || 'Failed to resend OTP. Please try again.';
       Toast.error(errorMessage);
       setErrors({ otp: errorMessage });
-      captchaRef.current?.refresh();
     }
   };
 
@@ -311,12 +303,6 @@ const Signup = () => {
               },
             }}
           />
-          <Captcha
-            ref={captchaRef}
-            value={captchaAnswer}
-            onChange={(e) => setCaptchaAnswer(e.target.value)}
-            onCaptchaIdChange={setCaptchaId}
-          />
           {errors.submit && (
             <Typography color="error" align="center" sx={{ mt: 2 }}>
               {errors.submit}
@@ -327,7 +313,6 @@ const Signup = () => {
             fullWidth
             variant="contained"
             loading={loading}
-            disabled={!captchaAnswer.trim()}
             sx={{
               mt: 3,
               mb: 2,
@@ -400,22 +385,13 @@ const Signup = () => {
           >
             Verify OTP
           </LoadingButton>
-          {timeLeft <= 0 && (
-            <Captcha
-              ref={captchaRef}
-              value={captchaAnswer}
-              onChange={(e) => setCaptchaAnswer(e.target.value)}
-              onCaptchaIdChange={setCaptchaId}
-              sx={{ justifyContent: 'center' }}
-            />
-          )}
           <Typography variant="body2" align="center" sx={{ mt: 2 }}>
             Didn't receive code?{' '}
             <LoadingButton
               variant="text"
               size="small"
               onClick={handleResendOtp}
-              disabled={loading || timeLeft > 0 || !captchaAnswer.trim()}
+              disabled={loading || timeLeft > 0}
               sx={{
                 color: '#13A183',
                 '&:hover': {

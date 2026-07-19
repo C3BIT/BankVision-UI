@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Box, Grid, Link, Typography } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
@@ -6,7 +6,6 @@ import AuthLayout from '../../components/layout/AuthLayout';
 import FormInput from '../../components/common/FormInput';
 import PasswordInput from '../../components/common/PasswordInput';
 import LoadingButton from '../../components/common/LoadingButton';
-import Captcha from '../../components/Captcha/Captcha';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginManager } from '../../redux/auth/authSlice';
 import Toast from '../../utils/toast';
@@ -20,9 +19,6 @@ const Login = () => {
     password: ''
   });
   const [errors, setErrors] = useState({});
-  const [captchaAnswer, setCaptchaAnswer] = useState('');
-  const [captchaId, setCaptchaId] = useState(null);
-  const captchaRef = useRef(null);
   const dispatch = useDispatch();
 
   const handleChange = (e) => {
@@ -63,7 +59,6 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
-      captchaRef.current?.refresh();
       return;
     }
 
@@ -72,8 +67,6 @@ const Login = () => {
         loginManager({
           email: formData.email,
           password: formData.password,
-          captchaId,
-          captchaAnswer,
         })
       ).unwrap();
 
@@ -83,7 +76,6 @@ const Login = () => {
       const errorMessage = error?.message || 'Invalid email or password';
       setErrors({ submit: errorMessage });
       Toast.error(errorMessage);
-      captchaRef.current?.refresh();
     }
   };
 
@@ -146,13 +138,6 @@ const Login = () => {
           margin="normal"
         />
 
-        <Captcha
-          ref={captchaRef}
-          value={captchaAnswer}
-          onChange={(e) => setCaptchaAnswer(e.target.value)}
-          onCaptchaIdChange={setCaptchaId}
-        />
-
         <Grid container justifyContent="flex-end">
           <Grid item>
             <Link
@@ -179,7 +164,6 @@ const Login = () => {
           variant="contained"
           color="primary"
           loading={loading}
-          disabled={!captchaAnswer.trim()}
           sx={{
             mt: 3,
             mb: 2,

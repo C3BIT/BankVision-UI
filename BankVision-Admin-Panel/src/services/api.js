@@ -9,14 +9,10 @@ const api = axios.create({
     withCredentials: true, // For httpOnly cookies
 });
 
-// Add token to requests (if we use localStorage fallback)
+// Auth is carried solely by the httpOnly auth_token cookie (see withCredentials
+// above) - no bearer token is attached here, so the JWT is never readable by JS.
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('adminToken');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-
         // Transparent Base64 encoding layer on top of TLS.
         // Skip FormData (file uploads / multipart) and requests with no body.
         if (config.data !== undefined && config.data !== null && !(config.data instanceof FormData)) {
@@ -57,8 +53,6 @@ api.interceptors.response.use(
         }
 
         if (error.response?.status === 401) {
-            localStorage.removeItem('adminToken');
-            localStorage.removeItem('adminUser');
             // Redirect to login if not already there
             if (!window.location.pathname.includes('/login')) {
                 window.location.href = '/login';

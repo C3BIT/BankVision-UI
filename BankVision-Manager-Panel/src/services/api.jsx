@@ -9,34 +9,10 @@ const api = axios.create({
   withCredentials: true, // Send cookies with every request
 });
 
-// Add request interceptor to include auth token
+// Auth is carried solely by the httpOnly auth_token cookie (see withCredentials
+// above) - no bearer token is attached here, so the JWT is never readable by JS.
 api.interceptors.request.use(
   (config) => {
-    // Try to get token from redux-persist localStorage
-    let token = null;
-
-    try {
-      const persistedState = localStorage.getItem('persist:authentication');
-      if (persistedState) {
-        const authState = JSON.parse(persistedState);
-        // Redux-persist stores values as JSON strings, so parse again
-        token = authState.token ? JSON.parse(authState.token) : null;
-      }
-    } catch (e) {
-      console.error('Error reading token from persisted state:', e);
-    }
-
-    // Fallback to direct localStorage token
-    if (!token) {
-      token = localStorage.getItem('token');
-    }
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      // Clear redirect flag if user has valid token
-      sessionStorage.removeItem('auth_redirecting');
-    }
-
     // Transparent Base64 encoding layer on top of TLS.
     // Skip FormData (file uploads / multipart) and requests with no body.
     if (config.data !== undefined && config.data !== null && !(config.data instanceof FormData)) {
@@ -89,8 +65,7 @@ api.interceptors.response.use(
       const isRedirecting = sessionStorage.getItem('auth_redirecting');
       if (!isRedirecting) {
         sessionStorage.setItem('auth_redirecting', 'true');
-        // Clear all auth-related data
-        localStorage.removeItem('token');
+        // Clear persisted auth data
         localStorage.removeItem('persist:authentication');
         window.location.href = '/login';
       }

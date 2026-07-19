@@ -49,7 +49,6 @@ const AppLayout = ({ children }) => {
       await persistor.purge();
 
       // 5. Clear all auth-related storage manually (covers both persist and fallback)
-      localStorage.removeItem('token');
       localStorage.removeItem('persist:authentication');
       sessionStorage.removeItem('auth_redirecting');
       sessionStorage.clear();

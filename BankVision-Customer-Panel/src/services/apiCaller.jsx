@@ -12,7 +12,12 @@ import { api } from './index';
 //   - Incoming Base64 string bodies (Content-Type: application/base64) are
 //     decoded and JSON.parse'd back into response.data / error.response.data
 //     so every other call site can keep reading response.data.xxx unmodified.
-export const apiClient = axios.create();
+export const apiClient = axios.create({
+  // Carries the customer_auth_token httpOnly cookie (set on OTP verification)
+  // on every request so the backend can prove the caller actually completed
+  // phone verification, instead of trusting a client-supplied phone/account number.
+  withCredentials: true,
+});
 
 // UTF-8 safe Base64 encode (handles non-ASCII characters, e.g. Bengali text)
 const encodeBase64 = (str) => btoa(unescape(encodeURIComponent(str)));

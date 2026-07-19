@@ -15,6 +15,8 @@ import CallHistory from './pages/CallHistory';
 import Supervisor from './pages/Supervisor';
 import ServiceAuditLog from './pages/ServiceAuditLog';
 import Settings from './pages/Settings';
+import useSessionTimeout from './hooks/useSessionTimeout';
+import SessionTimeoutDialog from './components/SessionTimeoutDialog';
 
 const ProtectedRoute = () => {
     const { isAuthenticated, loading } = useAuth();
@@ -23,33 +25,51 @@ const ProtectedRoute = () => {
     return <Outlet />;
 };
 
+// Mounted inside AuthProvider so useSessionTimeout can read/trigger logout via useAuth().
+const AppContent = () => {
+    const { showWarning, remainingTime, extendSession, handleLogout } = useSessionTimeout();
+
+    return (
+        <>
+            <Router>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+
+                    {/* Protected Routes */}
+                    <Route element={<ProtectedRoute />}>
+                        <Route element={<MainLayout />}>
+                            <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/supervisor" element={<Supervisor />} />
+                            <Route path="/agent-monitor" element={<AgentMonitor />} />
+                            <Route path="/managers" element={<Managers />} />
+                            <Route path="/reports" element={<Reports />} />
+                            <Route path="/call-history" element={<CallHistory />} />
+                            <Route path="/recordings" element={<Recordings />} />
+                            <Route path="/service-audit" element={<ServiceAuditLog />} />
+                            <Route path="/settings" element={<Settings />} />
+                            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                        </Route>
+                    </Route>
+                </Routes>
+            </Router>
+
+            <SessionTimeoutDialog
+                open={showWarning}
+                remainingTime={remainingTime}
+                onExtend={extendSession}
+                onLogout={handleLogout}
+            />
+        </>
+    );
+};
+
 function App() {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <AuthProvider>
                 <SocketProvider>
-                    <Router>
-                        <Routes>
-                            <Route path="/login" element={<Login />} />
-
-                            {/* Protected Routes */}
-                            <Route element={<ProtectedRoute />}>
-                                <Route element={<MainLayout />}>
-                                    <Route path="/dashboard" element={<Dashboard />} />
-                                    <Route path="/supervisor" element={<Supervisor />} />
-                                    <Route path="/agent-monitor" element={<AgentMonitor />} />
-                                    <Route path="/managers" element={<Managers />} />
-                                    <Route path="/reports" element={<Reports />} />
-                                    <Route path="/call-history" element={<CallHistory />} />
-                                    <Route path="/recordings" element={<Recordings />} />
-                                    <Route path="/service-audit" element={<ServiceAuditLog />} />
-                                    <Route path="/settings" element={<Settings />} />
-                                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                                </Route>
-                            </Route>
-                        </Routes>
-                    </Router>
+                    <AppContent />
                 </SocketProvider>
             </AuthProvider>
         </ThemeProvider>

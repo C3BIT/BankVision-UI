@@ -11,7 +11,7 @@ import * as faceApiService from "../services/faceApiService";
 const WebSocketContext = createContext(null);
 
 export const WebSocketProvider = ({ children }) => {
-    const { token } = useSelector((state) => state.auth);
+    const { isAuthenticated } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const [socket, setSocket] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
@@ -127,8 +127,6 @@ export const WebSocketProvider = ({ children }) => {
         cleanupSocket();
         dispatch(logout());
         await persistor.purge();
-        // Clear all auth storage to prevent stale tokens
-        localStorage.removeItem('token');
         localStorage.removeItem('persist:authentication');
         sessionStorage.clear();
         window.location.reload();
@@ -148,8 +146,8 @@ export const WebSocketProvider = ({ children }) => {
     };
 
     const connectWebSocket = () => {
-        if (!token) {
-            console.log("⚠️ No token available, skipping WebSocket connection.");
+        if (!isAuthenticated) {
+            console.log("⚠️ Not authenticated, skipping WebSocket connection.");
             return;
         }
 
@@ -160,11 +158,11 @@ export const WebSocketProvider = ({ children }) => {
 
         console.log("🔄 Initiating WebSocket connection...");
 
+        // Auth is resolved server-side from the httpOnly auth_token cookie
+        // (socketAuthMiddleware parses it from the handshake's Cookie header).
         const newSocket = io(URL, {
             transports: ["websocket"],
-            query: {
-                token
-            },
+            withCredentials: true,
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 10000,
@@ -255,8 +253,6 @@ export const WebSocketProvider = ({ children }) => {
             cleanupSocket();
             dispatch(logout());
             await persistor.purge();
-            // Clear all auth storage to prevent stale tokens
-            localStorage.removeItem('token');
             localStorage.removeItem('persist:authentication');
             sessionStorage.clear();
             alert("You have been logged out because your account was accessed from another device.");
@@ -1044,7 +1040,7 @@ export const WebSocketProvider = ({ children }) => {
             return;
         }
 
-        if (!isConnected && token) {
+        if (!isConnected && isAuthenticated) {
             attemptingReconnect.current = true;
             console.log("♻️ Setting up reconnection interval...");
 
@@ -1062,16 +1058,16 @@ export const WebSocketProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        if (token && !socketRef.current) {
+        if (isAuthenticated && !socketRef.current) {
             connectWebSocket();
-        } else if (!token && socketRef.current) {
+        } else if (!isAuthenticated && socketRef.current) {
             cleanupSocket();
         }
 
         return () => {
             cleanupSocket();
         };
-    }, [token]);
+    }, [isAuthenticated]);
 
     // Load face-api.js models on mount
     // DISABLED: Using OpenCV server-side verification instead of face-api.js client-side

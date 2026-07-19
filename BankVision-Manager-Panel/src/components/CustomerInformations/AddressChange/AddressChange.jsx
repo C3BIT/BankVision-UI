@@ -31,7 +31,6 @@ import { publicPost } from '../../../services/apiCaller';
 import { BD_GEO, DISTRICTS } from '../../../utils/bdGeo';
 import Captcha from '../../Captcha/Captcha';
 import { colors } from '../../../styles/tokens';
-import { getAuthToken } from '../../../utils/authToken';
 
 const API_BASE = (API_URL || '').replace('/api', '');
 const getDocUrl = (path) => {
@@ -39,11 +38,10 @@ const getDocUrl = (path) => {
   // Stored document URLs (S3/MinIO) 403 when hit directly — the bucket has
   // no public-read policy. Route through the authenticated backend proxy
   // instead, which also self-heals records with a stale storage host baked
-  // into the stored URL.
+  // into the stored URL. Auth is the httpOnly auth_token cookie, attached
+  // automatically by the browser — no token query param needed.
   if (path.includes('/uploads/')) {
-    const token = getAuthToken();
-    const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
-    return `${API_BASE}/api/image/view?path=${encodeURIComponent(path)}${tokenParam}`;
+    return `${API_BASE}/api/image/view?path=${encodeURIComponent(path)}`;
   }
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
   return `${API_BASE}/${path.startsWith('/') ? path.slice(1) : path}`;

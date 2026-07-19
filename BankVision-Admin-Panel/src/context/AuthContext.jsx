@@ -8,30 +8,29 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check for existing token/user
-        const token = localStorage.getItem('adminToken');
-        const storedUser = localStorage.getItem('adminUser');
-
-        if (token && storedUser) {
+        // Auth is carried by the httpOnly auth_token cookie, not localStorage, so
+        // session state has to be bootstrapped from the server on every page load.
+        const bootstrapSession = async () => {
             try {
-                setUser(JSON.parse(storedUser));
-            } catch (e) {
-                console.error("Failed to parse stored user", e);
+                const response = await api.get('/admin/me');
+                if (response.data.success) {
+                    setUser(response.data.data.admin);
+                }
+            } catch {
+                // No valid session cookie - stay logged out.
+            } finally {
+                setLoading(false);
             }
-        }
-        setLoading(false);
+        };
+        bootstrapSession();
     }, []);
 
-    const login = async (email, password, captchaId, captchaAnswer) => {
+    const login = async (email, password) => {
         try {
-            const response = await api.post('/admin/login', { email, password, captchaId, captchaAnswer });
+            const response = await api.post('/admin/login', { email, password });
 
             if (response.data.success) {
-                const { token, admin } = response.data.data;
-
-                localStorage.setItem('adminToken', token);
-                localStorage.setItem('adminUser', JSON.stringify(admin));
-
+                const { admin } = response.data.data;
                 setUser(admin);
                 return { success: true };
             }
@@ -47,8 +46,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminUser');
+        api.post('/admin/logout').catch(() => {});
         setUser(null);
     };
 

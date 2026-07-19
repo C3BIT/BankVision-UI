@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Box, Grid, Link, Typography, Stepper, Step, StepLabel } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
@@ -10,7 +10,6 @@ import FormInput from '../../components/common/FormInput';
 import PasswordInput from '../../components/common/PasswordInput';
 import OtpInput from '../../components/common/OtpInput';
 import LoadingButton from '../../components/common/LoadingButton';
-import Captcha from '../../components/Captcha/Captcha';
 import Toast from '../../utils/toast';
 import api from '../../services/apiCaller';
 import { gradients } from '../../styles/tokens';
@@ -36,9 +35,6 @@ const ForgotPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [countdown, setCountdown] = useState(0);
-  const [captchaAnswer, setCaptchaAnswer] = useState('');
-  const [captchaId, setCaptchaId] = useState(null);
-  const captchaRef = useRef(null);
 
   const startCountdown = () => {
     setCountdown(60);
@@ -58,24 +54,21 @@ const ForgotPassword = () => {
 
     if (!email.trim()) {
       setErrors({ email: 'Email is required' });
-      captchaRef.current?.refresh();
       return;
     }
     if (!/\S+@\S+\.\S+/.test(email)) {
       setErrors({ email: 'Please enter a valid email address' });
-      captchaRef.current?.refresh();
       return;
     }
 
     setLoading(true);
     try {
-      await api.post('/manager/forgot-password', { email, captchaId, captchaAnswer });
+      await api.post('/manager/forgot-password', { email });
       Toast.success('OTP sent to your email!');
       setActiveStep(1);
       startCountdown();
     } catch (error) {
       Toast.error(error.response?.data?.message || 'Failed to send OTP');
-      captchaRef.current?.refresh();
     } finally {
       setLoading(false);
     }
@@ -173,18 +166,11 @@ const ForgotPassword = () => {
               fullWidth
               margin="normal"
             />
-            <Captcha
-              ref={captchaRef}
-              value={captchaAnswer}
-              onChange={(e) => setCaptchaAnswer(e.target.value)}
-              onCaptchaIdChange={setCaptchaId}
-            />
             <LoadingButton
               type="submit"
               fullWidth
               variant="contained"
               loading={loading}
-              disabled={!captchaAnswer.trim()}
               sx={{
                 mt: 3,
                 mb: 2,
@@ -246,32 +232,22 @@ const ForgotPassword = () => {
                   Resend OTP in {countdown}s
                 </Typography>
               ) : (
-                <>
-                  <Captcha
-                    ref={captchaRef}
-                    value={captchaAnswer}
-                    onChange={(e) => setCaptchaAnswer(e.target.value)}
-                    onCaptchaIdChange={setCaptchaId}
-                    sx={{ justifyContent: 'center' }}
-                  />
-                  <Link
-                    component="button"
-                    type="button"
-                    variant="body2"
-                    onClick={handleResendOtp}
-                    disabled={!captchaAnswer.trim()}
-                    sx={{
-                      textDecoration: 'none',
-                      color: 'primary.main',
-                      border: 'none',
-                      background: 'none',
-                      cursor: 'pointer',
-                      '&:disabled': { color: 'text.disabled', cursor: 'default' },
-                    }}
-                  >
-                    Resend OTP
-                  </Link>
-                </>
+                <Link
+                  component="button"
+                  type="button"
+                  variant="body2"
+                  onClick={handleResendOtp}
+                  sx={{
+                    textDecoration: 'none',
+                    color: 'primary.main',
+                    border: 'none',
+                    background: 'none',
+                    cursor: 'pointer',
+                    '&:disabled': { color: 'text.disabled', cursor: 'default' },
+                  }}
+                >
+                  Resend OTP
+                </Link>
               )}
             </Box>
           </Box>

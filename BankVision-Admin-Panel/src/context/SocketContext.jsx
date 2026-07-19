@@ -15,15 +15,14 @@ export const SocketProvider = ({ children }) => {
 
     useEffect(() => {
         if (user && user.role) {
-            const token = localStorage.getItem('adminToken');
-
+            // Auth is resolved server-side from the httpOnly auth_token cookie
+            // (socketAuthMiddleware parses it from the handshake's Cookie header),
+            // so withCredentials replaces passing the token in the query string.
             const newSocket = io(SOCKET_URL, {
                 query: {
                     role: 'admin', // identify as admin
-                    // name: user.name,
-                    // email: user.email,
-                    token: token // pass token for auth if backend expects it
                 },
+                withCredentials: true,
                 transports: ['websocket'],
                 reconnection: true,
             });

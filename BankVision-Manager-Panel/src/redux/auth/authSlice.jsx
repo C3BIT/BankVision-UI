@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { publicPost } from "../../services/apiCaller";
+import { publicPost, publicGet } from "../../services/apiCaller";
 
 export const verifyOtp = createAsyncThunk(
   "auth/verifyOtp",
@@ -27,8 +27,6 @@ export const registerUser = createAsyncThunk(
     try {
       const response = await publicPost("/otp/send", {
         email: userData.email,
-        captchaId: userData.captchaId,
-        captchaAnswer: userData.captchaAnswer,
       });
       return response.data;
     } catch (err) {
@@ -42,13 +40,11 @@ export const registerUser = createAsyncThunk(
 
 export const loginManager = createAsyncThunk(
   "auth/loginManager",
-  async ({ email, password, captchaId, captchaAnswer }, { rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await publicPost("/manager/login", {
         email,
         password,
-        captchaId,
-        captchaAnswer,
       });
       return response.data;
     } catch (err) {
@@ -56,6 +52,20 @@ export const loginManager = createAsyncThunk(
                           err.response?.data?.error?.message ||
                           "Login failed. Please try again.";
       return rejectWithValue({ message: errorMessage });
+    }
+  }
+);
+
+// Bootstraps session state from the httpOnly auth_token cookie on app load,
+// since the token itself is no longer persisted in localStorage/redux-persist.
+export const fetchCurrentManager = createAsyncThunk(
+  "auth/fetchCurrentManager",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await publicGet("/manager/me");
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Not authenticated");
     }
   }
 );
@@ -68,13 +78,12 @@ const authSlice = createSlice({
     loading: false,
     error: null,
     isAuthenticated: false,
-    token:  null,
+    sessionChecked: false,
   },
   reducers: {
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
-      state.token = null;
       state.manager = {};
     },
   },
@@ -113,14 +122,25 @@ const authSlice = createSlice({
       .addCase(loginManager.fulfilled, (state, action) => {
         state.loading = false;
         state.manager = action.payload.manager;
-        state.token = action.payload.token;
         state.isAuthenticated = true;
+        state.sessionChecked = true;
         state.error = null;
       })
       .addCase(loginManager.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.isAuthenticated = false;
+      })
+
+      .addCase(fetchCurrentManager.fulfilled, (state, action) => {
+        state.manager = action.payload.manager;
+        state.isAuthenticated = true;
+        state.sessionChecked = true;
+      })
+      .addCase(fetchCurrentManager.rejected, (state) => {
+        state.manager = {};
+        state.isAuthenticated = false;
+        state.sessionChecked = true;
       });
   },
 });

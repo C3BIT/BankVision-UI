@@ -33,7 +33,6 @@ import PropTypes from 'prop-types';
 import { useWebSocket } from '../../providers/WebSocketProvider';
 import { useSelector } from 'react-redux';
 import { colors } from '../../styles/tokens';
-import { getAuthToken } from '../../utils/authToken';
 
 const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete }) => {
   const accountDetails = useSelector((state) => state.customerAccounts.accountDetails);
@@ -204,11 +203,10 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
     // Stored document URLs (S3/MinIO) 403 when hit directly — the bucket has
     // no public-read policy. Route through the authenticated backend proxy
     // instead, which also self-heals records with a stale storage host baked
-    // into the stored URL.
+    // into the stored URL. Auth is the httpOnly auth_token cookie, attached
+    // automatically by the browser — no token query param needed.
     if (url.includes('/uploads/')) {
-      const token = getAuthToken();
-      const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
-      return `${API_BASE_URL}/api/image/view?path=${encodeURIComponent(url)}${tokenParam}`;
+      return `${API_BASE_URL}/api/image/view?path=${encodeURIComponent(url)}`;
     }
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
