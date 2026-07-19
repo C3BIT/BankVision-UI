@@ -1,4 +1,4 @@
-import { Container, Box, Grid, Paper, Typography, Snackbar, Alert, Badge, Chip } from "@mui/material";
+import { Container, Box, Grid, Paper, Typography, Snackbar, Alert, Badge, Chip, CircularProgress } from "@mui/material";
 import { Queue as QueueIcon, NotificationsActive, Phone } from "@mui/icons-material";
 import { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -135,6 +135,7 @@ const Dashboard = () => {
     supervisorMonitoring,
     isWhisperActive,
     replyToWhisper,
+    selfReconnecting,
   } = useWebSocket();
 
   // REMOVED: useEffect for incomingCall/showCallingScreen - queue-only design
@@ -326,6 +327,38 @@ const Dashboard = () => {
                   variant="compact"
                 />
               </Box>
+
+              {/* Self-reconnect overlay: this manager's own socket dropped
+                  mid-call. The backend keeps the call alive for a 15s grace
+                  period (see WebSocketProvider's "disconnect" handler) so we
+                  wait here instead of bouncing back to the idle dashboard. */}
+              {selfReconnecting && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    zIndex: 20,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 1.5,
+                    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                    color: 'white',
+                  }}
+                >
+                  <CircularProgress size={36} sx={{ color: '#FFA726' }} />
+                  <Typography variant="h6" sx={{ color: '#FFA726' }}>
+                    Connection lost — reconnecting...
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    Your call with the customer is still active. Reconnecting automatically.
+                  </Typography>
+                </Box>
+              )}
 
               {/* Customer Emotion Display */}
               {customerEmotions && (

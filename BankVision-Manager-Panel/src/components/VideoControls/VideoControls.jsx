@@ -1,4 +1,4 @@
-import { Box, IconButton, Button, Tooltip } from '@mui/material';
+import { Box, IconButton, Button, Tooltip, useMediaQuery, useTheme } from '@mui/material';
 import {
   VolumeUp as SpeakerIcon,
   VolumeOff as SpeakerOffIcon,
@@ -26,16 +26,23 @@ const VideoControls = ({
   onEndCall,
   disabled = false,
 }) => {
+  const theme = useTheme();
+  const isCompact = useMediaQuery(theme.breakpoints.down('md'));
+  const buttonSize = isCompact ? 44 : 56;
+  const iconSize = isCompact ? 20 : 24;
+
   return (
     <Box
       sx={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 2,
-        padding: 2,
+        flexWrap: 'wrap',
+        gap: { xs: 1, md: 2 },
+        padding: { xs: 1, md: 2 },
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
         borderRadius: '12px',
+        maxWidth: '100%',
       }}
     >
       {/* Speaker Button */}
@@ -44,8 +51,8 @@ const VideoControls = ({
           onClick={onToggleSpeaker}
           disabled={disabled}
           sx={{
-            width: 56,
-            height: 56,
+            width: buttonSize,
+            height: buttonSize,
             backgroundColor: speakerEnabled ? colors.primary : colors.error,
             color: '#FFFFFF',
             '&:hover': {
@@ -58,9 +65,9 @@ const VideoControls = ({
           }}
         >
           {speakerEnabled ? (
-            <SpeakerIcon sx={{ fontSize: 24 }} />
+            <SpeakerIcon sx={{ fontSize: iconSize }} />
           ) : (
-            <SpeakerOffIcon sx={{ fontSize: 24 }} />
+            <SpeakerOffIcon sx={{ fontSize: iconSize }} />
           )}
         </IconButton>
       </Tooltip>
@@ -71,8 +78,8 @@ const VideoControls = ({
           onClick={onToggleAudio}
           disabled={disabled}
           sx={{
-            width: 56,
-            height: 56,
+            width: buttonSize,
+            height: buttonSize,
             backgroundColor: audioEnabled ? colors.primary : colors.error,
             color: '#FFFFFF',
             '&:hover': {
@@ -85,9 +92,9 @@ const VideoControls = ({
           }}
         >
           {audioEnabled ? (
-            <MicIcon sx={{ fontSize: 24 }} />
+            <MicIcon sx={{ fontSize: iconSize }} />
           ) : (
-            <MicOffIcon sx={{ fontSize: 24 }} />
+            <MicOffIcon sx={{ fontSize: iconSize }} />
           )}
         </IconButton>
       </Tooltip>
@@ -98,8 +105,8 @@ const VideoControls = ({
           onClick={onToggleVideo}
           disabled={disabled}
           sx={{
-            width: 56,
-            height: 56,
+            width: buttonSize,
+            height: buttonSize,
             backgroundColor: videoEnabled ? colors.primary : colors.error,
             color: '#FFFFFF',
             '&:hover': {
@@ -112,9 +119,9 @@ const VideoControls = ({
           }}
         >
           {videoEnabled ? (
-            <VideoIcon sx={{ fontSize: 24 }} />
+            <VideoIcon sx={{ fontSize: iconSize }} />
           ) : (
-            <VideoOffIcon sx={{ fontSize: 24 }} />
+            <VideoOffIcon sx={{ fontSize: iconSize }} />
           )}
         </IconButton>
       </Tooltip>
@@ -125,8 +132,8 @@ const VideoControls = ({
           onClick={onToggleWhiteboard}
           disabled={disabled}
           sx={{
-            width: 56,
-            height: 56,
+            width: buttonSize,
+            height: buttonSize,
             backgroundColor: whiteboardOpen ? colors.warning : colors.primary,
             color: '#FFFFFF',
             '&:hover': {
@@ -138,7 +145,7 @@ const VideoControls = ({
             },
           }}
         >
-          <WhiteboardIcon sx={{ fontSize: 24 }} />
+          <WhiteboardIcon sx={{ fontSize: iconSize }} />
         </IconButton>
       </Tooltip>
 
@@ -159,15 +166,15 @@ const VideoControls = ({
         onClick={onEndCall}
         disabled={disabled}
         sx={{
-          px: 4,
-          py: 1.5,
+          px: { xs: 2.5, md: 4 },
+          py: { xs: 1, md: 1.5 },
           textTransform: 'none',
           fontWeight: 600,
-          fontSize: '1rem',
+          fontSize: { xs: '0.875rem', md: '1rem' },
           backgroundColor: colors.error,
           color: '#FFFFFF',
           borderRadius: '24px',
-          minWidth: 140,
+          minWidth: { xs: 100, md: 140 },
           '&:hover': {
             backgroundColor: colors.error,
           },

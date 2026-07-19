@@ -797,12 +797,15 @@ const Home = () => {
   }, []);
 
   return (
-    <Box sx={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
+    <Box sx={{ width: '100%', height: { xs: '100dvh', sm: '100vh' }, overflow: 'hidden' }}>
       {isVideoCallActive && callData ? (
         <Box
           sx={{
             width: '100%',
-            height: '100vh',
+            // dvh accounts for mobile/tablet browser chrome (address bar) so
+            // the bottom-anchored call controls stay within the visible
+            // viewport instead of landing under the browser toolbar.
+            height: { xs: '100dvh', sm: '100vh' },
             position: 'relative',
             backgroundColor: '#000000',
             overflow: 'hidden',

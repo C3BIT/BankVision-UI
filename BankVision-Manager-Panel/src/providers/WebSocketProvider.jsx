@@ -68,6 +68,12 @@ export const WebSocketProvider = ({ children }) => {
     // true while waiting for customer to reconnect after a network drop
     const [peerReconnecting, setPeerReconnecting] = useState(false);
 
+    // true while THIS manager's own socket is reconnecting mid-call (a raw
+    // disconnect no longer wipes callStatus/currentCall immediately — the
+    // backend keeps the call alive for a 15s grace period, so the UI waits
+    // to hear back instead of bouncing to idle on every network blip).
+    const [selfReconnecting, setSelfReconnecting] = useState(false);
+
     // Signature global state
     const [signatureUploadedPath, setSignatureUploadedPath] = useState(null);
 
@@ -186,10 +192,23 @@ export const WebSocketProvider = ({ children }) => {
         newSocket.on("disconnect", (reason) => {
             console.log("❌ WebSocket Disconnected:", reason);
             setIsConnected(false);
-            setCallStatus('ended');
-            setCurrentCall(null);
-            resetVerificationState();
-            resetPhoneChangeState();
+
+            // The backend keeps an in-progress call alive for a 15s grace
+            // period on manager disconnect (socketHandler.js DISCONNECT_GRACE_MS)
+            // so the manager can rejoin. Wiping callStatus/currentCall here,
+            // before that window even starts, meant reconnecting in time still
+            // left the manager stranded at an idle screen with no route back
+            // into the call. Only reset immediately when there was no call to
+            // lose in the first place; otherwise show a reconnecting state and
+            // wait for "manager:active-call-restored" or "manager:no-active-call".
+            if (callStatusRef.current === 'in-call') {
+                setSelfReconnecting(true);
+            } else {
+                setCallStatus('ended');
+                setCurrentCall(null);
+                resetVerificationState();
+                resetPhoneChangeState();
+            }
 
             if (
                 reason === 'io server disconnect' ||
@@ -198,6 +217,28 @@ export const WebSocketProvider = ({ children }) => {
             ) {
                 attemptReconnect();
             }
+        });
+
+        // Backend found this manager's call still alive within the grace
+        // period (same pod or cross-pod) — rehydrate instead of staying on
+        // the reconnecting banner forever.
+        newSocket.on("manager:active-call-restored", (data) => {
+            console.log("✅ Active call restored after reconnect:", data);
+            setSelfReconnecting(false);
+            setCallStatus('in-call');
+            setCurrentCall(prev => ({ ...prev, ...data }));
+        });
+
+        // Backend confirmed there is no active call for this manager after
+        // reconnect — either it never had one, or the grace period expired
+        // and the call was already force-ended. Safe to clear now.
+        newSocket.on("manager:no-active-call", () => {
+            console.log("ℹ️ No active call found after reconnect — going idle");
+            setSelfReconnecting(false);
+            setCallStatus(prev => (prev === 'in-call' ? 'idle' : prev));
+            setCurrentCall(null);
+            resetVerificationState();
+            resetPhoneChangeState();
         });
 
         newSocket.on("connect_error", (error) => {
@@ -274,6 +315,7 @@ export const WebSocketProvider = ({ children }) => {
 
         newSocket.on("call:ended", (data) => {
             setPeerReconnecting(false);
+            setSelfReconnecting(false);
             console.log("📞 [Manager Panel] Call ended event received:", data);
             console.log("   Ended by:", data?.endedBy || "unknown");
             console.log("   Customer ID:", data?.customerId || "unknown");
@@ -1148,6 +1190,7 @@ export const WebSocketProvider = ({ children }) => {
             clearSignaturePath,
             statsVersion,
             peerReconnecting,
+            selfReconnecting,
         }}>
             {children}
         </WebSocketContext.Provider>
