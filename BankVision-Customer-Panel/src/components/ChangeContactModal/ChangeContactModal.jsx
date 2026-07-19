@@ -284,7 +284,7 @@ const ChangeContactModal = ({
       const endpoint = type === 'phone' ? '/otp/verify-phone' : '/otp/verify-email';
 
       const payload = type === 'phone'
-        ? { phone: newValue, otp: otp }
+        ? { phone: newValue, otp: otp, isChangeRequest: true }
         : { email: newValue, otp: otp };
 
       const response = await apiClient.post(`${API_URL}${endpoint}`, payload);

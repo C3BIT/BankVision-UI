@@ -15,6 +15,7 @@ import {
   Alert,
   Tabs,
   Tab,
+  Badge,
 } from '@mui/material';
 import {
   Phone as PhoneIcon,
@@ -99,6 +100,7 @@ const VideoCallSidebarNew = ({
   const [showEmailChange, setShowEmailChange] = useState(false);
   const [showAddressChange, setShowAddressChange] = useState(false);
   const [signatureVerified, setSignatureVerified] = useState(false);
+  const [dormantRequestPending, setDormantRequestPending] = useState(false);
 
   // Navigate back to services list after approval dialog is resolved
   useEffect(() => {
@@ -109,6 +111,19 @@ const VideoCallSidebarNew = ({
     setShowAccountActivation(false);
     setShowSignatureVerification(false);
   }, [serviceResetKey]);
+
+  // Dormant account activation only has a manager-initiated ("pull") screen —
+  // unlike phone/email/address, there's no auto-popup when the customer submits.
+  // Surface a badge so the manager knows a submission is waiting, even if they're
+  // elsewhere in the sidebar (this component stays mounted for the whole call).
+  useEffect(() => {
+    if (!socket) return;
+    const handleDormantSubmit = (data) => {
+      if (data?.submitted) setDormantRequestPending(true);
+    };
+    socket.on('customer:dormant-extra-fields', handleDormantSubmit);
+    return () => socket.off('customer:dormant-extra-fields', handleDormantSubmit);
+  }, [socket]);
 
   // Fetch customer data when phone number is available
   useEffect(() => {
@@ -462,16 +477,19 @@ const VideoCallSidebarNew = ({
                     { icon: <PhoneIcon />, label: 'Phone Number Change', sub: 'Request new mobile number', onClick: handleRequestPhoneChange },
                     { icon: <EmailIcon />, label: 'Email Change', sub: 'Request new email address', onClick: handleRequestEmailChange },
                     { icon: <HomeIcon />, label: 'Address Change', sub: 'Request address update', onClick: handleRequestAddressChange },
-                    { icon: <AccountIcon />, label: 'Dormant Account Activation', sub: 'Activate dormant account', onClick: () => setShowAccountActivation(true) },
-                  ].map(({ icon, label, sub, onClick }) => (
-                    <Button key={label} fullWidth variant="outlined" disabled={!selectedAccountNumber} onClick={onClick} startIcon={icon}
-                      sx={{ py: 0.75, textTransform: 'none', fontWeight: 500, justifyContent: 'flex-start', borderColor: colors.border, color: colors.textPrimary, backgroundColor: colors.surface, '&:hover': { borderColor: colors.primary, backgroundColor: '#F0F7FF' } }}>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1 }}>
-                        <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>{label}</Typography>
-                        <Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{sub}</Typography>
-                      </Box>
-                      <EditIcon sx={{ fontSize: 16, color: colors.primary }} />
-                    </Button>
+                    { icon: <AccountIcon />, label: 'Dormant Account Activation', sub: 'Activate dormant account', onClick: () => { setDormantRequestPending(false); setShowAccountActivation(true); }, pending: dormantRequestPending },
+                  ].map(({ icon, label, sub, onClick, pending }) => (
+                    <Badge key={label} color="error" variant="dot" invisible={!pending}
+                      sx={{ display: 'block', width: '100%', '& .MuiBadge-badge': { top: 8, right: 8 } }}>
+                      <Button fullWidth variant="outlined" disabled={!selectedAccountNumber} onClick={onClick} startIcon={icon}
+                        sx={{ py: 0.75, textTransform: 'none', fontWeight: 500, justifyContent: 'flex-start', borderColor: pending ? colors.primary : colors.border, color: colors.textPrimary, backgroundColor: colors.surface, '&:hover': { borderColor: colors.primary, backgroundColor: '#F0F7FF' } }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1 }}>
+                          <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>{label}</Typography>
+                          <Typography sx={{ fontSize: '0.7rem', color: pending ? colors.primary : '#666' }}>{pending ? 'New request submitted — needs review' : sub}</Typography>
+                        </Box>
+                        <EditIcon sx={{ fontSize: 16, color: colors.primary }} />
+                      </Button>
+                    </Badge>
                   ))}
                 </Box>
               )}
