@@ -1,5 +1,5 @@
 import { API_URL } from '../../config.js';
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,6 @@ import { CheckCircle } from '@mui/icons-material';
 import { useWebSocket } from '../../context/WebSocketContext';
 import { debounce } from '../../utils/debounce';
 import { publicPost, apiClient } from '../../services/apiCaller';
-import Captcha from '../Captcha/Captcha';
 import { colors } from '../../theme/tokens';
 import BrandLogo from '../BrandLogo/BrandLogo';
 
@@ -34,9 +33,6 @@ const ChangeContactModal = ({
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState('');
-  const [captchaId, setCaptchaId] = useState('');
-  const [captchaAnswer, setCaptchaAnswer] = useState('');
-  const captchaRef = useRef(null);
 
   // Debounced socket emit for real-time updates to manager - separate events for new and confirm fields (150ms so manager sees typing quickly)
   const emitNewFieldChange = useCallback(
@@ -231,11 +227,6 @@ const ChangeContactModal = ({
       }
     }
 
-    if (!captchaAnswer) {
-      setError('Please enter the captcha code');
-      return;
-    }
-
     setIsLoading(true);
     setError('');
 
@@ -244,8 +235,8 @@ const ChangeContactModal = ({
       const endpoint = type === 'phone' ? '/otp/send-phone' : '/otp/send';
 
       const payload = type === 'phone'
-        ? { phone: newValue, captchaId: captchaId, captchaAnswer: captchaAnswer }
-        : { email: newValue, captchaId: captchaId, captchaAnswer: captchaAnswer };
+        ? { phone: newValue }
+        : { email: newValue };
 
       const response = await apiClient.post(`${API_URL}${endpoint}`, payload);
 
@@ -255,16 +246,12 @@ const ChangeContactModal = ({
         setError('');
       } else {
         setError(response.data.message || `Failed to send OTP to ${type}`);
-        setCaptchaAnswer('');
-        captchaRef.current?.refresh();
       }
     } catch (error) {
       console.error('Error sending OTP:', error);
       const rawMsg = error.response?.data?.message;
       const msg = typeof rawMsg === 'string' ? rawMsg : (rawMsg?.title || null);
       setError(msg || `Failed to send OTP to new ${type}`);
-      setCaptchaAnswer('');
-      captchaRef.current?.refresh();
     } finally {
       setIsLoading(false);
     }
@@ -324,7 +311,6 @@ const ChangeContactModal = ({
     setDuplicateWarning('');
     setOtpSent(false);
     setIsLoading(false);
-    setCaptchaAnswer('');
     onClose();
   };
 
@@ -563,13 +549,6 @@ const ChangeContactModal = ({
               </Alert>
             )}
 
-            <Captcha
-              ref={captchaRef}
-              value={captchaAnswer}
-              onChange={setCaptchaAnswer}
-              onCaptchaIdChange={setCaptchaId}
-              disabled={isLoading}
-            />
           </>
         )}
 
@@ -670,7 +649,7 @@ const ChangeContactModal = ({
             onClick={step === 1 ? handleRequestOTP : handleVerifyOTP}
             disabled={
               isLoading ||
-              (step === 1 && (!newValue || !confirmValue || !!duplicateWarning || !captchaAnswer)) ||
+              (step === 1 && (!newValue || !confirmValue || !!duplicateWarning)) ||
               (step === 2 && otp.length !== 6)
             }
             startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
