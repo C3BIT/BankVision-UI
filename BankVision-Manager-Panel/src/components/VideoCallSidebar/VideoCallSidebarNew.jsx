@@ -113,13 +113,22 @@ const VideoCallSidebarNew = ({
   }, [serviceResetKey]);
 
   // Dormant account activation only has a manager-initiated ("pull") screen —
-  // unlike phone/email/address, there's no auto-popup when the customer submits.
-  // Surface a badge so the manager knows a submission is waiting, even if they're
-  // elsewhere in the sidebar (this component stays mounted for the whole call).
+  // unlike phone/email/address, there's no globally-mounted approval Dialog for
+  // it. On final submission (data.submitted, not the per-keystroke echo), jump
+  // the manager straight to the review screen regardless of which tab/screen
+  // they're currently on, so it behaves like the other change types instead of
+  // requiring the manager to notice the badge and click in manually.
   useEffect(() => {
     if (!socket) return;
     const handleDormantSubmit = (data) => {
-      if (data?.submitted) setDormantRequestPending(true);
+      if (data?.submitted) {
+        setDormantRequestPending(true);
+        setActiveTab(1);
+        setShowPhoneChange(false);
+        setShowEmailChange(false);
+        setShowAddressChange(false);
+        setShowAccountActivation(true);
+      }
     };
     socket.on('customer:dormant-extra-fields', handleDormantSubmit);
     return () => socket.off('customer:dormant-extra-fields', handleDormantSubmit);
