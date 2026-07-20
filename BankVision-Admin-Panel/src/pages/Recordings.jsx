@@ -210,7 +210,7 @@ const Recordings = () => {
                                 </TableCell>
                                 <TableCell>
                                     <Typography variant="caption" color="text.secondary">
-                                        REF-{rec.id.substring(0, 6).toUpperCase()}
+                                        {rec.callLog?.referenceNumber || `REF-${rec.id.substring(0, 6).toUpperCase()}`}
                                     </Typography>
                                 </TableCell>
                                 <TableCell align="center">

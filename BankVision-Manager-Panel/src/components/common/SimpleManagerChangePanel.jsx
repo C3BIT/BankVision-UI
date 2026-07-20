@@ -7,6 +7,8 @@ import {
   CircularProgress,
   Alert,
   Divider,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import { ArrowBack, CheckCircle } from '@mui/icons-material';
 import PropTypes from 'prop-types';
@@ -50,6 +52,7 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState('');
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
+  const [overrideConfirmed, setOverrideConfirmed] = useState(false);
   const [captchaAnswer, setCaptchaAnswer] = useState('');
   const [captchaId, setCaptchaId] = useState(null);
   const captchaRef = useRef(null);
@@ -86,6 +89,7 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
   useEffect(() => {
     if (config.validate(newValue)) checkDuplicate(newValue);
     else setDuplicateWarning('');
+    setOverrideConfirmed(false);
   }, [newValue, checkDuplicate, config]);
 
   // ── Listen for customer typing ─────────────────────────────────────────────
@@ -124,10 +128,15 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
   const isValid = config.validate(newValue) && config.validate(confirmValue);
   const valuesMatch = newValue === confirmValue;
   const isSameAsCurrent = newValue === currentValue;
-  const canSubmit =
+  const canSubmitBase =
     !isLoading && !otpSent && !verified && hasAccountSelected &&
-    isValid && valuesMatch && !isSameAsCurrent && !duplicateWarning && !isCheckingDuplicate;
-  const canSendOtp = canSubmit && Boolean(captchaAnswer.trim());
+    isValid && valuesMatch && !isSameAsCurrent && !isCheckingDuplicate;
+  // Duplicate found: only a manager who has explicitly ticked the override
+  // confirmation may proceed — customers can never self-service this, since
+  // registering one number to multiple accounts is a security-sensitive call.
+  const canSubmit = canSubmitBase && !duplicateWarning;
+  const canOverrideSubmit = canSubmitBase && Boolean(duplicateWarning) && overrideConfirmed;
+  const canSendOtp = (canSubmit || canOverrideSubmit) && Boolean(captchaAnswer.trim());
 
   // ── Emit manager typing to customer ───────────────────────────────────────
   const emitManagerTyping = (eventName, value, timeoutRef) => {
@@ -144,7 +153,7 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
     setIsSendingOtp(true);
     setError(null);
     try {
-      await sendOtpFn(newValue, captchaId, captchaAnswer);
+      await sendOtpFn(newValue, captchaId, captchaAnswer, canOverrideSubmit);
       setOtpSent(true);
       setOtp('');
       if (socket) {
@@ -314,6 +323,22 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
         </Box>
       )}
 
+      {/* Manager-only override: customer legitimately needs the same number on
+          multiple accounts. Never shown/usable on the customer side — this panel
+          is manager-side only — and requires an explicit, per-attempt confirmation. */}
+      {canSubmitBase && duplicateWarning && (
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={overrideConfirmed}
+              onChange={(e) => setOverrideConfirmed(e.target.checked)}
+              sx={{ color: colors.primary, '&.Mui-checked': { color: colors.primary } }}
+            />
+          }
+          label="I confirm this customer intentionally needs this number registered to multiple accounts and I authorize this change (manager override)"
+        />
+      )}
+
       {/* Account not selected warning */}
       {!hasAccountSelected && (
         <Alert severity="warning" sx={{ backgroundColor: 'rgba(255,152,0,0.08)' }}>
@@ -322,7 +347,7 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
       )}
 
       {/* Captcha + submit on behalf button */}
-      {canSubmit && (
+      {(canSubmit || canOverrideSubmit) && (
         <Captcha
           ref={captchaRef}
           value={captchaAnswer}
@@ -330,16 +355,20 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
           onCaptchaIdChange={setCaptchaId}
         />
       )}
-      {canSubmit && (
+      {(canSubmit || canOverrideSubmit) && (
         <Button
           fullWidth variant="contained" onClick={handleSendOtp} disabled={isSendingOtp || !captchaAnswer.trim()}
           sx={{
-            py: 1.5, backgroundColor: '#2196F3', borderRadius: '6px', color: 'white', fontWeight: 'bold',
-            '&:hover': { backgroundColor: colors.primary },
+            py: 1.5, backgroundColor: canOverrideSubmit ? colors.warning : '#2196F3', borderRadius: '6px', color: 'white', fontWeight: 'bold',
+            '&:hover': { backgroundColor: canOverrideSubmit ? colors.warning : colors.primary },
             '&:disabled': { backgroundColor: '#90CAF9' },
           }}
         >
-          {isSendingOtp ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Submit on Behalf of Customer & Send OTP'}
+          {isSendingOtp
+            ? <CircularProgress size={24} sx={{ color: 'white' }} />
+            : canOverrideSubmit
+              ? 'Submit Anyway (Override) & Send OTP'
+              : 'Submit on Behalf of Customer & Send OTP'}
         </Button>
       )}
 

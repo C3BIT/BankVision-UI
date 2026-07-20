@@ -6,6 +6,7 @@ import {
   Button,
   LinearProgress,
   CircularProgress,
+  Alert,
 } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
 import PropTypes from 'prop-types';
@@ -20,6 +21,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [lastProcessedImage, setLastProcessedImage] = useState(null);
+  const [verifyError, setVerifyError] = useState(null);
 
   const { socket, initiateFaceVerification, verifyImage } = useWebSocket();
   const { profileImage } = useSelector((state) => state.customerImageInfo);
@@ -34,6 +36,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
       setIsVerifying(false);
       setShowResult(false);
       setLastProcessedImage(null);
+      setVerifyError(null);
 
       if (customerName) {
         dispatch(fetchCustomerImage({ phone: customerName }));
@@ -71,6 +74,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
   const handleVerify = async (capturedImagePath) => {
     setIsVerifying(true);
     setShowResult(false);
+    setVerifyError(null);
 
     try {
       const response = await dispatch(
@@ -89,12 +93,12 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
       setShowResult(true);
     } catch (error) {
       console.error('Verification error:', error);
-      setVerificationResult({
-        matched: false,
-        similarity: 0,
-        confidence: 0,
-      });
-      setShowResult(true);
+      // A failed API/service call (OpenCV down, timeout, etc.) is NOT the same
+      // as a legitimate face mismatch — surface it distinctly instead of
+      // silently rendering a fake "0% no-match" result.
+      setVerifyError(
+        error?.message || error?.error?.message || 'Face verification service failed. Please retry.'
+      );
     } finally {
       setIsVerifying(false);
     }
@@ -111,6 +115,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
     setShowResult(false);
     setIsVerifying(false);
     setLastProcessedImage(null);
+    setVerifyError(null);
 
     onClose();
   };
@@ -123,6 +128,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
     setVerificationResult(null);
     setShowResult(false);
     setLastProcessedImage(null);
+    setVerifyError(null);
 
     // Request retake
     socket.emit('manager:request-retake-image', {
@@ -139,6 +145,7 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
     setShowResult(false);
     setIsVerifying(false);
     setLastProcessedImage(null);
+    setVerifyError(null);
 
     onClose();
   };
@@ -258,6 +265,13 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
           </Box>
         </Box>
 
+        {/* Service/network error — distinct from a legitimate mismatch */}
+        {verifyError && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {verifyError}
+          </Alert>
+        )}
+
         {/* Verification Result */}
         {showResult && verificationResult && (
           <Box sx={{ mb: 3, textAlign: 'center' }}>
@@ -304,6 +318,50 @@ const FaceVerificationModal = ({ open, onClose, customerName }) => {
             >
               Capture Image
             </Button>
+          )}
+
+          {/* Service/network error — offer retry (same image) or recapture (new image) */}
+          {verifyError && !isVerifying && (
+            <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={() => handleVerify(currentImage)}
+                sx={{
+                  py: 1.5,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  backgroundColor: colors.primary,
+                  borderRadius: '8px',
+                  flex: 1,
+                  '&:hover': { backgroundColor: colors.primaryDark },
+                }}
+              >
+                Retry Verification
+              </Button>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={handleDecline}
+                sx={{
+                  py: 1.5,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  borderColor: colors.primary,
+                  color: colors.primary,
+                  borderRadius: '8px',
+                  flex: 1,
+                  '&:hover': {
+                    borderColor: colors.primaryDark,
+                    backgroundColor: '#E3F2FD',
+                  },
+                }}
+              >
+                Recapture
+              </Button>
+            </Box>
           )}
 
           {/* Action buttons - Always show Decline and Recapture regardless of match result */}
