@@ -63,6 +63,7 @@ const VideoCallSidebarNew = ({
   callStartTime,
   isCallActive,
   serviceResetKey,
+  onApprovalComplete,
 }) => {
   const dispatch = useDispatch();
   const {
@@ -479,7 +480,10 @@ const VideoCallSidebarNew = ({
               ) : showAddressChange ? (
                 <AddressChange presentAddress={reduxAccountDetails?.presentAddress || reduxAccountDetails?.address || null} permanentAddress={reduxAccountDetails?.permanentAddress || null} onBack={() => setShowAddressChange(false)} />
               ) : showAccountActivation ? (
-                <DormantAccountActivation onBack={() => setShowAccountActivation(false)} />
+                <DormantAccountActivation
+                  onBack={() => setShowAccountActivation(false)}
+                  onActivationComplete={onApprovalComplete}
+                />
               ) : (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                   {[
@@ -620,6 +624,7 @@ VideoCallSidebarNew.propTypes = {
   callStartTime: PropTypes.number,
   isCallActive: PropTypes.bool,
   serviceResetKey: PropTypes.number,
+  onApprovalComplete: PropTypes.func,
 };
 
 export default VideoCallSidebarNew;

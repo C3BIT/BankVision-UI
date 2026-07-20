@@ -19,7 +19,7 @@ import { useWebSocket } from '../../../providers/WebSocketProvider';
 import { useSelector } from 'react-redux';
 import { colors } from '../../../styles/tokens';
 
-const DormantAccountActivation = ({ onBack }) => {
+const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
   const { accountDetails } = useSelector((state) => state.customerAccounts);
   const { socket } = useWebSocket();
 
@@ -397,7 +397,12 @@ const DormantAccountActivation = ({ onBack }) => {
             <Button
               fullWidth
               variant="contained"
-              onClick={onBack}
+              onClick={() => {
+                // Refresh account/service state the same way phone/email/address
+                // approvals do, so stale pre-activation data doesn't linger.
+                onActivationComplete?.();
+                onBack();
+              }}
               sx={{
                 py: 1.5,
                 backgroundColor: colors.success,
@@ -579,6 +584,7 @@ const DormantAccountActivation = ({ onBack }) => {
 
 DormantAccountActivation.propTypes = {
   onBack: PropTypes.func.isRequired,
+  onActivationComplete: PropTypes.func,
 };
 
 export default DormantAccountActivation;
