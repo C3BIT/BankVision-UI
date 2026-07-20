@@ -96,20 +96,6 @@ const customerAccountsSlice = createSlice({
       state.selectedAccountNumber = null;
       state.accountDetails = {};
     },
-    // Full reset on call end — without this, cbsAccounts/cbsCards/cbsLoans
-    // from the outgoing customer stay in Redux until the next customer's
-    // fetches resolve, so a manager can briefly see the previous customer's
-    // data on the next call.
-    resetCustomerAccounts: (state) => {
-      state.accounts = [];
-      state.accountDetails = {};
-      state.selectedAccountNumber = null;
-      state.cbsAccounts = [];
-      state.cbsCards = [];
-      state.cbsLoans = [];
-      state.error = null;
-      state.message = "";
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -197,5 +183,5 @@ const customerAccountsSlice = createSlice({
   },
 });
 
-export const { setSelectedAccountNumber, clearSelectedAccountNumber, resetCustomerAccounts } = customerAccountsSlice.actions;
+export const { setSelectedAccountNumber, clearSelectedAccountNumber } = customerAccountsSlice.actions;
 export default customerAccountsSlice.reducer;

@@ -2,8 +2,7 @@ import { Container, Box, Grid, Paper, Typography, Snackbar, Alert, Badge, Chip, 
 import { Queue as QueueIcon, NotificationsActive, Phone } from "@mui/icons-material";
 import { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchCustomerDetailsByAccount, setSelectedAccountNumber, clearSelectedAccountNumber, resetCustomerAccounts } from "../../redux/customer/customerAccountsSlice";
-import { resetCustomerImage } from "../../redux/customer/customerImageSlice";
+import { fetchCustomerDetailsByAccount, setSelectedAccountNumber, clearSelectedAccountNumber } from "../../redux/customer/customerAccountsSlice";
 // REMOVED: CallingScreen import - queue-only design, no more popups
 import { useWebSocket } from "../../providers/WebSocketProvider";
 import OpenViduMeetComponent from "../../components/OpenViduMeetComponent/OpenViduMeetComponent";
@@ -161,8 +160,6 @@ const Dashboard = () => {
       setCustomerVideoElement(null);
       setSelectedAccount(null);
       dispatch(clearSelectedAccountNumber());
-      dispatch(resetCustomerAccounts());
-      dispatch(resetCustomerImage());
     }
   }, [callStatus, dispatch]);
 
@@ -423,7 +420,6 @@ const Dashboard = () => {
               callStartTime={callStartTime}
               isCallActive={isCallActive}
               serviceResetKey={serviceResetKey}
-              onApprovalComplete={() => setServiceResetKey(prev => prev + 1)}
             />
           }
           overlayContent={null}
