@@ -40,6 +40,7 @@ const Dashboard = () => {
   const [speakerEnabled, setSpeakerEnabled] = useState(true);
   const [whiteboardOpen, setWhiteboardOpen] = useState(false);
   const [activeBackground, setActiveBackground] = useState('none');
+  const [isOnHold, setIsOnHold] = useState(false);
   const [customerVideoElement, setCustomerVideoElement] = useState(null);
   const [serviceResetKey, setServiceResetKey] = useState(0);
 
@@ -160,6 +161,7 @@ const Dashboard = () => {
       setIsCallActive(false);
       setCustomerVideoElement(null);
       setSelectedAccount(null);
+      setIsOnHold(false);
       dispatch(clearSelectedAccountNumber());
       dispatch(resetCustomerAccounts());
       dispatch(resetCustomerImage());
@@ -207,6 +209,7 @@ const Dashboard = () => {
     setVideoEnabled(true);
     setWhiteboardOpen(false);
     setActiveBackground('none');
+    setIsOnHold(false);
     console.log("Call ended");
   };
 
@@ -434,6 +437,7 @@ const Dashboard = () => {
               speakerEnabled={speakerEnabled}
               whiteboardOpen={whiteboardOpen}
               activeBackground={activeBackground}
+              onHold={isOnHold}
               onToggleAudio={() => openViduRef.current?.toggleAudio()}
               onToggleVideo={() => openViduRef.current?.toggleVideo()}
               onToggleSpeaker={() => openViduRef.current?.toggleSpeaker()}
@@ -447,6 +451,10 @@ const Dashboard = () => {
               onSetBackground={async (mode) => {
                 await openViduRef.current?.setBackground(mode);
                 setActiveBackground(mode);
+              }}
+              onToggleHold={async () => {
+                await openViduRef.current?.toggleHold();
+                setIsOnHold(Boolean(openViduRef.current?.isOnHold));
               }}
               onEndCall={() => openViduRef.current?.leaveCall()}
             />

@@ -289,6 +289,10 @@ const OpenViduMeetComponent = forwardRef(({
   const [error, setError] = useState(null);
   const [remoteParticipants, setRemoteParticipants] = useState([]);
   const [isSpeakerMuted, setIsSpeakerMuted] = useState(false);
+  const [isOnHold, setIsOnHold] = useState(false);
+  // Remember mic/camera enabled state from just before Hold, so Resume
+  // restores exactly what the manager had rather than force-enabling both.
+  const preHoldStateRef = useRef({ mic: true, camera: true });
   const [liveKitReconnecting, setLiveKitReconnecting] = useState(false);
   const { socket, peerReconnecting } = useWebSocket();
 
@@ -653,6 +657,43 @@ const OpenViduMeetComponent = forwardRef(({
     }
   }, [isSpeakerMuted, onSpeakerStateChange]);
 
+  const toggleHold = useCallback(async () => {
+    const room = roomRef.current;
+    if (!room) return;
+    const localParticipant = room.localParticipant;
+    try {
+      if (!isOnHold) {
+        // Entering hold — remember current mic/camera state, then mute both
+        preHoldStateRef.current = {
+          mic: localParticipant.isMicrophoneEnabled,
+          camera: localParticipant.isCameraEnabled,
+        };
+        await Promise.all([
+          localParticipant.setMicrophoneEnabled(false),
+          localParticipant.setCameraEnabled(false),
+        ]);
+        socket?.emit("call:hold");
+        setIsOnHold(true);
+        if (onAudioStateChange) onAudioStateChange(false);
+        if (onVideoStateChange) onVideoStateChange(false);
+      } else {
+        // Resuming — restore whatever state preceded the hold
+        const { mic, camera } = preHoldStateRef.current;
+        await Promise.all([
+          localParticipant.setMicrophoneEnabled(mic),
+          localParticipant.setCameraEnabled(camera),
+        ]);
+        socket?.emit("call:resume");
+        setIsOnHold(false);
+        if (onAudioStateChange) onAudioStateChange(mic);
+        if (onVideoStateChange) onVideoStateChange(camera);
+      }
+    } catch (error) {
+      console.error("Error toggling hold:", error);
+      toastError("Could not change hold state — please try again.");
+    }
+  }, [isOnHold, socket, onAudioStateChange, onVideoStateChange]);
+
   // Supervisor identities are prefixed with their mode ("supervisor_<mode>_...")
   // so listen/whisper sessions (audio only, must stay invisible) can be told
   // apart from barge sessions (audio+video, must render visibly like any
@@ -766,10 +807,12 @@ const OpenViduMeetComponent = forwardRef(({
     toggleAudio,
     toggleVideo,
     toggleSpeaker,
+    toggleHold,
     leaveCall,
     isAudioMuted,
     isVideoMuted,
     isSpeakerMuted,
+    isOnHold,
     getCustomerVideoElement,
     setBackground,
   }));

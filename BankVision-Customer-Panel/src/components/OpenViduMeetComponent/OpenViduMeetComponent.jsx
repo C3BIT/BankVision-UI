@@ -198,6 +198,8 @@ const OpenViduMeetComponent = forwardRef(({
   const [error, setError] = useState(null);
   const [remoteParticipants, setRemoteParticipants] = useState([]);
   const [liveKitReconnecting, setLiveKitReconnecting] = useState(false);
+  const [isOnHold, setIsOnHold] = useState(false);
+  const holdAudioCtxRef = useRef(null);
   const { socket, peerReconnecting } = useWebSocket();
 
   // Get token from backend
@@ -485,6 +487,74 @@ const OpenViduMeetComponent = forwardRef(({
     };
   }, [socket]);
 
+  // Generate a soft looping two-tone hold chime via the Web Audio API rather
+  // than shipping a licensed music asset — avoids sourcing/serving a real
+  // audio file just for this.
+  const startHoldTone = useCallback(() => {
+    if (holdAudioCtxRef.current) return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+      const gain = ctx.createGain();
+      gain.gain.value = 0.05;
+      gain.connect(ctx.destination);
+
+      const now = ctx.currentTime;
+      const playChime = (time) => {
+        [523.25, 659.25].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          osc.connect(gain);
+          osc.start(time + i * 0.18);
+          osc.stop(time + i * 0.18 + 0.35);
+        });
+      };
+      let beat = 0;
+      playChime(now);
+      const intervalId = setInterval(() => {
+        beat += 1;
+        playChime(ctx.currentTime);
+        if (beat > 100000) clearInterval(intervalId); // safety backstop, never realistically hit
+      }, 3000);
+
+      holdAudioCtxRef.current = { ctx, gain, intervalId };
+    } catch (err) {
+      console.warn("Could not start hold tone:", err.message);
+    }
+  }, []);
+
+  const stopHoldTone = useCallback(() => {
+    const current = holdAudioCtxRef.current;
+    if (!current) return;
+    clearInterval(current.intervalId);
+    current.ctx.close().catch(() => {});
+    holdAudioCtxRef.current = null;
+  }, []);
+
+  // Handle call hold/resume broadcast from the manager
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleHoldStarted = () => {
+      setIsOnHold(true);
+      startHoldTone();
+    };
+    const handleHoldEnded = () => {
+      setIsOnHold(false);
+      stopHoldTone();
+    };
+
+    socket.on("call:hold-started", handleHoldStarted);
+    socket.on("call:hold-ended", handleHoldEnded);
+
+    return () => {
+      socket.off("call:hold-started", handleHoldStarted);
+      socket.off("call:hold-ended", handleHoldEnded);
+      stopHoldTone();
+    };
+  }, [socket, startHoldTone, stopHoldTone]);
+
   const toggleAudio = async () => {
     if (!roomRef.current) return;
     try {
@@ -525,6 +595,7 @@ const OpenViduMeetComponent = forwardRef(({
     isAudioMuted,
     isVideoMuted,
     remoteParticipants,
+    isOnHold,
   }));
 
   // Debug logging
@@ -542,6 +613,33 @@ const OpenViduMeetComponent = forwardRef(({
         backgroundColor: "#000000",
       }}
     >
+      {/* Hold overlay — shown instead of the manager's feed while on hold */}
+      {isOnHold && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 10,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1.5,
+            backgroundColor: "rgba(0,0,0,0.85)",
+            color: "white",
+          }}
+        >
+          <CircularProgress size={32} sx={{ color: "#4CAF50" }} />
+          <Typography variant="h6">You're on hold</Typography>
+          <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.6)" }}>
+            The bank representative will be right back with you.
+          </Typography>
+        </Box>
+      )}
+
       {/* Main video area - Remote participants (Manager) fills the screen */}
       <Box
         sx={{

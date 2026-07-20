@@ -7,6 +7,8 @@ import {
   Videocam as VideoIcon,
   VideocamOff as VideoOffIcon,
   Edit as WhiteboardIcon,
+  PauseCircleFilled as HoldIcon,
+  PlayCircleFilled as ResumeIcon,
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import VirtualBackgroundMenu from '../VirtualBackgroundMenu/VirtualBackgroundMenu';
@@ -18,11 +20,13 @@ const VideoControls = ({
   speakerEnabled = true,
   whiteboardOpen = false,
   activeBackground = 'none',
+  onHold = false,
   onToggleAudio,
   onToggleVideo,
   onToggleSpeaker,
   onToggleWhiteboard,
   onSetBackground,
+  onToggleHold,
   onEndCall,
   disabled = false,
 }) => {
@@ -76,7 +80,7 @@ const VideoControls = ({
       <Tooltip title={audioEnabled ? 'Mute Microphone' : 'Unmute Microphone'}>
         <IconButton
           onClick={onToggleAudio}
-          disabled={disabled}
+          disabled={disabled || onHold}
           sx={{
             width: buttonSize,
             height: buttonSize,
@@ -103,7 +107,7 @@ const VideoControls = ({
       <Tooltip title={videoEnabled ? 'Turn Off Camera' : 'Turn On Camera'}>
         <IconButton
           onClick={onToggleVideo}
-          disabled={disabled}
+          disabled={disabled || onHold}
           sx={{
             width: buttonSize,
             height: buttonSize,
@@ -148,6 +152,35 @@ const VideoControls = ({
           <WhiteboardIcon sx={{ fontSize: iconSize }} />
         </IconButton>
       </Tooltip>
+
+      {/* Hold / Resume Button */}
+      {onToggleHold && (
+        <Tooltip title={onHold ? 'Resume Call' : 'Place Call on Hold'}>
+          <IconButton
+            onClick={onToggleHold}
+            disabled={disabled}
+            sx={{
+              width: buttonSize,
+              height: buttonSize,
+              backgroundColor: onHold ? colors.warning : colors.primary,
+              color: '#FFFFFF',
+              '&:hover': {
+                backgroundColor: onHold ? colors.warning : colors.primaryDark,
+              },
+              '&.Mui-disabled': {
+                backgroundColor: colors.textMuted,
+                color: '#CCCCCC',
+              },
+            }}
+          >
+            {onHold ? (
+              <ResumeIcon sx={{ fontSize: iconSize }} />
+            ) : (
+              <HoldIcon sx={{ fontSize: iconSize }} />
+            )}
+          </IconButton>
+        </Tooltip>
+      )}
 
       {/* Virtual Background */}
       {onSetBackground && (
@@ -197,11 +230,13 @@ VideoControls.propTypes = {
   speakerEnabled: PropTypes.bool,
   whiteboardOpen: PropTypes.bool,
   activeBackground: PropTypes.string,
+  onHold: PropTypes.bool,
   onToggleAudio: PropTypes.func.isRequired,
   onToggleVideo: PropTypes.func.isRequired,
   onToggleSpeaker: PropTypes.func,
   onToggleWhiteboard: PropTypes.func,
   onSetBackground: PropTypes.func,
+  onToggleHold: PropTypes.func,
   onEndCall: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };
