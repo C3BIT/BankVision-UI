@@ -36,7 +36,8 @@ import {
     Bell,
     Settings,
     Shield,
-    ClipboardList
+    ClipboardList,
+    Star
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import BrandLogo from './BrandLogo';
@@ -80,6 +81,7 @@ const MainLayout = () => {
         { text: 'Call History', icon: History, path: '/call-history' },
         { text: 'Recordings', icon: Video, path: '/recordings' },
         { text: 'Service Audit Log', icon: ClipboardList, path: '/service-audit' },
+        { text: 'Feedback', icon: Star, path: '/feedback' },
         { text: 'Settings', icon: Settings, path: '/settings' },
     ];
 
