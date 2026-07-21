@@ -589,17 +589,20 @@ const Home = () => {
 
     socket.on('customer:signature-verification-decision', handleSignatureDecision);
     socket.on('otp:resent', handleOtpResent);
-    // Backend emits "customer:image-verified" (socketHandler.js manager:verify-image
-    // handler) with { status, managerId, managerName, timestamp } — the legacy
-    // "customer:face-verification-result" event is never actually sent, which is why
-    // the customer previously saw no response at all when a manager accepted/declined.
+    // Two distinct manager-side flows both notify the customer of a face
+    // verification decision, with different payload shapes but both
+    // satisfying `data.verified ?? data.status === 'verified'`:
+    // - manager:verify-image handler emits "customer:image-verified" with { status, ... }
+    // - manager:face-verification-decision handler emits "customer:face-verification-result" with { verified, ... }
     socket.on('customer:image-verified', handleFaceVerificationResult);
+    socket.on('customer:face-verification-result', handleFaceVerificationResult);
 
     return () => {
       socket.off('customer:retake-image-request', handleRetakeRequest);
       socket.off('customer:signature-verification-decision', handleSignatureDecision);
       socket.off('otp:resent', handleOtpResent);
       socket.off('customer:image-verified', handleFaceVerificationResult);
+      socket.off('customer:face-verification-result', handleFaceVerificationResult);
       clearTimeout(approvalFeedbackTimerRef.current);
     };
   }, [socket]);

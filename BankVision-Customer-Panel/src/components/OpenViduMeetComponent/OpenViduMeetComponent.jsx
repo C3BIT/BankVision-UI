@@ -200,6 +200,7 @@ const OpenViduMeetComponent = forwardRef(({
   const [liveKitReconnecting, setLiveKitReconnecting] = useState(false);
   const [isOnHold, setIsOnHold] = useState(false);
   const holdAudioCtxRef = useRef(null);
+  const preHoldStateRef = useRef({ mic: true, camera: true });
   const { socket, peerReconnecting } = useWebSocket();
 
   // Get token from backend
@@ -536,13 +537,47 @@ const OpenViduMeetComponent = forwardRef(({
   useEffect(() => {
     if (!socket) return;
 
-    const handleHoldStarted = () => {
+    const handleHoldStarted = async () => {
       setIsOnHold(true);
       startHoldTone();
+      // Mute the customer's own mic/camera too — otherwise the customer
+      // keeps broadcasting live audio/video to the manager for the entire
+      // hold, and only sees a cosmetic "on hold" overlay locally.
+      const localParticipant = roomRef.current?.localParticipant;
+      if (localParticipant) {
+        preHoldStateRef.current = {
+          mic: localParticipant.isMicrophoneEnabled,
+          camera: localParticipant.isCameraEnabled,
+        };
+        try {
+          await Promise.all([
+            localParticipant.setMicrophoneEnabled(false),
+            localParticipant.setCameraEnabled(false),
+          ]);
+          if (onAudioToggle) onAudioToggle(false);
+          if (onVideoToggle) onVideoToggle(false);
+        } catch (error) {
+          console.error("Error muting tracks for hold:", error);
+        }
+      }
     };
-    const handleHoldEnded = () => {
+    const handleHoldEnded = async () => {
       setIsOnHold(false);
       stopHoldTone();
+      const localParticipant = roomRef.current?.localParticipant;
+      if (localParticipant) {
+        const { mic, camera } = preHoldStateRef.current;
+        try {
+          await Promise.all([
+            localParticipant.setMicrophoneEnabled(mic),
+            localParticipant.setCameraEnabled(camera),
+          ]);
+          if (onAudioToggle) onAudioToggle(mic);
+          if (onVideoToggle) onVideoToggle(camera);
+        } catch (error) {
+          console.error("Error restoring tracks after hold:", error);
+        }
+      }
     };
 
     socket.on("call:hold-started", handleHoldStarted);
@@ -553,7 +588,7 @@ const OpenViduMeetComponent = forwardRef(({
       socket.off("call:hold-ended", handleHoldEnded);
       stopHoldTone();
     };
-  }, [socket, startHoldTone, stopHoldTone]);
+  }, [socket, startHoldTone, stopHoldTone, onAudioToggle, onVideoToggle]);
 
   const toggleAudio = async () => {
     if (!roomRef.current) return;
