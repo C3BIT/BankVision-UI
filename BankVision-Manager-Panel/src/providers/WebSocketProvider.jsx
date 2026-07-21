@@ -127,8 +127,18 @@ export const WebSocketProvider = ({ children }) => {
     const socketRef = useRef(null);
     const URL = WS_URL;
     const attemptingReconnect = useRef(false);
+    // Multiple sources (connect_error, call:error, token_expired, a duplicate
+    // socket spawned by attemptReconnect) can all independently detect an
+    // expired session and race to run this logout+reload flow concurrently.
+    // Guard so only the first one actually runs it; reset on a fresh connect.
+    const expirationHandledRef = useRef(false);
 
     const handleTokenExpiration = async () => {
+        if (expirationHandledRef.current) {
+            console.log("⏳ Token expiration already being handled, skipping duplicate.");
+            return;
+        }
+        expirationHandledRef.current = true;
         console.log("⏳ Token expired, logging out and purging persisted data...");
         cleanupSocket();
         dispatch(logout());
@@ -183,6 +193,9 @@ export const WebSocketProvider = ({ children }) => {
             clearInterval(reconnectInterval.current);
             reconnectInterval.current = null;
             attemptingReconnect.current = false;
+            // A successful connect means the session is valid again — allow a
+            // future genuine expiration to be handled.
+            expirationHandledRef.current = false;
 
             // Request current status from backend (restores saved status from Redis)
             // Don't automatically set to "online" - let backend restore the manager's previous status
@@ -210,11 +223,16 @@ export const WebSocketProvider = ({ children }) => {
                 resetPhoneChangeState();
             }
 
-            if (
-                reason === 'io server disconnect' ||
-                reason === 'transport close' ||
-                reason === 'ping timeout'
-            ) {
+            // socket.io's own `reconnection: true` config already retries
+            // automatically for every reason except 'io server disconnect'
+            // (a deliberate server-side disconnect, which it treats as final
+            // by design). Calling attemptReconnect() for the other reasons
+            // too used to spawn a second, independent socket via
+            // connectWebSocket() on top of the one socket.io was already
+            // reconnecting in the background — two sockets meant two full
+            // sets of auth-error listeners, which could each independently
+            // trigger a logout+reload and produce a login/dashboard flicker.
+            if (reason === 'io server disconnect') {
                 attemptReconnect();
             }
         });
@@ -294,6 +312,11 @@ export const WebSocketProvider = ({ children }) => {
 
         // Force logout when logged in from another device
         newSocket.on("force-logout", async (data) => {
+            if (expirationHandledRef.current) {
+                console.log("🔐 Force logout received but session teardown already in progress, skipping duplicate.");
+                return;
+            }
+            expirationHandledRef.current = true;
             console.log("🔐 Force logout - logged in from another device:", data);
             cleanupSocket();
             dispatch(logout());
