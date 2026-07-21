@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Managers from './pages/Managers';
 import Recordings from './pages/Recordings';
@@ -36,6 +37,7 @@ const AppContent = () => {
             <Router>
                 <Routes>
                     <Route path="/login" element={<Login />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
 
                     {/* Protected Routes */}
                     <Route element={<ProtectedRoute />}>

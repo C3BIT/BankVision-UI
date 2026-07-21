@@ -7,7 +7,8 @@ import {
     TextField,
     Button,
     Alert,
-    CircularProgress
+    CircularProgress,
+    Link
 } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 
@@ -29,6 +30,10 @@ const Login = () => {
 
         if (result.success) {
             navigate('/dashboard');
+        } else if (result.errorCode === 40303) {
+            // Password expired — loginAdmin never issues a session in this case,
+            // so the only way forward is the OTP-based reset flow.
+            navigate('/forgot-password', { state: { email, passwordExpired: true } });
         } else {
             setError(result.message || 'Login failed');
         }
@@ -106,6 +111,18 @@ const Login = () => {
                         autoComplete="current-password"
                         sx={{ mb: 1 }}
                     />
+
+                    <Box sx={{ textAlign: 'right', mb: 1 }}>
+                        <Link
+                            component="button"
+                            type="button"
+                            variant="body2"
+                            onClick={() => navigate('/forgot-password', { state: { email } })}
+                            sx={{ color: 'text.secondary' }}
+                        >
+                            Forgot password?
+                        </Link>
+                    </Box>
 
                     <Button
                         fullWidth
