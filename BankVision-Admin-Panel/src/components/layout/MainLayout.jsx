@@ -18,7 +18,9 @@ import {
     MenuItem,
     useTheme,
     useMediaQuery,
-    Paper
+    Paper,
+    Alert,
+    Button
 } from '@mui/material';
 import {
     LayoutDashboard,
@@ -52,7 +54,7 @@ const MainLayout = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
 
-    const { user, logout } = useAuth();
+    const { user, logout, passwordExpiryWarning, dismissPasswordExpiryWarning } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -275,6 +277,20 @@ const MainLayout = () => {
                 component="main"
                 sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: 8 }}
             >
+                {passwordExpiryWarning && (
+                    <Alert
+                        severity="warning"
+                        onClose={dismissPasswordExpiryWarning}
+                        action={
+                            <Button color="inherit" size="small" onClick={() => navigate('/forgot-password', { state: { email: user?.email } })}>
+                                CHANGE NOW
+                            </Button>
+                        }
+                        sx={{ mb: 3, borderRadius: 2 }}
+                    >
+                        {passwordExpiryWarning.message}
+                    </Alert>
+                )}
                 <Outlet />
             </Box>
         </Box>
