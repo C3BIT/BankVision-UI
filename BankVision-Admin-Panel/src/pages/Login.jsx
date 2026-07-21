@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -16,10 +16,19 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [notice, setNotice] = useState('');
     const [loading, setLoading] = useState(false);
 
     const { login } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const authNotice = sessionStorage.getItem('authNotice');
+        if (authNotice) {
+            setNotice(authNotice);
+            sessionStorage.removeItem('authNotice');
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -77,6 +86,12 @@ const Login = () => {
                         Sign in to access the admin panel
                     </Typography>
                 </Box>
+
+                {notice && !error && (
+                    <Alert severity="info" sx={{ mb: 3, borderRadius: 2 }} onClose={() => setNotice('')}>
+                        {notice}
+                    </Alert>
+                )}
 
                 {error && (
                     <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>

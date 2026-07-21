@@ -178,6 +178,12 @@ const ParticipantVideo = ({ participant, isLarge }) => {
   );
 };
 
+// Supervisor identities are prefixed "supervisor_<mode>_..." — listen/whisper
+// sessions must stay invisible to the customer, while barge (audio+video takeover)
+// is meant to render like any other participant.
+const isHiddenSupervisor = (identity) =>
+  identity?.startsWith('supervisor_') && !identity.startsWith('supervisor_barge_');
+
 const OpenViduMeetComponent = forwardRef(({
   roomName,
   displayName = "Customer",
@@ -272,6 +278,13 @@ const OpenViduMeetComponent = forwardRef(({
         room.on(RoomEvent.ParticipantConnected, (participant) => {
           console.log("Participant connected:", participant.identity);
           if (mounted) {
+            // Whisper/listen supervisor sessions must stay completely invisible to
+            // the customer — the LiveKit token itself can't be marked hidden for
+            // these modes (the manager needs the whisper audio, which a hidden
+            // grant would also suppress for them), so the client is responsible
+            // for filtering the identity out of its own participant list. Barge
+            // sessions are the one supervisor mode that's meant to be visible.
+            if (isHiddenSupervisor(participant.identity)) return;
             hadParticipantsRef.current = true;
             cancelReconnectTimer();
             setRemoteParticipants((prev) => [...prev, participant]);
@@ -340,7 +353,8 @@ const OpenViduMeetComponent = forwardRef(({
         if (!mounted) return;
 
         // Get existing participants
-        const existingParticipants = Array.from(room.remoteParticipants.values());
+        const existingParticipants = Array.from(room.remoteParticipants.values())
+          .filter((p) => !isHiddenSupervisor(p.identity));
         console.log(`📋 Found ${existingParticipants.length} existing remote participants:`, existingParticipants.map(p => p.identity));
         console.log(`👤 Local participant identity: ${room.localParticipant.identity}`);
         if (existingParticipants.length > 0) hadParticipantsRef.current = true;

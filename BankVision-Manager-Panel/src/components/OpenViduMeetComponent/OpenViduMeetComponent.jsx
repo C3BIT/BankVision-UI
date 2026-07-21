@@ -298,6 +298,10 @@ const OpenViduMeetComponent = forwardRef(({
   // so it can be reapplied whenever the camera track is recreated (toggle video, hold/resume) —
   // the processor lives on the LocalVideoTrack instance and is lost when that track is replaced.
   const activeBackgroundRef = useRef('none');
+  // Holds the currently-attached ProcessorWrapper so setBackground can update
+  // it in place instead of rebuilding/re-initializing the segmenter each time.
+  const backgroundProcessorRef = useRef(null);
+  const backgroundRequestIdRef = useRef(0);
   const [liveKitReconnecting, setLiveKitReconnecting] = useState(false);
   const { socket, peerReconnecting } = useWebSocket();
 
@@ -427,7 +431,11 @@ const OpenViduMeetComponent = forwardRef(({
             if (localVideoRef.current) publication.track.attach(localVideoRef.current);
             setIsVideoMuted(false);
             // Re-enabling the camera creates a brand-new LocalVideoTrack, which loses
-            // any previously-applied background processor — reapply it here.
+            // any previously-applied background processor (the old ProcessorWrapper
+            // ref is now stale/detached) — clear the ref so setBackground rebuilds
+            // and attaches a fresh processor to the new track instead of trying to
+            // reuse the old one in place.
+            backgroundProcessorRef.current = null;
             if (
               activeBackgroundRef.current &&
               activeBackgroundRef.current !== 'none' &&
@@ -791,6 +799,9 @@ const OpenViduMeetComponent = forwardRef(({
   // mode: 'none' | 'blur' | string (URL for virtual background image)
   const setBackground = useCallback(async (mode) => {
     activeBackgroundRef.current = mode;
+    // Guards against overlapping calls (e.g. rapid re-clicks): only the
+    // latest request is allowed to land its processor on the track.
+    const requestId = ++backgroundRequestIdRef.current;
 
     if (mode !== 'none' && !isVirtualBackgroundSupported) {
       toastError("Virtual background isn't supported in this browser — try Chrome or Edge.");
@@ -803,6 +814,36 @@ const OpenViduMeetComponent = forwardRef(({
     const videoTrack = pub?.videoTrack;
     if (!videoTrack) return;
 
+    if (mode === 'none') {
+      if (backgroundProcessorRef.current) {
+        await videoTrack.stopProcessor();
+        backgroundProcessorRef.current = null;
+      }
+      return;
+    }
+
+    // Reuse an already-initialized processor instead of building a new one:
+    // videoTrack.setProcessor() always re-runs the transformer's init(),
+    // which for BackgroundProcessor re-downloads/recreates the mediapipe
+    // WASM segmenter from scratch every time — that re-init, not the asset
+    // swap itself, is what made switching backgrounds slow. Updating the
+    // existing transformer in place skips that entirely.
+    if (backgroundProcessorRef.current) {
+      const transformer = backgroundProcessorRef.current.transformer;
+      try {
+        if (mode === 'blur') {
+          transformer.blurRadius = 15;
+        } else {
+          transformer.blurRadius = 0;
+          await transformer.loadBackground(mode);
+        }
+        return;
+      } catch (err) {
+        console.error('Background update failed, reinitializing processor:', err.message);
+        // fall through to a full re-init below
+      }
+    }
+
     const assetPaths = {
       tasksVisionFileSet: '/mediapipe/wasm',
       modelAssetPath: '/mediapipe/selfie_segmenter.tflite',
@@ -811,12 +852,21 @@ const OpenViduMeetComponent = forwardRef(({
     const applyWithDelegate = async (delegate) => {
       const segmenterOptions = { delegate };
       await videoTrack.stopProcessor();
-      if (mode === 'blur') {
-        const processor = BackgroundProcessor({ blurRadius: 15, assetPaths, segmenterOptions });
-        await videoTrack.setProcessor(processor);
-      } else if (mode && mode !== 'none') {
-        const processor = BackgroundProcessor({ imagePath: mode, assetPaths, segmenterOptions });
-        await videoTrack.setProcessor(processor);
+      backgroundProcessorRef.current = null;
+      if (requestId !== backgroundRequestIdRef.current) return;
+
+      const opts = mode === 'blur'
+        ? { blurRadius: 15, assetPaths, segmenterOptions }
+        : { imagePath: mode, assetPaths, segmenterOptions };
+      const processor = BackgroundProcessor(opts);
+      await videoTrack.setProcessor(processor);
+
+      if (requestId === backgroundRequestIdRef.current) {
+        backgroundProcessorRef.current = processor;
+      } else {
+        // A newer setBackground call started while this one was initializing.
+        await videoTrack.stopProcessor();
+        backgroundProcessorRef.current = null;
       }
     };
 

@@ -55,6 +55,14 @@ api.interceptors.response.use(
         if (error.response?.status === 401) {
             // Redirect to login if not already there
             if (!window.location.pathname.includes('/login')) {
+                if (error.response.data?.code === 'SESSION_SUPERSEDED') {
+                    // Only one session per admin account is allowed - surface why we're
+                    // bouncing them instead of a silent redirect that looks like a random logout.
+                    sessionStorage.setItem(
+                        'authNotice',
+                        'You were signed out because this account was logged in elsewhere.'
+                    );
+                }
                 window.location.href = '/login';
             }
         }

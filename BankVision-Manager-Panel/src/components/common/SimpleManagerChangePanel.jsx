@@ -98,17 +98,31 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
     setIsLoading(true);
     const readyTimer = setTimeout(() => setIsLoading(false), 1500);
 
+    // A new typing event means a fresh customer request — reset the whole
+    // verification flow, not just otpSent/error. Without this, a request left
+    // mid-flow (verified/duplicateWarning/overrideConfirmed/captcha all still
+    // set from the previous, overridden request) leaks into the next one.
+    const resetFlowState = () => {
+      setOtpSent(false);
+      setOtp('');
+      setIsVerifying(false);
+      setVerified(false);
+      setError(null);
+      setDuplicateWarning('');
+      setOverrideConfirmed(false);
+      setCaptchaAnswer('');
+      setCaptchaId(null);
+    };
+
     const handleCustomerTypingNew = (data) => {
       setNewValue(data.value);
       setIsLoading(false);
-      setOtpSent(false);
-      setError(null);
+      resetFlowState();
     };
     const handleCustomerTypingConfirm = (data) => {
       setConfirmValue(data.value);
       setIsLoading(false);
-      setOtpSent(false);
-      setError(null);
+      resetFlowState();
     };
 
     socket.on(config.customerTypingNewEvent, handleCustomerTypingNew);

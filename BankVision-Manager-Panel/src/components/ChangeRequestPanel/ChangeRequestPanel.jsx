@@ -154,14 +154,18 @@ const ChangeRequestPanel = ({ customerPhone, customerName, onApprovalComplete })
     handleClose();
   };
 
-  const handleClose = (wasApproved = false) => {
+  const handleClose = () => {
     setOpen(false);
     setRequestData(null);
     setRealtimeValue({});
     setRejectReason('');
     setShowRejectInput(false);
     setIsApproved(false);
-    if (wasApproved && onApprovalComplete) onApprovalComplete();
+    // Reset the downstream override panel (SimpleManagerChangePanel) whenever
+    // this request cycle finishes, approved or rejected — previously this only
+    // fired on approval, so a rejected (or override-then-rejected) request left
+    // its partially-filled form state to leak into the next request.
+    if (onApprovalComplete) onApprovalComplete();
   };
 
   const getIcon = () => {
