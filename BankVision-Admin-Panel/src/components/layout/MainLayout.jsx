@@ -37,7 +37,8 @@ import {
     Settings,
     Shield,
     ClipboardList,
-    Star
+    Star,
+    Activity
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import BrandLogo from './BrandLogo';
@@ -82,6 +83,7 @@ const MainLayout = () => {
         { text: 'Recordings', icon: Video, path: '/recordings' },
         { text: 'Service Audit Log', icon: ClipboardList, path: '/service-audit' },
         { text: 'Feedback', icon: Star, path: '/feedback' },
+        { text: 'Activity Report', icon: Activity, path: '/activity-report' },
         { text: 'Settings', icon: Settings, path: '/settings' },
     ];
 

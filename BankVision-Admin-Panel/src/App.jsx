@@ -15,6 +15,7 @@ import CallHistory from './pages/CallHistory';
 import Supervisor from './pages/Supervisor';
 import ServiceAuditLog from './pages/ServiceAuditLog';
 import Feedback from './pages/Feedback';
+import ManagerActivityReport from './pages/ManagerActivityReport';
 import Settings from './pages/Settings';
 import useSessionTimeout from './hooks/useSessionTimeout';
 import SessionTimeoutDialog from './components/SessionTimeoutDialog';
@@ -48,6 +49,7 @@ const AppContent = () => {
                             <Route path="/recordings" element={<Recordings />} />
                             <Route path="/service-audit" element={<ServiceAuditLog />} />
                             <Route path="/feedback" element={<Feedback />} />
+                            <Route path="/activity-report" element={<ManagerActivityReport />} />
                             <Route path="/settings" element={<Settings />} />
                             <Route path="/" element={<Navigate to="/dashboard" replace />} />
                         </Route>
