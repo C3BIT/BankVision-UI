@@ -25,8 +25,17 @@ const AppLayout = ({ children }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { socket } = useWebSocket();
+  const { socket, callStatus } = useWebSocket();
   const [loading, setLoading] = useState(false);
+  const inCall = callStatus === 'in-call' || callStatus === 'connecting';
+
+  const navigateAwayFromCall = (path) => {
+    if (inCall) {
+      window.alert('You are currently in a live call. End the call before navigating away.');
+      return;
+    }
+    navigate(path);
+  };
 
   const onLogout = async () => {
     setLoading(true);
@@ -142,7 +151,7 @@ const AppLayout = ({ children }) => {
               Dashboard
             </Button>
             <Button
-              onClick={() => navigate('/scheduled-calls')}
+              onClick={() => navigateAwayFromCall('/scheduled-calls')}
               startIcon={<EventIcon />}
               sx={{
                 color: location.pathname === '/scheduled-calls' ? colors.primary : 'grey.600',
