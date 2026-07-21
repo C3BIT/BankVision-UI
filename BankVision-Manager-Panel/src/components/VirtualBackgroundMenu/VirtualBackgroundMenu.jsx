@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import BlurOnIcon from "@mui/icons-material/BlurOn";
 import BlurOffIcon from "@mui/icons-material/BlurOff";
+import { isVirtualBackgroundSupported } from "../../utils/browserSupport";
 
 const BG_OPTIONS = [
   { value: "none",  label: "Off",         icon: "✕"  },
@@ -33,14 +34,18 @@ const VirtualBackgroundMenu = ({ onSelect, activeMode = "none", disabled = false
   };
 
   const isBlurActive = activeMode === "blur";
+  const unsupported = !isVirtualBackgroundSupported;
+  const tooltipTitle = unsupported
+    ? "Virtual background isn't supported in this browser — try Chrome or Edge"
+    : isBlurActive ? "Background: Blur (click to change)" : "Virtual Background";
 
   return (
     <>
-      <Tooltip title={isBlurActive ? "Background: Blur (click to change)" : "Virtual Background"}>
+      <Tooltip title={tooltipTitle}>
         <span>
           <IconButton
             onClick={handleOpen}
-            disabled={disabled || applying}
+            disabled={disabled || applying || unsupported}
             size="small"
             sx={{
               color: activeMode !== "none" ? "#00C853" : "rgba(255,255,255,0.7)",

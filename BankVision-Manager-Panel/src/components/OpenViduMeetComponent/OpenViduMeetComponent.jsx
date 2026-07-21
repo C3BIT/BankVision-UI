@@ -15,6 +15,7 @@ import {
   createLocalTracks,
 } from "livekit-client";
 import { BackgroundProcessor } from "@livekit/track-processors";
+import { isVirtualBackgroundSupported } from "../../utils/browserSupport";
 import { useWebSocket } from "../../providers/WebSocketProvider";
 import { publicPost } from "../../services/apiCaller";
 import { toastError } from "../../utils/toast";
@@ -427,7 +428,11 @@ const OpenViduMeetComponent = forwardRef(({
             setIsVideoMuted(false);
             // Re-enabling the camera creates a brand-new LocalVideoTrack, which loses
             // any previously-applied background processor — reapply it here.
-            if (activeBackgroundRef.current && activeBackgroundRef.current !== 'none') {
+            if (
+              activeBackgroundRef.current &&
+              activeBackgroundRef.current !== 'none' &&
+              isVirtualBackgroundSupported
+            ) {
               setBackground(activeBackgroundRef.current);
             }
           }
@@ -786,6 +791,11 @@ const OpenViduMeetComponent = forwardRef(({
   // mode: 'none' | 'blur' | string (URL for virtual background image)
   const setBackground = useCallback(async (mode) => {
     activeBackgroundRef.current = mode;
+
+    if (mode !== 'none' && !isVirtualBackgroundSupported) {
+      toastError("Virtual background isn't supported in this browser — try Chrome or Edge.");
+      return;
+    }
 
     const room = roomRef.current;
     if (!room) return;
