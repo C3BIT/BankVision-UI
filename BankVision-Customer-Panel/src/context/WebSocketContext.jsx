@@ -27,8 +27,6 @@ export const WebSocketProvider = ({ children }) => {
   });
   const [chatMessages, setChatMessages] = useState([]);
   const [isManagerTyping, setIsManagerTyping] = useState(false);
-  const [isOnHold, setIsOnHold] = useState(false);
-  const [holdInfo, setHoldInfo] = useState(null);
   const [currentScreen, setCurrentScreen] = useState(null); // Manager's current screen
   const [currentAccountData, setCurrentAccountData] = useState(null); // Account data from manager
   const [inQueue, setInQueue] = useState(false);
@@ -175,8 +173,6 @@ export const WebSocketProvider = ({ children }) => {
         setIsConnected(false);
         setChatMessages([]);
         setIsManagerTyping(false);
-        setIsOnHold(false);
-        setHoldInfo(null);
         setInQueue(false);
         setQueuePosition(null);
         setQueueMessage(null);
@@ -200,8 +196,6 @@ export const WebSocketProvider = ({ children }) => {
         setCallData(null);
         setChatMessages([]);
         setIsManagerTyping(false);
-        setIsOnHold(false);
-        setHoldInfo(null);
         setInQueue(false);
         setQueuePosition(null);
         setQueueMessage(null);
@@ -279,8 +273,6 @@ export const WebSocketProvider = ({ children }) => {
         setIncomingCall(null);
         setChatMessages([]);
         setIsManagerTyping(false);
-        setIsOnHold(false);
-        setHoldInfo(null);
         setInQueue(false);
         setQueuePosition(null);
         setQueueMessage(null);
@@ -566,23 +558,6 @@ export const WebSocketProvider = ({ children }) => {
         }
       });
 
-      // Hold events
-      newSocket.on("call:on-hold", (data) => {
-        console.log("⏸️ Call put on hold:", data);
-        setIsOnHold(true);
-        setHoldInfo({
-          managerName: data.managerName,
-          reason: data.reason,
-          timestamp: data.timestamp
-        });
-      });
-
-      newSocket.on("call:resumed", (data) => {
-        console.log("▶️ Call resumed:", data);
-        setIsOnHold(false);
-        setHoldInfo(null);
-      });
-
       setSocket(newSocket);
       return true;
     } catch (error) {
@@ -668,8 +643,6 @@ export const WebSocketProvider = ({ children }) => {
     setIsConnected(false);
     setChatMessages([]);
     setIsManagerTyping(false);
-    setIsOnHold(false);
-    setHoldInfo(null);
     setInQueue(false);
     setQueuePosition(null);
     setQueueMessage(null);
@@ -696,8 +669,6 @@ export const WebSocketProvider = ({ children }) => {
     setQueueMessage(null);
     setChatMessages([]);
     setIsManagerTyping(false);
-    setIsOnHold(false);
-    setHoldInfo(null);
     setVerificationRequests({ phone: false, email: false, face: false, signature: false });
     setChangeRequests({
       phoneChangeRequested: false,
@@ -814,8 +785,6 @@ export const WebSocketProvider = ({ children }) => {
     changeRequests,
     chatMessages,
     isManagerTyping,
-    isOnHold,
-    holdInfo,
     currentScreen,
     currentAccountData,
     inQueue,

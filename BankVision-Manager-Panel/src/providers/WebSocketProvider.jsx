@@ -37,7 +37,6 @@ export const WebSocketProvider = ({ children }) => {
     const [allManagers, setAllManagers] = useState([]);
     const [assistanceStatus, setAssistanceStatus] = useState(null);
     const [assistanceResponse, setAssistanceResponse] = useState(null);
-    const [isCallOnHold, setIsCallOnHold] = useState(false);
 
     // Whisper/Supervisor state
     const [whisperMessages, setWhisperMessages] = useState([]);
@@ -617,17 +616,6 @@ export const WebSocketProvider = ({ children }) => {
             setAssistanceResponse(data);
         });
 
-        // Call hold events
-        newSocket.on("manager:call-on-hold", (data) => {
-            console.log("⏸️ Call put on hold:", data);
-            setIsCallOnHold(true);
-        });
-
-        newSocket.on("manager:call-resumed", (data) => {
-            console.log("▶️ Call resumed:", data);
-            setIsCallOnHold(false);
-        });
-
         // Supervisor/Whisper events
         newSocket.on("supervisor:joined", (data) => {
             console.log("👁️ Supervisor joined call:", data);
@@ -910,7 +898,6 @@ export const WebSocketProvider = ({ children }) => {
         setIsCustomerTyping(false);
         setSignatureUploadedPath(null);
         resetAssistanceState();
-        resetHoldState();
         resetEmotionState();
         resetWhisperState();
     };
@@ -1010,22 +997,6 @@ export const WebSocketProvider = ({ children }) => {
     const resetAssistanceState = () => {
         setAssistanceStatus(null);
         setAssistanceResponse(null);
-    };
-
-    const holdCall = (reason = '') => {
-        if (!socketRef.current) return;
-        console.log("⏸️ Putting call on hold");
-        socketRef.current.emit("manager:hold-call", { reason });
-    };
-
-    const resumeCall = () => {
-        if (!socketRef.current) return;
-        console.log("▶️ Resuming call");
-        socketRef.current.emit("manager:resume-call");
-    };
-
-    const resetHoldState = () => {
-        setIsCallOnHold(false);
     };
 
     const clearSignaturePath = () => {
@@ -1204,9 +1175,6 @@ export const WebSocketProvider = ({ children }) => {
             assistanceResponse,
             requestAssistance,
             cancelAssistance,
-            isCallOnHold,
-            holdCall,
-            resumeCall,
             // Face API (client-side)
             faceApiReady,
             customerEmotions,

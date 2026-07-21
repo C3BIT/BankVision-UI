@@ -20,7 +20,6 @@ import OpenViduMeetComponent from "../../components/OpenViduMeetComponent/OpenVi
 import CustomerVerificationScreen from "../../components/CustomerVerificationScreen/CustomerVerificationScreen";
 import ChatBox from "../../components/ChatBox/ChatBox";
 import CallTimer from "../../components/CallTimer/CallTimer";
-import HoldScreen from "../../components/HoldScreen/HoldScreen";
 import CaptureCustomerImage from "../../components/CaptureCustomerImage/CaptureCustomerImage";
 import SignatureUpload from "../../components/SignatureUpload/SignatureUpload";
 import CollaborativeWhiteboard from "../../components/CollaborativeWhiteboard/CollaborativeWhiteboard";
@@ -98,8 +97,6 @@ const Home = () => {
     sendChatMessage,
     sendTypingIndicator,
     customerCancelFaceVerification, // New function
-    isOnHold,
-    holdInfo,
     currentAccountData,
     inQueue,
     queuePosition,
@@ -1042,15 +1039,6 @@ const Home = () => {
           unreadCount={unreadChatCount}
         />
       )}
-
-      {/* Hold Screen Overlay */}
-      {isOnHold && (
-        <HoldScreen
-          managerName={holdInfo?.managerName}
-          reason={holdInfo?.reason}
-        />
-      )}
-
 
       {/* Face Capture Modal - Shows when manager requests face verification */}
       {faceVerificationInitiated && (isVideoCallActive || callStatus === "connected" || callStatus === "connecting") && (
