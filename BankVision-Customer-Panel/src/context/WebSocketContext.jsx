@@ -546,6 +546,20 @@ export const WebSocketProvider = ({ children }) => {
         setChatMessages(prev => [...prev, data]);
       });
 
+      // Previously emitted by the backend but never listened for anywhere —
+      // a failed delivery (manager socket unresolved) was silently dropped
+      // with no indication to the customer that their message didn't arrive.
+      newSocket.on("chat:error", (data) => {
+        console.log("⚠️ Chat delivery error:", data);
+        setChatMessages(prev => [...prev, {
+          id: data?.messageId ? `error-${data.messageId}` : `error-${Date.now()}`,
+          senderId: "system",
+          senderRole: "system",
+          message: data?.message || "A message could not be delivered. Please try again.",
+          timestamp: Date.now()
+        }]);
+      });
+
       newSocket.on("chat:typing", (data) => {
         if (data.senderRole === 'manager') {
           setIsManagerTyping(data.isTyping);

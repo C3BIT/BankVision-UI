@@ -226,7 +226,11 @@ export const WebSocketProvider = ({ children }) => {
             console.log("✅ Active call restored after reconnect:", data);
             setSelfReconnecting(false);
             setCallStatus('in-call');
-            setCurrentCall(prev => ({ ...prev, ...data }));
+            // Backend always sends the full call snapshot for this event (customerPhone,
+            // callRoom, customerName, referenceNumber, faceVerified) — replace outright
+            // rather than merging into `prev`, which could otherwise let a stale field
+            // from a previous customer's call survive if it happens to be absent here.
+            setCurrentCall(data);
         });
 
         // Backend confirmed there is no active call for this manager after

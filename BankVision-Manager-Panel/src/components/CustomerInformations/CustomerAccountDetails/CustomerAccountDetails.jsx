@@ -1,5 +1,5 @@
 import { Box, Typography, List, ListItem, Skeleton } from '@mui/material';
-import { Phone, Email, Home, AccountBalance, ChevronRight } from '@mui/icons-material';
+import { Phone, Email, Home, AccountBalance, ChevronRight, PersonOff } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
@@ -70,16 +70,35 @@ const CustomerAccountDetails = ({ selectedAccount, customerPhone, onServiceSelec
               border: '2px solid white'
             }}
           >
-            <img
-              src={toImgSrc(accountDetails?.profileImage)}
-              alt={accountDetails?.name}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                backgroundColor: !accountDetails?.profileImage ? '#eee' : 'transparent'
-              }}
-            />
+            {accountDetails?.profileImage ? (
+              <img
+                src={toImgSrc(accountDetails.profileImage)}
+                alt={accountDetails?.name}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+              />
+            ) : (
+              <Box
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 0.5,
+                  backgroundColor: '#eee',
+                }}
+              >
+                <PersonOff sx={{ color: '#999', fontSize: 28 }} />
+                <Typography sx={{ color: '#999', fontSize: 10, textAlign: 'center', lineHeight: 1.1 }}>
+                  Photo unavailable
+                </Typography>
+              </Box>
+            )}
           </Box>
           <Box>
             <Typography sx={{ color: 'white', mb: 0.5 }}>

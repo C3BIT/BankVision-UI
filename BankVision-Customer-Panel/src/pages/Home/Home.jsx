@@ -53,6 +53,14 @@ const Home = () => {
   const [changeContactType, setChangeContactType] = useState('phone'); // 'phone' or 'email'
   const [showChangeAddressModal, setShowChangeAddressModal] = useState(false);
   const [showDormantActivationModal, setShowDormantActivationModal] = useState(false);
+  // Once the customer submits a change request, ignore further re-syncs of the
+  // *same* pending request (e.g. a manager reconnect re-broadcasting its current
+  // screen via customer:screen-sync) so an already-submitted modal doesn't
+  // silently reopen with stale local form state while awaiting the manager's
+  // decision. Cleared when the request flag itself clears (approved/rejected/cancelled).
+  const addressChangeSubmittedRef = useRef(false);
+  const phoneChangeSubmittedRef = useRef(false);
+  const emailChangeSubmittedRef = useRef(false);
   // const [showFaceCapture, setShowFaceCapture] = useState(false); // No longer needed as faceVerificationInitiated handles visibility
   const [faceCaptureKey, setFaceCaptureKey] = useState(0); // Force remount on retake
   const [showSignatureUpload, setShowSignatureUpload] = useState(false);
@@ -345,6 +353,11 @@ const Home = () => {
     try {
       // Customer has submitted to manager for approval
       // Just close modal and wait for manager to approve
+      if (changeContactType === 'email') {
+        emailChangeSubmittedRef.current = true;
+      } else {
+        phoneChangeSubmittedRef.current = true;
+      }
       setShowChangeContactModal(false);
 
       // Note: Customer data is already sent via socket in ChangeContactModal
@@ -363,6 +376,7 @@ const Home = () => {
     try {
       // Customer has submitted to manager for approval
       // Just close modal and wait for manager to approve
+      addressChangeSubmittedRef.current = true;
       setShowChangeAddressModal(false);
 
       // Note: Customer data is already sent via socket in ChangeAddressModal
@@ -383,6 +397,9 @@ const Home = () => {
     // Close any open service modals so they don't linger after the call
     setShowChangeContactModal(false);
     setShowChangeAddressModal(false);
+    addressChangeSubmittedRef.current = false;
+    phoneChangeSubmittedRef.current = false;
+    emailChangeSubmittedRef.current = false;
     // Show feedback screen after call ends
     setShowFeedback(true);
   };
@@ -558,7 +575,8 @@ const Home = () => {
     const handleFaceVerificationResult = (data) => {
       console.log('🎯 Face verification result received:', data);
       setFaceVerificationInitiated(false);
-      const message = data.verified
+      const isVerified = data.verified ?? data.status === 'verified';
+      const message = isVerified
         ? 'Face verification successful. Your identity has been confirmed.'
         : 'Face verification was not successful. The manager could not confirm your identity.';
       setApprovalMessage(message);
@@ -571,13 +589,17 @@ const Home = () => {
 
     socket.on('customer:signature-verification-decision', handleSignatureDecision);
     socket.on('otp:resent', handleOtpResent);
-    socket.on('customer:face-verification-result', handleFaceVerificationResult);
+    // Backend emits "customer:image-verified" (socketHandler.js manager:verify-image
+    // handler) with { status, managerId, managerName, timestamp } — the legacy
+    // "customer:face-verification-result" event is never actually sent, which is why
+    // the customer previously saw no response at all when a manager accepted/declined.
+    socket.on('customer:image-verified', handleFaceVerificationResult);
 
     return () => {
       socket.off('customer:retake-image-request', handleRetakeRequest);
       socket.off('customer:signature-verification-decision', handleSignatureDecision);
       socket.off('otp:resent', handleOtpResent);
-      socket.off('customer:face-verification-result', handleFaceVerificationResult);
+      socket.off('customer:image-verified', handleFaceVerificationResult);
       clearTimeout(approvalFeedbackTimerRef.current);
     };
   }, [socket]);
@@ -641,26 +663,35 @@ const Home = () => {
   // Handle change requests from manager
   useEffect(() => {
     if (changeRequests.phoneChangeRequested) {
-      setChangeContactType('phone');
-      setShowChangeContactModal(true);
+      if (!phoneChangeSubmittedRef.current) {
+        setChangeContactType('phone');
+        setShowChangeContactModal(true);
+      }
     } else {
+      phoneChangeSubmittedRef.current = false;
       setShowChangeContactModal(false);
     }
   }, [changeRequests.phoneChangeRequested]);
 
   useEffect(() => {
     if (changeRequests.emailChangeRequested) {
-      setChangeContactType('email');
-      setShowChangeContactModal(true);
+      if (!emailChangeSubmittedRef.current) {
+        setChangeContactType('email');
+        setShowChangeContactModal(true);
+      }
     } else {
+      emailChangeSubmittedRef.current = false;
       setShowChangeContactModal(false);
     }
   }, [changeRequests.emailChangeRequested]);
 
   useEffect(() => {
     if (changeRequests.addressChangeRequested) {
-      setShowChangeAddressModal(true);
+      if (!addressChangeSubmittedRef.current) {
+        setShowChangeAddressModal(true);
+      }
     } else {
+      addressChangeSubmittedRef.current = false;
       setShowChangeAddressModal(false);
     }
   }, [changeRequests.addressChangeRequested]);

@@ -164,6 +164,23 @@ const ChatBox = ({
               </Box>
             ) : (
               messages.map((msg) => (
+                msg.senderRole === 'system' ? (
+                  <Box key={msg.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        bgcolor: '#fdecea',
+                        color: '#c62828',
+                        borderRadius: 2,
+                        px: 1.5,
+                        py: 0.5,
+                        textAlign: 'center',
+                      }}
+                    >
+                      {msg.message}
+                    </Typography>
+                  </Box>
+                ) : (
                 <Box
                   key={msg.id}
                   sx={{
@@ -199,6 +216,7 @@ const ChatBox = ({
                     </Typography>
                   </Box>
                 </Box>
+                )
               ))
             )}
             <div ref={messagesEndRef} />
@@ -257,7 +275,7 @@ ChatBox.propTypes = {
       id: PropTypes.string.isRequired,
       senderId: PropTypes.string.isRequired,
       senderName: PropTypes.string,
-      senderRole: PropTypes.oneOf(['manager', 'customer']).isRequired,
+      senderRole: PropTypes.oneOf(['manager', 'customer', 'system']).isRequired,
       message: PropTypes.string.isRequired,
       timestamp: PropTypes.number.isRequired,
     })
