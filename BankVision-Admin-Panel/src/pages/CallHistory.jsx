@@ -16,17 +16,45 @@ import {
     Button,
     IconButton,
     Tooltip,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
 } from '@mui/material';
 import { Search, RefreshCw } from 'lucide-react';
 import api from '../services/api';
 
 const POLL_INTERVAL_MS = 15000; // 15 seconds
 
+const SERVICE_TYPE_OPTIONS = [
+    { value: 'kyc_verification', label: 'KYC / Identity Verification' },
+    { value: 'phone_change', label: 'Phone Number Change' },
+    { value: 'email_change', label: 'Email Change' },
+    { value: 'address_change', label: 'Address Change' },
+    { value: 'dormant_activation', label: 'Dormant Account Activation' },
+    { value: 'general_inquiry', label: 'General Inquiry' },
+    { value: 'complaint', label: 'Complaint' },
+    { value: 'document_request', label: 'Document Request' },
+    { value: 'other', label: 'Other' },
+];
+
+const DISPOSITION_OPTIONS = [
+    { value: 'resolved', label: 'Resolved' },
+    { value: 'escalated', label: 'Escalated' },
+    { value: 'follow_up_required', label: 'Follow-up Required' },
+    { value: 'customer_dropped', label: 'Customer Dropped' },
+    { value: 'unresolved', label: 'Unresolved' },
+];
+
+const DISPOSITION_LABELS = DISPOSITION_OPTIONS.reduce((acc, o) => ({ ...acc, [o.value]: o.label }), {});
+
 const CallHistory = () => {
     const [callLogs, setCallLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [serviceType, setServiceType] = useState('');
+    const [disposition, setDisposition] = useState('');
     const [page, setPage] = useState(1);
     const [lastUpdated, setLastUpdated] = useState(null);
     const pollRef = useRef(null);
@@ -37,7 +65,11 @@ const CallHistory = () => {
             if (!silent) setLoading(true);
             else setRefreshing(true);
 
-            const response = await api.get('/admin/call-logs');
+            const params = {};
+            if (serviceType) params.serviceType = serviceType;
+            if (disposition) params.disposition = disposition;
+
+            const response = await api.get('/admin/call-logs', { params });
             if (response.data?.success) {
                 setCallLogs(response.data.data?.calls || []);
                 setLastUpdated(new Date());
@@ -52,9 +84,10 @@ const CallHistory = () => {
         }
     };
 
-    // Initial fetch + 15s polling
+    // Initial fetch + 15s polling; re-runs whenever the server-side filters change
     useEffect(() => {
         fetchCallLogs();
+        setPage(1);
 
         pollRef.current = setInterval(() => {
             fetchCallLogs({ silent: true });
@@ -63,7 +96,7 @@ const CallHistory = () => {
         return () => {
             if (pollRef.current) clearInterval(pollRef.current);
         };
-    }, []);
+    }, [serviceType, disposition]);
 
     const handleManualRefresh = () => {
         fetchCallLogs({ silent: true });
@@ -135,16 +168,46 @@ const CallHistory = () => {
                 </Box>
             </Box>
 
-            <Paper sx={{ p: 2, mb: 3, borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center' }}>
-                <Search size={20} color="#999" style={{ marginRight: 10 }} />
-                <TextField
-                    fullWidth
-                    placeholder="Search by customer name, phone, or manager..."
-                    variant="standard"
-                    InputProps={{ disableUnderline: true }}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
+            <Paper sx={{ p: 2, mb: 3, borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 220 }}>
+                    <Search size={20} color="#999" style={{ marginRight: 10 }} />
+                    <TextField
+                        fullWidth
+                        placeholder="Search by customer name, phone, or manager..."
+                        variant="standard"
+                        InputProps={{ disableUnderline: true }}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </Box>
+                <FormControl size="small" sx={{ minWidth: 200 }}>
+                    <InputLabel id="service-type-filter-label">Service Type</InputLabel>
+                    <Select
+                        labelId="service-type-filter-label"
+                        label="Service Type"
+                        value={serviceType}
+                        onChange={(e) => setServiceType(e.target.value)}
+                    >
+                        <MenuItem value=""><em>All</em></MenuItem>
+                        {SERVICE_TYPE_OPTIONS.map((opt) => (
+                            <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <FormControl size="small" sx={{ minWidth: 180 }}>
+                    <InputLabel id="disposition-filter-label">Disposition</InputLabel>
+                    <Select
+                        labelId="disposition-filter-label"
+                        label="Disposition"
+                        value={disposition}
+                        onChange={(e) => setDisposition(e.target.value)}
+                    >
+                        <MenuItem value=""><em>All</em></MenuItem>
+                        {DISPOSITION_OPTIONS.map((opt) => (
+                            <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
             </Paper>
 
             <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
@@ -157,19 +220,20 @@ const CallHistory = () => {
                             <TableCell sx={{ fontWeight: 600, color: 'text.secondary' }}>Manager</TableCell>
                             <TableCell sx={{ fontWeight: 600, color: 'text.secondary' }}>Duration</TableCell>
                             <TableCell sx={{ fontWeight: 600, color: 'text.secondary' }}>Status</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: 'text.secondary' }}>Disposition</TableCell>
                             <TableCell sx={{ fontWeight: 600, color: 'text.secondary' }}>Reference</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {loading ? (
                             <TableRow>
-                                <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
+                                <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
                                     <CircularProgress size={30} />
                                 </TableCell>
                             </TableRow>
                         ) : filteredLogs.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={7} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                                <TableCell colSpan={8} align="center" sx={{ py: 3, color: 'text.secondary' }}>
                                     No call logs found
                                 </TableCell>
                             </TableRow>
@@ -208,6 +272,11 @@ const CallHistory = () => {
                                 </TableCell>
                                 <TableCell>
                                     {getStatusChip(log.status)}
+                                </TableCell>
+                                <TableCell>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {DISPOSITION_LABELS[log.agentReport?.disposition] || '—'}
+                                    </Typography>
                                 </TableCell>
                                 <TableCell>
                                     <Typography variant="caption" color="text.secondary">

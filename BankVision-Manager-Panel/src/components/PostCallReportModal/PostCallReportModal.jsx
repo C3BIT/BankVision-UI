@@ -13,6 +13,10 @@ import {
   Alert,
   CircularProgress,
   Box,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { privatePost } from "../../services/apiCaller";
@@ -31,9 +35,18 @@ const SERVICE_TYPE_OPTIONS = [
   { value: "other", label: "Other" },
 ];
 
+const DISPOSITION_OPTIONS = [
+  { value: "resolved", label: "Resolved" },
+  { value: "escalated", label: "Escalated" },
+  { value: "follow_up_required", label: "Follow-up Required" },
+  { value: "customer_dropped", label: "Customer Dropped" },
+  { value: "unresolved", label: "Unresolved" },
+];
+
 const PostCallReportModal = ({ open, callLogId, referenceNumber, onSubmitted, onClose }) => {
   const { token } = useSelector((state) => state.auth);
   const [serviceTypes, setServiceTypes] = useState([]);
+  const [disposition, setDisposition] = useState("");
   const [remarks, setRemarks] = useState("");
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -41,6 +54,7 @@ const PostCallReportModal = ({ open, callLogId, referenceNumber, onSubmitted, on
   useEffect(() => {
     if (!open) {
       setServiceTypes([]);
+      setDisposition("");
       setRemarks("");
       setError(null);
     }
@@ -71,7 +85,7 @@ const PostCallReportModal = ({ open, callLogId, referenceNumber, onSubmitted, on
       await privatePost(
         "/call-reports",
         token,
-        { callLogId, serviceTypes, remarks: remarks.trim() || null }
+        { callLogId, serviceTypes, remarks: remarks.trim() || null, disposition: disposition || null }
       );
       onSubmitted?.();
     } catch (err) {
@@ -127,6 +141,28 @@ const PostCallReportModal = ({ open, callLogId, referenceNumber, onSubmitted, on
             />
           ))}
         </FormGroup>
+
+        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+          Call outcome (optional)
+        </Typography>
+        <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+          <InputLabel id="disposition-label">Disposition</InputLabel>
+          <Select
+            labelId="disposition-label"
+            label="Disposition"
+            value={disposition}
+            onChange={(e) => setDisposition(e.target.value)}
+          >
+            <MenuItem value="">
+              <em>Not specified</em>
+            </MenuItem>
+            {DISPOSITION_OPTIONS.map((opt) => (
+              <MenuItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
           Remarks / notes (optional)
