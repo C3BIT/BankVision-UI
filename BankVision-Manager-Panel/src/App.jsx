@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import AuthRoute from "./routes/AuthRoute";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Dashboard from "./pages/dashboard/Dashboard";
+import ScheduledCalls from "./pages/scheduledCalls/ScheduledCalls";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
@@ -43,6 +44,14 @@ function App() {
             element={
               <AppLayout>
                 <Dashboard />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/scheduled-calls"
+            element={
+              <AppLayout>
+                <ScheduledCalls />
               </AppLayout>
             }
           />

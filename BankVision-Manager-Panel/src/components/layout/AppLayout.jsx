@@ -9,8 +9,11 @@ import {
   Fade
 } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
+import EventIcon from '@mui/icons-material/Event';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { logout } from '../../redux/auth/authSlice';
 import { persistor } from '../../redux/store';
 import { useWebSocket } from '../../providers/WebSocketProvider';
@@ -20,6 +23,8 @@ import { colors } from '../../styles/tokens';
 
 const AppLayout = ({ children }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { socket } = useWebSocket();
   const [loading, setLoading] = useState(false);
 
@@ -125,6 +130,28 @@ const AppLayout = ({ children }) => {
               }}
             />
             <Box sx={{ flexGrow: 1 }} />
+            <Button
+              onClick={() => navigate('/dashboard')}
+              startIcon={<DashboardIcon />}
+              sx={{
+                color: location.pathname === '/dashboard' ? colors.primary : 'grey.600',
+                mr: 1,
+                '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+              }}
+            >
+              Dashboard
+            </Button>
+            <Button
+              onClick={() => navigate('/scheduled-calls')}
+              startIcon={<EventIcon />}
+              sx={{
+                color: location.pathname === '/scheduled-calls' ? colors.primary : 'grey.600',
+                mr: 1,
+                '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
+              }}
+            >
+              Scheduled Calls
+            </Button>
             <Button
               onClick={onLogout}
               startIcon={<LogoutIcon />}

@@ -403,6 +403,14 @@ export const WebSocketProvider = ({ children }) => {
             }));
         });
 
+        newSocket.on("schedule:due", (data) => {
+            console.log("⏰ Scheduled call due:", data);
+            toast.info(
+                `Scheduled callback due now: ${data.customerName || data.customerPhone}`,
+                { autoClose: false }
+            );
+        });
+
         newSocket.on("customer:verification-cancelled", (data) => {
             console.log("🚫 Customer cancelled verification:", data);
             const { verificationType } = data;
