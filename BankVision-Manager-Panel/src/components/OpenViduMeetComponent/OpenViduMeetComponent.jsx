@@ -293,6 +293,10 @@ const OpenViduMeetComponent = forwardRef(({
   // Remember mic/camera enabled state from just before Hold, so Resume
   // restores exactly what the manager had rather than force-enabling both.
   const preHoldStateRef = useRef({ mic: true, camera: true });
+  // Tracks the currently-selected virtual background mode ('none' | 'blur' | image path)
+  // so it can be reapplied whenever the camera track is recreated (toggle video, hold/resume) —
+  // the processor lives on the LocalVideoTrack instance and is lost when that track is replaced.
+  const activeBackgroundRef = useRef('none');
   const [liveKitReconnecting, setLiveKitReconnecting] = useState(false);
   const { socket, peerReconnecting } = useWebSocket();
 
@@ -421,6 +425,11 @@ const OpenViduMeetComponent = forwardRef(({
           if (publication.track?.kind === Track.Kind.Video) {
             if (localVideoRef.current) publication.track.attach(localVideoRef.current);
             setIsVideoMuted(false);
+            // Re-enabling the camera creates a brand-new LocalVideoTrack, which loses
+            // any previously-applied background processor — reapply it here.
+            if (activeBackgroundRef.current && activeBackgroundRef.current !== 'none') {
+              setBackground(activeBackgroundRef.current);
+            }
           }
         });
 
@@ -776,6 +785,8 @@ const OpenViduMeetComponent = forwardRef(({
   // Apply or remove a background processor on the local camera track.
   // mode: 'none' | 'blur' | string (URL for virtual background image)
   const setBackground = useCallback(async (mode) => {
+    activeBackgroundRef.current = mode;
+
     const room = roomRef.current;
     if (!room) return;
     const pub = room.localParticipant.getTrackPublication(Track.Source.Camera);
@@ -787,19 +798,28 @@ const OpenViduMeetComponent = forwardRef(({
       modelAssetPath: '/mediapipe/selfie_segmenter.tflite',
     };
 
-    try {
+    const applyWithDelegate = async (delegate) => {
+      const segmenterOptions = { delegate };
       await videoTrack.stopProcessor();
-
       if (mode === 'blur') {
-        const processor = BackgroundProcessor({ blurRadius: 15, assetPaths });
+        const processor = BackgroundProcessor({ blurRadius: 15, assetPaths, segmenterOptions });
         await videoTrack.setProcessor(processor);
       } else if (mode && mode !== 'none') {
-        const processor = BackgroundProcessor({ imagePath: mode, assetPaths });
+        const processor = BackgroundProcessor({ imagePath: mode, assetPaths, segmenterOptions });
         await videoTrack.setProcessor(processor);
       }
-    } catch (err) {
-      console.error('Background processor error:', err.message);
-      toastError('Could not apply background — please try again.');
+    };
+
+    try {
+      await applyWithDelegate('GPU');
+    } catch (gpuErr) {
+      console.error('Background processor GPU init failed, falling back to CPU:', gpuErr.message);
+      try {
+        await applyWithDelegate('CPU');
+      } catch (cpuErr) {
+        console.error('Background processor error:', cpuErr.message);
+        toastError('Could not apply background — please try again.');
+      }
     }
   }, []);
 
