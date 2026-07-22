@@ -30,16 +30,22 @@ const ParticipantVideo = ({ participant, isLarge }) => {
         track.attach(videoRef.current);
         setHasVideo(true);
 
+        // Customer-side view of the manager should fill the frame like a normal
+        // video call (cropping is fine - the manager isn't being identity-verified).
+        // A customer participant's video is never rendered in this panel, but if
+        // that ever changes, keep it uncropped since it may carry a document/face.
+        const fitMode = participant?.identity?.startsWith('customer') ? 'contain' : 'cover';
+
         // Force objectFit after attachment with !important
         const videoElement = videoRef.current;
-        videoElement.style.setProperty('object-fit', 'contain', 'important');
+        videoElement.style.setProperty('object-fit', fitMode, 'important');
         videoElement.style.setProperty('object-position', 'center', 'important');
         videoElement.style.setProperty('width', '100%', 'important');
         videoElement.style.setProperty('height', '100%', 'important');
         videoElement.style.setProperty('max-width', '100%', 'important');
         videoElement.style.setProperty('max-height', '100%', 'important');
 
-        console.log('✅ Video track attached to element with objectFit: contain !important');
+        console.log(`✅ Video track attached to element with objectFit: ${fitMode} !important`);
       }
 
       if (track.kind === Track.Kind.Audio) {
@@ -117,6 +123,9 @@ const ParticipantVideo = ({ participant, isLarge }) => {
     return identity.split("-")[0] || "Participant";
   };
 
+  // See the fitMode comment in handleTrackSubscribed above - keep this in sync.
+  const fitMode = participant?.identity?.startsWith('customer') ? 'contain' : 'cover';
+
   return (
     <Box
       sx={{
@@ -137,7 +146,7 @@ const ParticipantVideo = ({ participant, isLarge }) => {
         style={{
           width: "100%",
           height: "100%",
-          objectFit: "contain",
+          objectFit: fitMode,
           objectPosition: "center",
           display: hasVideo ? "block" : "none",
           backgroundColor: "#1a1a1a",
