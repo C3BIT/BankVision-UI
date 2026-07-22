@@ -14,8 +14,6 @@ import {
     ListItemIcon,
     ListItemText,
     Avatar,
-    Menu,
-    MenuItem,
     useTheme,
     useMediaQuery,
     Paper,
@@ -30,7 +28,6 @@ import {
     LogOut,
     Menu as MenuIcon,
     ChevronLeft,
-    Headphones,
     UserCheck,
     UserCircle,
     FileText,
@@ -52,7 +49,6 @@ const MainLayout = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState(null);
 
     const { user, logout, passwordExpiryWarning, dismissPasswordExpiryWarning } = useAuth();
     const navigate = useNavigate();
@@ -60,14 +56,6 @@ const MainLayout = () => {
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
-    };
-
-    const handleMenuOpen = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleMenuClose = () => {
-        setAnchorEl(null);
     };
 
     const handleLogout = () => {
@@ -226,21 +214,6 @@ const MainLayout = () => {
                         />
                     </Box>
 
-                    {/* User */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <IconButton sx={{ bgcolor: 'grey.100' }} onClick={handleMenuOpen}>
-                            <Headphones size={20} />
-                        </IconButton>
-                        <Menu
-                            anchorEl={anchorEl}
-                            open={Boolean(anchorEl)}
-                            onClose={handleMenuClose}
-                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                        >
-                            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                        </Menu>
-                    </Box>
                 </Toolbar>
             </AppBar>
 

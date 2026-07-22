@@ -34,6 +34,7 @@ export const WebSocketProvider = ({ children }) => {
   const [queueMessage, setQueueMessage] = useState(null);
   const [peerReconnecting, setPeerReconnecting] = useState(false); // true while waiting for manager to reconnect
   const reconnectInterval = useRef(null);
+  const initiateTimeout = useRef(null);
   const callStatusRef = useRef(callStatus);
   const callEndedRef = useRef(false); // guards against race where a reconnect socket fires call:initiate after call:ended
 
@@ -59,6 +60,7 @@ export const WebSocketProvider = ({ children }) => {
         socket.removeAllListeners();
         socket.disconnect();
         clearInterval(reconnectInterval.current);
+        clearTimeout(initiateTimeout.current);
       }
 
       callEndedRef.current = false; // reset so new call can initiate
@@ -99,6 +101,25 @@ export const WebSocketProvider = ({ children }) => {
             timestamp: new Date().toISOString(),
             verificationInfo: verificationInfo, // { method: 'phone'|'email', phoneOrEmail: '...' }
           });
+
+          // The "please wait" screen shows as soon as callStatus becomes
+          // "connecting" (set below), before any server confirmation that the
+          // customer was actually enqueued. If queue:added/call:failed never
+          // arrives (e.g. a Redis blip on the backend), the customer was stuck
+          // on that screen indefinitely with no error and no real queue entry.
+          clearTimeout(initiateTimeout.current);
+          initiateTimeout.current = setTimeout(() => {
+            if (callStatusRef.current === "connecting") {
+              console.warn("⏱️ No response to call:initiate within timeout");
+              setConnectionError("Connection timed out. Please try again.");
+              setCallStatus("idle");
+              if (newSocket && newSocket.connected) {
+                newSocket.disconnect();
+              }
+              setSocket(null);
+              setIsConnected(false);
+            }
+          }, 15000);
         }
       });
 
@@ -145,6 +166,7 @@ export const WebSocketProvider = ({ children }) => {
       });
 
       newSocket.on("call:accepted", (data) => {
+        clearTimeout(initiateTimeout.current);
         console.log("✅ Call accepted:", data);
         setCallData(prevData => ({
           ...prevData,
@@ -159,6 +181,7 @@ export const WebSocketProvider = ({ children }) => {
       });
 
       newSocket.on("call:rejected", (data) => {
+        clearTimeout(initiateTimeout.current);
         console.log("❌ Call rejected:", data);
 
         // Clean up socket and reset state completely
@@ -188,6 +211,7 @@ export const WebSocketProvider = ({ children }) => {
       });
 
       newSocket.on("call:failed", (data) => {
+        clearTimeout(initiateTimeout.current);
         console.log("❌ Call failed:", data);
 
         // Reset state but keep socket connected so customer can try again immediately
@@ -222,6 +246,7 @@ export const WebSocketProvider = ({ children }) => {
 
       // Queue events
       newSocket.on("queue:added", (data) => {
+        clearTimeout(initiateTimeout.current);
         console.log("📋 Added to queue:", data);
         setInQueue(true);
         setQueuePosition(data.position);
@@ -230,6 +255,7 @@ export const WebSocketProvider = ({ children }) => {
       });
 
       newSocket.on("queue:already", (data) => {
+        clearTimeout(initiateTimeout.current);
         console.log("📋 Already in queue:", data);
         setInQueue(true);
         setQueuePosition(data.position);
@@ -766,6 +792,7 @@ export const WebSocketProvider = ({ children }) => {
         console.log("🔴 Cleaning up Socket.io...");
         socket.disconnect();
         clearInterval(reconnectInterval.current);
+        clearTimeout(initiateTimeout.current);
       }
     };
   }, []);

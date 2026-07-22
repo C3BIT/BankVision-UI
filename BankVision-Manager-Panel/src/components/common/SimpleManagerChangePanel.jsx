@@ -15,7 +15,6 @@ import PropTypes from 'prop-types';
 import { useWebSocket } from '../../providers/WebSocketProvider';
 import { useSelector } from 'react-redux';
 import { publicPost } from '../../services/apiCaller';
-import Captcha from '../Captcha/Captcha';
 import debounce from 'lodash/debounce';
 import { colors } from '../../styles/tokens';
 
@@ -35,7 +34,7 @@ import { colors } from '../../styles/tokens';
  * @param {object}   config      - Entry from MANAGER_CHANGE_REQUEST_CONFIG
  * @param {string}   currentValue
  * @param {function} onBack
- * @param {function} sendOtpFn  - async (value: string) => void — throws on error
+ * @param {function} sendOtpFn  - async (value: string, allowOverride: boolean) => void — throws on error
  */
 const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) => {
   const { accountDetails, selectedAccountNumber } = useSelector((state) => state.customerAccounts);
@@ -53,9 +52,6 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
   const [duplicateWarning, setDuplicateWarning] = useState('');
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
   const [overrideConfirmed, setOverrideConfirmed] = useState(false);
-  const [captchaAnswer, setCaptchaAnswer] = useState('');
-  const [captchaId, setCaptchaId] = useState(null);
-  const captchaRef = useRef(null);
   const typingTimeoutNewRef = useRef(null);
   const typingTimeoutConfirmRef = useRef(null);
 
@@ -110,8 +106,6 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
       setError(null);
       setDuplicateWarning('');
       setOverrideConfirmed(false);
-      setCaptchaAnswer('');
-      setCaptchaId(null);
     };
 
     const handleCustomerTypingNew = (data) => {
@@ -150,7 +144,7 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
   // registering one number to multiple accounts is a security-sensitive call.
   const canSubmit = canSubmitBase && !duplicateWarning;
   const canOverrideSubmit = canSubmitBase && Boolean(duplicateWarning) && overrideConfirmed;
-  const canSendOtp = (canSubmit || canOverrideSubmit) && Boolean(captchaAnswer.trim());
+  const canSendOtp = canSubmit || canOverrideSubmit;
 
   // ── Emit manager typing to customer ───────────────────────────────────────
   const emitManagerTyping = (eventName, value, timeoutRef) => {
@@ -167,7 +161,7 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
     setIsSendingOtp(true);
     setError(null);
     try {
-      await sendOtpFn(newValue, captchaId, captchaAnswer, canOverrideSubmit);
+      await sendOtpFn(newValue, canOverrideSubmit);
       setOtpSent(true);
       setOtp('');
       if (socket) {
@@ -178,7 +172,6 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
       }
     } catch (err) {
       setError(err.message || 'Failed to send OTP');
-      captchaRef.current?.refresh();
     } finally {
       setIsSendingOtp(false);
     }
@@ -360,18 +353,10 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
         </Alert>
       )}
 
-      {/* Captcha + submit on behalf button */}
-      {(canSubmit || canOverrideSubmit) && (
-        <Captcha
-          ref={captchaRef}
-          value={captchaAnswer}
-          onChange={(e) => setCaptchaAnswer(e.target.value)}
-          onCaptchaIdChange={setCaptchaId}
-        />
-      )}
+      {/* Submit on behalf button */}
       {(canSubmit || canOverrideSubmit) && (
         <Button
-          fullWidth variant="contained" onClick={handleSendOtp} disabled={isSendingOtp || !captchaAnswer.trim()}
+          fullWidth variant="contained" onClick={handleSendOtp} disabled={isSendingOtp}
           sx={{
             py: 1.5, backgroundColor: canOverrideSubmit ? colors.warning : '#2196F3', borderRadius: '6px', color: 'white', fontWeight: 'bold',
             '&:hover': { backgroundColor: canOverrideSubmit ? colors.warning : colors.primary },

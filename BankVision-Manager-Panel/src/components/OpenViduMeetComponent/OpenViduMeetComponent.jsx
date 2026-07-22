@@ -346,7 +346,10 @@ const OpenViduMeetComponent = forwardRef(({
 
         roomRef.current = room;
 
-        const RECONNECT_TIMEOUT_MS = 20000;
+        // Kept in sync with the backend's DISCONNECT_GRACE_MS (socketHandler.js) so this
+        // LiveKit-only safety net (media drops without the signaling socket dropping) never
+        // fires before the backend's own authoritative grace period has had a chance to.
+        const RECONNECT_TIMEOUT_MS = 30000;
 
         const startReconnectTimer = () => {
           if (reconnectTimerRef.current) return;
@@ -613,10 +616,18 @@ const OpenViduMeetComponent = forwardRef(({
     console.log("✅ [OpenViduMeetComponent] Registered call:ended listener");
 
     const handleCustomerEndedCall = (data) => {
-      console.log("📞 [OpenViduMeetComponent] Customer ended call event received:", data);
-      console.log("   Room ref exists:", !!roomRef.current);
-      console.log("   Calling leaveCall()...");
-      leaveCall();
+      console.log("📞 [OpenViduMeetComponent] Call ended (server-initiated) event received:", data);
+      // The backend already decided the call is over (manager action, customer action,
+      // or the disconnect grace-period timeout) and WebSocketProvider's own "call:ended"
+      // listener already updates callStatus/currentCall in response to this same event.
+      // Calling leaveCall() here re-invoked onLeave() -> endCall(), which re-emitted a
+      // redundant "call:end" back at the server for a call it had just told us was already
+      // over. Just release the LiveKit room immediately for a faster camera/mic teardown;
+      // the parent's callStatus-driven unmount effect will disconnect it anyway.
+      if (roomRef.current) {
+        roomRef.current.disconnect();
+        roomRef.current = null;
+      }
     };
 
     // Listen for the correct event that backend emits
@@ -626,7 +637,7 @@ const OpenViduMeetComponent = forwardRef(({
       console.log("🔴 [OpenViduMeetComponent] Removing call:ended listener");
       socket.off("call:ended", handleCustomerEndedCall);
     };
-  }, [socket, leaveCall]); // leaveCall now has stable reference
+  }, [socket]);
 
   const toggleAudio = useCallback(async () => {
     if (!roomRef.current) return;

@@ -3,9 +3,9 @@ import { publicPost } from "../../services/apiCaller";
 
 export const sendOtpToCustomer = createAsyncThunk(
   "customer/sendOtpToCustomer",
-  async ({ phone, checkDuplicate, allowDuplicate, captchaId, captchaAnswer }, { rejectWithValue }) => {
+  async ({ phone, checkDuplicate, allowDuplicate }, { rejectWithValue }) => {
     try {
-      const payload = { phone, captchaId, captchaAnswer };
+      const payload = { phone };
       if (checkDuplicate) payload.checkDuplicate = true;
       if (allowDuplicate) payload.allowDuplicate = true;
       const response = await publicPost("/otp/send-phone", payload);
@@ -18,9 +18,9 @@ export const sendOtpToCustomer = createAsyncThunk(
 
 export const sendEmailOtpToCustomer = createAsyncThunk(
   "customer/sendEmailOtpToCustomer",
-  async ({ email, checkDuplicate, captchaId, captchaAnswer }, { rejectWithValue }) => {
+  async ({ email, checkDuplicate }, { rejectWithValue }) => {
     try {
-      const payload = { email, captchaId, captchaAnswer };
+      const payload = { email };
       if (checkDuplicate) payload.checkDuplicate = true;
       const response = await publicPost("/otp/send", payload);
       return response.data;

@@ -199,6 +199,16 @@ export const WebSocketProvider = ({ children }) => {
             // Request current status from backend (restores saved status from Redis)
             // Don't automatically set to "online" - let backend restore the manager's previous status
             newSocket.emit("manager:get-status");
+            // Queue state only reaches already-connected sockets via live
+            // "queue:updated" broadcasts, so anything that joined the queue
+            // before this connection existed is invisible until the next
+            // mutation. On the very first connect this was masked by
+            // socket.io's default buffering of queue:get (see below), but a
+            // reconnect (pod restart during a rolling deploy, network blip,
+            // backgrounded tab) reuses this same handler and previously never
+            // re-requested it — leaving the dashboard stuck on stale queue
+            // state until another customer joined or left.
+            newSocket.emit("queue:get");
         });
 
         newSocket.on("disconnect", (reason) => {
@@ -702,10 +712,6 @@ export const WebSocketProvider = ({ children }) => {
             console.log("📊 stats:update received:", data?.event);
             setStatsVersion(prev => prev + 1);
         });
-
-        // Request initial queue and status on connect
-        newSocket.emit("queue:get");
-        newSocket.emit("manager:get-status");
 
     };
 

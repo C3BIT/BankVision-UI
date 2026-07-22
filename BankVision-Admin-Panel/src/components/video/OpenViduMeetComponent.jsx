@@ -400,6 +400,58 @@ const OpenViduMeetComponent = ({
                         ))
                     )}
                 </Box>
+
+                {/* Local video (picture-in-picture) - only barge mode publishes video */}
+                {mode === "barge" && (
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            top: 16,
+                            right: 16,
+                            width: 150,
+                            height: 120,
+                            borderRadius: 2,
+                            overflow: "hidden",
+                            border: isVideoMuted ? "3px solid #666" : "3px solid #4caf50",
+                            backgroundColor: "#000",
+                            zIndex: 1002,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                        }}
+                    >
+                        <video
+                            ref={localVideoRef}
+                            autoPlay
+                            playsInline
+                            muted
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                transform: "scaleX(-1)",
+                                display: isVideoMuted ? "none" : "block",
+                            }}
+                        />
+                        {isVideoMuted && (
+                            <Box sx={{ color: "#888", textAlign: "center" }}>
+                                <VideoOff size={28} />
+                            </Box>
+                        )}
+                        <Chip
+                            label="You"
+                            size="small"
+                            sx={{
+                                position: "absolute",
+                                bottom: 4,
+                                left: 4,
+                                bgcolor: isVideoMuted ? "rgba(100,100,100,0.8)" : "rgba(76, 175, 80, 0.8)",
+                                color: "white",
+                                fontSize: 10,
+                            }}
+                        />
+                    </Box>
+                )}
             </Box>
 
             {/* Controls */}

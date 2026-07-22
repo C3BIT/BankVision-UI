@@ -34,6 +34,16 @@ const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
   const typingTimeoutConfirmRef = useRef(null);
   const [customerIsTyping, setCustomerIsTyping] = useState(false);
 
+  // Mirrors of the latest typed values / account details, kept in refs so the
+  // socket listener effect below (mounted once per `socket`) can read
+  // up-to-date values instead of the stale closure it was created with.
+  const customerTypedNewRef = useRef('');
+  const customerTypedConfirmRef = useRef('');
+  const accountDetailsRef = useRef(accountDetails);
+  useEffect(() => { customerTypedNewRef.current = customerTypedNew; }, [customerTypedNew]);
+  useEffect(() => { customerTypedConfirmRef.current = customerTypedConfirm; }, [customerTypedConfirm]);
+  useEffect(() => { accountDetailsRef.current = accountDetails; }, [accountDetails]);
+
   // Compliance fields received from customer
   const [extraFields, setExtraFields] = useState({
     estDepositCount: '',
@@ -98,9 +108,28 @@ const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
     };
 
     const handleExtraFields = (data) => {
-      setExtraFields(prev => ({ ...prev, ...data }));
+      const { submitted, ...fields } = data;
+      setExtraFields(prev => ({ ...prev, ...fields }));
       setCustomerIsTyping(true);
       setTimeout(() => setCustomerIsTyping(false), 1000);
+
+      // Customer clicked "Submit Activation Request". Unlike phone/email/
+      // address changes, dormant activation has no dedicated
+      // "customer:submit-*-request" event — it reuses this same live-typing
+      // event with a `submitted: true` flag. Auto-open the same confirmation
+      // dialog the manager's own "Validate & Activate" button opens, so this
+      // service pops up automatically like the other three instead of
+      // silently waiting on a manual click.
+      if (submitted) {
+        const newVal = customerTypedNewRef.current;
+        const confirmVal = customerTypedConfirmRef.current;
+        if (newVal && confirmVal && newVal === confirmVal && newVal === accountDetailsRef.current?.accountNumber) {
+          setError(null);
+          setConfirmOpen(true);
+        } else {
+          setError('Customer submitted the activation request, but the account numbers on file do not match. Ask the customer to re-enter their account number.');
+        }
+      }
     };
 
     socket.on('customer:typing-account-number-new', handleCustomerTypingNew);

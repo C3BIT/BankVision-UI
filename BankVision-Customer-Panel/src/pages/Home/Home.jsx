@@ -1,5 +1,7 @@
 import { API_URL } from '../../config.js';
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
+import axios from "axios";
 import { useDispatch } from "react-redux";
 import { resetVerification } from "../../redux/auth/customerSlice";
 import { Box, Paper, Typography, CircularProgress, Alert, Grid, Container, IconButton, Fab, Badge, Dialog, DialogContent } from "@mui/material";
@@ -17,7 +19,6 @@ import FeedbackScreen from "../../components/FeedbackScreen/FeedbackScreen";
 import { useWebSocket } from "../../context/WebSocketContext";
 import CallModal from './../CallModal/CallModal';
 import OpenViduMeetComponent from "../../components/OpenViduMeetComponent/OpenViduMeetComponent";
-import CustomerVerificationScreen from "../../components/CustomerVerificationScreen/CustomerVerificationScreen";
 import ChatBox from "../../components/ChatBox/ChatBox";
 import CallTimer from "../../components/CallTimer/CallTimer";
 import CaptureCustomerImage from "../../components/CaptureCustomerImage/CaptureCustomerImage";
@@ -27,6 +28,9 @@ import { colors } from "../../theme/tokens";
 
 const Home = () => {
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  // MTB Neo SSO handoff: 'idle' (no handoff params) | 'authenticating' | 'failed'
+  const [ssoStatus, setSsoStatus] = useState('idle');
   const [phone, setPhone] = useState(""); // Will be set from verification
   const [isVideoCallActive, setIsVideoCallActive] = useState(false);
   const [showCallModal, setShowCallModal] = useState(false);
@@ -200,6 +204,59 @@ const Home = () => {
       }
     }
   };
+
+  // MTB Neo SSO handoff: Neo redirects the customer's browser here with
+  // RSA-encrypted params. Exchange them for a customer_auth_token session
+  // and skip straight into the call queue, bypassing StartVerification.
+  useEffect(() => {
+    const authKey = searchParams.get('auth_key');
+    if (!authKey) return;
+
+    const sessionId = searchParams.get('session_id');
+    const custMob = searchParams.get('cust_mob');
+    const custName = searchParams.get('cust_name');
+    const custEmail = searchParams.get('cust_email');
+
+    // Strip the encrypted payload from the visible URL/history immediately,
+    // before the exchange even completes, so it never lingers in browser
+    // history or gets forwarded via a Referer header on later navigation.
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    setSsoStatus('authenticating');
+
+    // Deliberately bypasses apiClient: /sso is excluded from the backend's
+    // Base64 codec (it must speak plain JSON to match MTB Neo's contract),
+    // so apiClient's request interceptor would wrap this body in a way the
+    // backend won't decode.
+    axios
+      .post(
+        `${API_URL}/sso/mtb-neo/authenticate`,
+        {
+          auth_key: authKey,
+          session_id: sessionId,
+          cust_mob: custMob,
+          cust_name: custName,
+          cust_email: custEmail || undefined,
+        },
+        { withCredentials: true, headers: { 'Content-Type': 'application/json' } }
+      )
+      .then((response) => {
+        const customer = response.data?.data?.customer;
+        if (!customer?.mobile) {
+          throw new Error('Malformed SSO response');
+        }
+        setSsoStatus('idle');
+        handleVerificationComplete({ method: 'phone', phoneOrEmail: customer.mobile });
+      })
+      .catch((error) => {
+        console.error('❌ MTB Neo SSO authentication failed:', error);
+        setSsoStatus('failed');
+      });
+    // Runs once on mount only — deliberately ignores exhaustive-deps since
+    // handleVerificationComplete is stable for the lifetime of this effect
+    // and re-running on every render would repeat a single-use exchange.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handlePhoneVerificationOtp = async (otp) => {
     try {
@@ -777,14 +834,16 @@ const Home = () => {
     }
   };
 
-  // Track unread messages when chat is closed
+  // Auto-open chat (and track unread count) when the manager sends a message
+  // while the customer's chat panel is closed — customers otherwise had no
+  // reliable way to notice an incoming manager message mid-call.
   useEffect(() => {
     if (!isChatOpen && chatMessages.length > 0) {
       const lastMessage = chatMessages[chatMessages.length - 1];
-      // Only count if it's a NEW manager message we haven't counted yet
+      // Only act if it's a NEW manager message we haven't counted yet
       if (lastMessage.senderRole === 'manager' && lastMessage.id !== lastCountedMessageId) {
-        setUnreadChatCount(prev => prev + 1);
         setLastCountedMessageId(lastMessage.id);
+        setIsChatOpen(true);
       }
     }
   }, [chatMessages, isChatOpen, lastCountedMessageId]);
@@ -974,10 +1033,26 @@ const Home = () => {
                 boxShadow: "0 2px 12px rgba(0, 0, 0, 0.08)",
               }}
             >
-              <StartVerification
-                onVerified={handleVerificationComplete}
-                disabled={callStatus !== "idle"}
-              />
+              {ssoStatus === "authenticating" ? (
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 4 }}>
+                  <CircularProgress size={32} color="primary" />
+                  <Typography sx={{ mt: 2, color: colors.textSecondary }}>
+                    Signing you in from MTB Neo...
+                  </Typography>
+                </Box>
+              ) : (
+                <>
+                  {ssoStatus === "failed" && (
+                    <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+                      This link is invalid or has expired. Please verify manually below.
+                    </Alert>
+                  )}
+                  <StartVerification
+                    onVerified={handleVerificationComplete}
+                    disabled={callStatus !== "idle"}
+                  />
+                </>
+              )}
 
               {callStatus === "connecting" && !showCallModal && (
                 <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 3 }}>

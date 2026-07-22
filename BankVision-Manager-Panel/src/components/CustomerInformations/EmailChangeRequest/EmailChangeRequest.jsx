@@ -7,9 +7,9 @@ import { sendEmailOtpToCustomer } from '../../../redux/auth/customerSlice';
 const EmailChangeRequest = ({ currentEmail, onBack }) => {
   const dispatch = useDispatch();
 
-  const sendOtpFn = async (email, captchaId, captchaAnswer) => {
+  const sendOtpFn = async (email) => {
     await dispatch(
-      sendEmailOtpToCustomer({ email, checkDuplicate: true, captchaId, captchaAnswer })
+      sendEmailOtpToCustomer({ email, checkDuplicate: true })
     ).unwrap();
   };
 
