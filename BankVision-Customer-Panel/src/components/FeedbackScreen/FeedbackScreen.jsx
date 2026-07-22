@@ -19,7 +19,8 @@ const FeedbackScreen = ({ onSubmit, onSkip }) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        minHeight: '100vh',
+        minHeight: { xs: '100dvh', sm: '100vh' },
+        overflowY: 'auto',
         backgroundColor: colors.background,
         padding: 2,
       }}

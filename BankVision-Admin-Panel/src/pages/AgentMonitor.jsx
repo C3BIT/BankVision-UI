@@ -203,20 +203,20 @@ const AgentMonitor = () => {
 
             {/* Summary Cards */}
             {summary && (
-                <Grid container spacing={2} sx={{ mb: 3 }}>
-                    <Grid size={{ xs: 6, md: 2.4 }}>
+                <Grid container spacing={3} sx={{ mb: 3 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                         <SummaryCard title="Total Agents" value={summary.total} icon={<PeopleIcon />} color={colors.primary} />
                     </Grid>
-                    <Grid size={{ xs: 6, md: 2.4 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                         <SummaryCard title="Online" value={summary.online} icon={<OnlineIcon />} color={colors.success} />
                     </Grid>
-                    <Grid size={{ xs: 6, md: 2.4 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                         <SummaryCard title="In Call" value={summary.inCall} icon={<PhoneIcon />} color="#f44336" />
                     </Grid>
-                    <Grid size={{ xs: 6, md: 2.4 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                         <SummaryCard title="On Break" value={(summary.break || 0) + (summary.lunch || 0) + (summary.prayer || 0)} icon={<Coffee size={24} />} color={colors.warning} />
                     </Grid>
-                    <Grid size={{ xs: 6, md: 2.4 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                         <SummaryCard title="Offline" value={summary.offline + (summary.not_ready || 0)} icon={<OfflineIcon />} color="#9e9e9e" />
                     </Grid>
                 </Grid>

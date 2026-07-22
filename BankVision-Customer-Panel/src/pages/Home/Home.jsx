@@ -527,6 +527,7 @@ const Home = () => {
 
   // Video control handlers
   const handleToggleMic = useCallback(() => {
+    console.log('🎙️ [DEBUG] handleToggleMic clicked, ref present:', !!videoComponentRef.current);
     if (videoComponentRef.current) {
       videoComponentRef.current.toggleAudio();
     }
@@ -548,6 +549,7 @@ const Home = () => {
 
   // Track audio/video state from OpenViduMeetComponent
   const handleAudioToggle = useCallback((enabled) => {
+    console.log('🎙️ [DEBUG] handleAudioToggle received enabled =', enabled);
     setIsMuted(!enabled);
   }, []);
 
@@ -1134,7 +1136,7 @@ const Home = () => {
             top: 0,
             left: 0,
             width: '100%',
-            height: '100vh',
+            height: { xs: '100dvh', sm: '100vh' },
             zIndex: 9999,
             backgroundColor: colors.background,
           }}

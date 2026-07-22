@@ -20,6 +20,7 @@ import ManagerActivityReport from './pages/ManagerActivityReport';
 import Settings from './pages/Settings';
 import useSessionTimeout from './hooks/useSessionTimeout';
 import SessionTimeoutDialog from './components/SessionTimeoutDialog';
+import SupportRequestBanner from './components/SupportRequestBanner';
 
 const ProtectedRoute = () => {
     const { isAuthenticated, loading } = useAuth();
@@ -30,6 +31,7 @@ const ProtectedRoute = () => {
 
 // Mounted inside AuthProvider so useSessionTimeout can read/trigger logout via useAuth().
 const AppContent = () => {
+    const { isAuthenticated } = useAuth();
     const { showWarning, remainingTime, extendSession, handleLogout } = useSessionTimeout();
 
     return (
@@ -57,6 +59,8 @@ const AppContent = () => {
                         </Route>
                     </Route>
                 </Routes>
+
+                {isAuthenticated && <SupportRequestBanner />}
             </Router>
 
             <SessionTimeoutDialog

@@ -13,6 +13,7 @@ import {
 } from "livekit-client";
 import { useWebSocket } from "../../context/WebSocketContext";
 import { publicPost } from "../../services/apiCaller";
+import holdMusicUrl from "../../assets/audio/hold-music.mp3";
 
 // Component for each remote participant's video
 const ParticipantVideo = ({ participant, isLarge }) => {
@@ -214,7 +215,7 @@ const OpenViduMeetComponent = forwardRef(({
   const [remoteParticipants, setRemoteParticipants] = useState([]);
   const [liveKitReconnecting, setLiveKitReconnecting] = useState(false);
   const [isOnHold, setIsOnHold] = useState(false);
-  const holdAudioCtxRef = useRef(null);
+  const holdAudioElRef = useRef(null);
   const preHoldStateRef = useRef({ mic: true, camera: true });
   const { socket, peerReconnecting } = useWebSocket();
 
@@ -511,49 +512,26 @@ const OpenViduMeetComponent = forwardRef(({
     };
   }, [socket]);
 
-  // Generate a soft looping two-tone hold chime via the Web Audio API rather
-  // than shipping a licensed music asset — avoids sourcing/serving a real
-  // audio file just for this.
+  // Loop the hold-music asset locally in the customer's browser while on hold.
   const startHoldTone = useCallback(() => {
-    if (holdAudioCtxRef.current) return;
+    if (holdAudioElRef.current) return;
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      const ctx = new AudioCtx();
-      const gain = ctx.createGain();
-      gain.gain.value = 0.05;
-      gain.connect(ctx.destination);
-
-      const now = ctx.currentTime;
-      const playChime = (time) => {
-        [523.25, 659.25].forEach((freq, i) => {
-          const osc = ctx.createOscillator();
-          osc.type = "sine";
-          osc.frequency.value = freq;
-          osc.connect(gain);
-          osc.start(time + i * 0.18);
-          osc.stop(time + i * 0.18 + 0.35);
-        });
-      };
-      let beat = 0;
-      playChime(now);
-      const intervalId = setInterval(() => {
-        beat += 1;
-        playChime(ctx.currentTime);
-        if (beat > 100000) clearInterval(intervalId); // safety backstop, never realistically hit
-      }, 3000);
-
-      holdAudioCtxRef.current = { ctx, gain, intervalId };
+      const audio = new Audio(holdMusicUrl);
+      audio.loop = true;
+      audio.volume = 0.4;
+      holdAudioElRef.current = audio;
+      audio.play().catch((err) => console.warn("Could not start hold music:", err.message));
     } catch (err) {
-      console.warn("Could not start hold tone:", err.message);
+      console.warn("Could not start hold music:", err.message);
     }
   }, []);
 
   const stopHoldTone = useCallback(() => {
-    const current = holdAudioCtxRef.current;
+    const current = holdAudioElRef.current;
     if (!current) return;
-    clearInterval(current.intervalId);
-    current.ctx.close().catch(() => {});
-    holdAudioCtxRef.current = null;
+    current.pause();
+    current.currentTime = 0;
+    holdAudioElRef.current = null;
   }, []);
 
   // Handle call hold/resume broadcast from the manager
@@ -614,14 +592,20 @@ const OpenViduMeetComponent = forwardRef(({
   }, [socket, startHoldTone, stopHoldTone, onAudioToggle, onVideoToggle]);
 
   const toggleAudio = async () => {
-    if (!roomRef.current) return;
+    console.log('🎙️ [DEBUG] toggleAudio called, roomRef.current present:', !!roomRef.current);
+    if (!roomRef.current) {
+      console.warn('🎙️ [DEBUG] toggleAudio aborted: roomRef.current is null');
+      return;
+    }
     try {
       const localParticipant = roomRef.current.localParticipant;
+      console.log('🎙️ [DEBUG] before toggle, isMicrophoneEnabled =', localParticipant.isMicrophoneEnabled);
       await localParticipant.setMicrophoneEnabled(!localParticipant.isMicrophoneEnabled);
+      console.log('🎙️ [DEBUG] after toggle, isMicrophoneEnabled =', localParticipant.isMicrophoneEnabled);
       // State driven by LocalTrackMuted/Unmuted events; read final value for parent callback only
       if (onAudioToggle) onAudioToggle(localParticipant.isMicrophoneEnabled);
     } catch (error) {
-      console.error('Error toggling audio:', error);
+      console.error('🎙️ [DEBUG] Error toggling audio:', error);
     }
   };
 

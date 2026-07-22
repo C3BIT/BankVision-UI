@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Box,
     Typography,
@@ -27,6 +28,9 @@ const Supervisor = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedCall, setSelectedCall] = useState(null); // { roomName, mode, customerName }
+    const location = useLocation();
+    const navigate = useNavigate();
+    const autoJoinPhone = location.state?.autoJoinPhone;
 
     const fetchActiveCalls = async () => {
         try {
@@ -53,6 +57,18 @@ const Supervisor = () => {
         const interval = setInterval(fetchActiveCalls, 15000);
         return () => clearInterval(interval);
     }, []);
+
+    // Arrived here via "Accept & Join" on a supervisor support-request banner —
+    // auto-join that manager's call in whisper mode once it shows up in the list.
+    useEffect(() => {
+        if (!autoJoinPhone || selectedCall) return;
+        const call = activeCalls.find((c) => c.customerPhone === autoJoinPhone);
+        if (call) {
+            handleJoin(call, 'whisper');
+            navigate('/supervisor', { replace: true, state: {} });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [autoJoinPhone, activeCalls, selectedCall]);
 
     const handleJoin = (call, mode) => {
         setSelectedCall({

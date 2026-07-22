@@ -20,6 +20,7 @@ import VideoCallSidebarNew from "../../components/VideoCallSidebar/VideoCallSide
 import PIPVideo from "../../components/PIPVideo/PIPVideo";
 import ChatButton from "../../components/ChatButton/ChatButton";
 import VideoControls from "../../components/VideoControls/VideoControls";
+import RequestAssistance from "../../components/RequestAssistance/RequestAssistance";
 import PostCallReportModal from "../../components/PostCallReportModal/PostCallReportModal";
 import CollaborativeWhiteboard from "../../components/CollaborativeWhiteboard/CollaborativeWhiteboard";
 
@@ -138,6 +139,11 @@ const Dashboard = () => {
     isWhisperActive,
     replyToWhisper,
     selfReconnecting,
+    // Supervisor assistance request
+    requestAssistance,
+    cancelAssistance,
+    assistanceStatus,
+    assistanceResponse,
   } = useWebSocket();
 
   // REMOVED: useEffect for incomingCall/showCallingScreen - queue-only design
@@ -431,33 +437,41 @@ const Dashboard = () => {
           }
           overlayContent={null}
           controls={
-            <VideoControls
-              audioEnabled={audioEnabled}
-              videoEnabled={videoEnabled}
-              speakerEnabled={speakerEnabled}
-              whiteboardOpen={whiteboardOpen}
-              activeBackground={activeBackground}
-              onHold={isOnHold}
-              onToggleAudio={() => openViduRef.current?.toggleAudio()}
-              onToggleVideo={() => openViduRef.current?.toggleVideo()}
-              onToggleSpeaker={() => openViduRef.current?.toggleSpeaker()}
-              onToggleWhiteboard={() => {
-                setWhiteboardOpen(prev => {
-                  const next = !prev;
-                  if (socket) socket.emit('whiteboard:toggle', { open: next });
-                  return next;
-                });
-              }}
-              onSetBackground={async (mode) => {
-                await openViduRef.current?.setBackground(mode);
-                setActiveBackground(mode);
-              }}
-              onToggleHold={async () => {
-                await openViduRef.current?.toggleHold();
-                setIsOnHold(Boolean(openViduRef.current?.isOnHold));
-              }}
-              onEndCall={() => openViduRef.current?.leaveCall()}
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 2 }}>
+              <VideoControls
+                audioEnabled={audioEnabled}
+                videoEnabled={videoEnabled}
+                speakerEnabled={speakerEnabled}
+                whiteboardOpen={whiteboardOpen}
+                activeBackground={activeBackground}
+                onHold={isOnHold}
+                onToggleAudio={() => openViduRef.current?.toggleAudio()}
+                onToggleVideo={() => openViduRef.current?.toggleVideo()}
+                onToggleSpeaker={() => openViduRef.current?.toggleSpeaker()}
+                onToggleWhiteboard={() => {
+                  setWhiteboardOpen(prev => {
+                    const next = !prev;
+                    if (socket) socket.emit('whiteboard:toggle', { open: next });
+                    return next;
+                  });
+                }}
+                onSetBackground={async (mode) => {
+                  await openViduRef.current?.setBackground(mode);
+                  setActiveBackground(mode);
+                }}
+                onToggleHold={async () => {
+                  await openViduRef.current?.toggleHold();
+                  setIsOnHold(Boolean(openViduRef.current?.isOnHold));
+                }}
+                onEndCall={() => openViduRef.current?.leaveCall()}
+              />
+              <RequestAssistance
+                onRequestAssistance={requestAssistance}
+                onCancelAssistance={cancelAssistance}
+                assistanceStatus={assistanceStatus}
+                assistanceResponse={assistanceResponse}
+              />
+            </Box>
           }
           chatButton={
             <ChatButton

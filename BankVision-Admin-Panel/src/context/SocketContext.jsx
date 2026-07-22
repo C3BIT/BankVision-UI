@@ -12,6 +12,7 @@ export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [managerStatuses, setManagerStatuses] = useState({}); // { email: { status: 'online', socketId: '...' } }
+    const [assistanceRequests, setAssistanceRequests] = useState([]); // pending manager support requests
 
     useEffect(() => {
         if (user && user.role) {
@@ -53,6 +54,19 @@ export const SocketProvider = ({ children }) => {
 
             // Also potentially 'customer:queue-updated'
 
+            // A manager needs supervisor help during a call — keep a de-duped
+            // pending list; the backend re-emits this on an interval until
+            // accepted/cancelled/timed out, so ignore repeats of the same requestId.
+            newSocket.on('supervisor:assistance-requested', (request) => {
+                setAssistanceRequests(prev =>
+                    prev.some(r => r.requestId === request.requestId) ? prev : [...prev, request]
+                );
+            });
+
+            newSocket.on('supervisor:assistance-cancelled', ({ requestId }) => {
+                setAssistanceRequests(prev => prev.filter(r => r.requestId !== requestId));
+            });
+
             setSocket(newSocket);
 
             return () => {
@@ -61,8 +75,12 @@ export const SocketProvider = ({ children }) => {
         }
     }, [user]);
 
+    const dismissAssistanceRequest = (requestId) => {
+        setAssistanceRequests(prev => prev.filter(r => r.requestId !== requestId));
+    };
+
     return (
-        <SocketContext.Provider value={{ socket, isConnected, managerStatuses }}>
+        <SocketContext.Provider value={{ socket, isConnected, managerStatuses, assistanceRequests, dismissAssistanceRequest }}>
             {children}
         </SocketContext.Provider>
     );
