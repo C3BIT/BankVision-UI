@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies (use npm ci for cleaner install if lockfile exists, otherwise npm install)
-RUN npm install
+RUN npm install --include=dev
 
 # Copy source code
 COPY . .
