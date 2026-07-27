@@ -5,18 +5,15 @@
 FROM node:20.20.2-alpine3.23 AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies (use npm ci for cleaner install if lockfile exists, otherwise npm install)
-RUN npm install --include=dev
-
-# Copy source code
+# Copy source (incl. package files; node_modules excluded via .dockerignore)
 COPY . .
 
-# Build for production
+# Install deps AND build in ONE layer. The node_modules/.bin symlinks that npm creates
+# (e.g. react-scripts) are used in the same container that created them — some containerd
+# snapshotters don't preserve these symlinks across layer commits, which made a separate
+# `npm run build` layer fail with "<bin>: not found".
 ENV NODE_OPTIONS="--max-old-space-size=2048"
-RUN npm run build
+RUN npm install --include=dev && npm run build
 
 # Production stage with nginx
 FROM nginx:1.29.7-alpine

@@ -5,17 +5,14 @@
 FROM node:20.20.2-alpine3.23 AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci --legacy-peer-deps --include=dev && npm cache clean --force
-
-# Copy source code
+# Copy source (incl. package files; node_modules excluded via .dockerignore)
 COPY . .
 
-# Build for production
-RUN npm run build
+# Install deps AND build in ONE layer. The node_modules/.bin symlinks that npm creates
+# (e.g. vite) are used in the same container that created them — some containerd
+# snapshotters don't preserve these symlinks across layer commits, which made a separate
+# `npm run build` layer fail with "sh: vite: not found".
+RUN npm ci --legacy-peer-deps --include=dev && npm run build && npm cache clean --force
 
 # Production stage with nginx
 FROM nginx:1.29.7-alpine
