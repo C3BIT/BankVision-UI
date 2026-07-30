@@ -42,7 +42,7 @@ add_header Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
 add_header Cross-Origin-Resource-Policy "same-origin" always; \
 add_header Cross-Origin-Opener-Policy "same-origin" always; \
 add_header Cross-Origin-Embedder-Policy "require-corp" always; \
-add_header Content-Security-Policy "default-src '"'"'self'"'"'; script-src '"'"'self'"'"'; style-src '"'"'self'"'"' '"'"'unsafe-inline'"'"' https://fonts.googleapis.com; img-src '"'"'self'"'"' data: blob: https:; font-src '"'"'self'"'"' data: https://fonts.gstatic.com; connect-src '"'"'self'"'"' wss: https:; media-src '"'"'self'"'"' blob:; worker-src '"'"'self'"'"' blob:; object-src '"'"'none'"'"'; frame-ancestors '"'"'none'"'"'; base-uri '"'"'self'"'"'; form-action '"'"'self'"'"';" always;' > /etc/nginx/security-headers.conf
+add_header Content-Security-Policy "default-src '"'"'self'"'"'; script-src '"'"'self'"'"' '"'"'wasm-unsafe-eval'"'"'; style-src '"'"'self'"'"' '"'"'unsafe-inline'"'"' https://fonts.googleapis.com; img-src '"'"'self'"'"' data: blob: https:; font-src '"'"'self'"'"' data: https://fonts.gstatic.com; connect-src '"'"'self'"'"' wss: https:; media-src '"'"'self'"'"' blob:; worker-src '"'"'self'"'"' blob:; object-src '"'"'none'"'"'; frame-ancestors '"'"'none'"'"'; base-uri '"'"'self'"'"'; form-action '"'"'self'"'"';" always;' > /etc/nginx/security-headers.conf
 
 # Create nginx configuration for SPA routing
 RUN echo 'server { \
