@@ -182,6 +182,12 @@ const OpenViduMeetComponent = ({
                 setError(null);
 
                 const tokenData = await getToken();
+                // If the effect was torn down during the token fetch (mode switch
+                // or unmount), abort BEFORE building a Room — otherwise we'd create
+                // and connect a room the cleanup can't see, leaving a zombie
+                // PeerConnection that contends with the next join ("Couldn't
+                // establish PC connection").
+                if (!mounted) return;
                 const { token, serverUrl } = tokenData;
 
                 // If serverUrl is not returned by whisper-token, use env var or default
@@ -227,7 +233,14 @@ const OpenViduMeetComponent = ({
                 await room.connect(wsUrl, token);
                 console.log("Connected to room:", room.name);
 
-                if (!mounted) return;
+                // Superseded while connecting (rapid Listen→Whisper→Barge switch):
+                // disconnect the room we JUST connected so it doesn't linger as a
+                // zombie PeerConnection.
+                if (!mounted) {
+                    try { await room.disconnect(); } catch { /* ignore */ }
+                    if (roomRef.current === room) roomRef.current = null;
+                    return;
+                }
 
                 // Get existing participants
                 const existingParticipants = Array.from(room.remoteParticipants.values());
@@ -241,6 +254,15 @@ const OpenViduMeetComponent = ({
                         audio: shouldPublishAudio,
                         video: shouldPublishVideo,
                     });
+
+                    // Torn down while acquiring devices — stop the tracks and bail
+                    // rather than publishing into a room that's being disconnected.
+                    if (!mounted) {
+                        tracks.forEach((t) => t.stop());
+                        try { await room.disconnect(); } catch { /* ignore */ }
+                        if (roomRef.current === room) roomRef.current = null;
+                        return;
+                    }
 
                     for (const track of tracks) {
                         await room.localParticipant.publishTrack(track);

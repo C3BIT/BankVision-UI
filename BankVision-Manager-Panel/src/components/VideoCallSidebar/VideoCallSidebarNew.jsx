@@ -102,6 +102,11 @@ const VideoCallSidebarNew = ({
   const [showAddressChange, setShowAddressChange] = useState(false);
   const [signatureVerified, setSignatureVerified] = useState(false);
   const [dormantRequestPending, setDormantRequestPending] = useState(false);
+  // Bumped every time a change-request panel is opened. Used as the panel `key`
+  // so React remounts a fresh (blank) form per request — prevents a previous
+  // overridden request's partially-filled fields (and stale manager-override
+  // flags like documentsWaived) leaking into the next request.
+  const [requestSeq, setRequestSeq] = useState(0);
 
   // Navigate back to services list after approval dialog is resolved
   useEffect(() => {
@@ -234,7 +239,7 @@ const VideoCallSidebarNew = ({
 
   // Service request handlers
   const handleRequestPhoneChange = () => {
-
+    setRequestSeq((s) => s + 1);
     setShowPhoneChange(true);
     // Also notify customer to open their modal
     if (socket && socket.connected) {
@@ -246,7 +251,7 @@ const VideoCallSidebarNew = ({
   };
 
   const handleRequestEmailChange = () => {
-
+    setRequestSeq((s) => s + 1);
     setShowEmailChange(true);
     // Also notify customer to open their modal
     if (socket && socket.connected) {
@@ -258,7 +263,7 @@ const VideoCallSidebarNew = ({
   };
 
   const handleRequestAddressChange = () => {
-
+    setRequestSeq((s) => s + 1);
     setShowAddressChange(true);
     // Notify customer to open their modal and pass current address data so
     // the customer's ChangeAddressModal can display and submit the previous value.
@@ -474,11 +479,11 @@ const VideoCallSidebarNew = ({
                 </Alert>
               )}
               {showPhoneChange ? (
-                <PhoneChangeRequest currentPhone={customerPhone} onBack={() => setShowPhoneChange(false)} />
+                <PhoneChangeRequest key={`phone-${requestSeq}`} currentPhone={customerPhone} onBack={() => setShowPhoneChange(false)} />
               ) : showEmailChange ? (
-                <EmailChangeRequest currentEmail={resolvedCustomerEmail || customerEmail} onBack={() => setShowEmailChange(false)} />
+                <EmailChangeRequest key={`email-${requestSeq}`} currentEmail={resolvedCustomerEmail || customerEmail} onBack={() => setShowEmailChange(false)} />
               ) : showAddressChange ? (
-                <AddressChange presentAddress={reduxAccountDetails?.presentAddress || reduxAccountDetails?.address || null} permanentAddress={reduxAccountDetails?.permanentAddress || null} onBack={() => setShowAddressChange(false)} />
+                <AddressChange key={`address-${requestSeq}`} presentAddress={reduxAccountDetails?.presentAddress || reduxAccountDetails?.address || null} permanentAddress={reduxAccountDetails?.permanentAddress || null} onBack={() => setShowAddressChange(false)} />
               ) : showAccountActivation ? (
                 <DormantAccountActivation
                   onBack={() => setShowAccountActivation(false)}

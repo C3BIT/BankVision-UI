@@ -277,6 +277,7 @@ const OpenViduMeetComponent = forwardRef(({
   showControls = true,
   onAudioStateChange,
   onVideoStateChange,
+  onHoldStateChange,
   onSpeakerStateChange,
 }, ref) => {
   const localVideoRef = useRef(null);
@@ -707,6 +708,7 @@ const OpenViduMeetComponent = forwardRef(({
         ]);
         socket?.emit("call:hold");
         setIsOnHold(true);
+        if (onHoldStateChange) onHoldStateChange(true);
         if (onAudioStateChange) onAudioStateChange(false);
         if (onVideoStateChange) onVideoStateChange(false);
       } else {
@@ -718,6 +720,7 @@ const OpenViduMeetComponent = forwardRef(({
         ]);
         socket?.emit("call:resume");
         setIsOnHold(false);
+        if (onHoldStateChange) onHoldStateChange(false);
         if (onAudioStateChange) onAudioStateChange(mic);
         if (onVideoStateChange) onVideoStateChange(camera);
       }
@@ -725,7 +728,7 @@ const OpenViduMeetComponent = forwardRef(({
       console.error("Error toggling hold:", error);
       toastError("Could not change hold state — please try again.");
     }
-  }, [isOnHold, socket, onAudioStateChange, onVideoStateChange]);
+  }, [isOnHold, socket, onHoldStateChange, onAudioStateChange, onVideoStateChange]);
 
   // Supervisor identities are prefixed with their mode ("supervisor_<mode>_...")
   // so listen/whisper sessions (audio only, must stay invisible) can be told

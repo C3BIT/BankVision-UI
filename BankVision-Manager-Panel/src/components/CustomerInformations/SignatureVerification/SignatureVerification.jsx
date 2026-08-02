@@ -15,8 +15,24 @@ import {
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import api from '../../../services/api';
+import { API_URL } from '../../../config.js';
 import { useWebSocket } from '../../../providers/WebSocketProvider';
 import { colors } from '../../../styles/tokens';
+
+const API_BASE = (API_URL || '').replace('/api', '');
+
+// The uploaded signature arrives as a stored MinIO path/URL (not base64 — that
+// blew past Socket.IO's 1MB frame limit). Stored objects 403 when hit directly
+// (no public-read policy), so route through the authenticated /api/image/view
+// proxy, exactly like AddressChange/ChangeRequestPanel. Auth is the httpOnly
+// cookie. A data: URL (legacy) or plain http(s) URL is used as-is.
+const toSignatureSrc = (p) => {
+  if (!p) return '';
+  if (p.startsWith('data:')) return p;
+  if (p.includes('/uploads/')) return `${API_BASE}/api/image/view?path=${encodeURIComponent(p)}`;
+  if (p.startsWith('http://') || p.startsWith('https://')) return p;
+  return `${API_BASE}/${p.startsWith('/') ? p.slice(1) : p}`;
+};
 
 
 const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) => {
@@ -228,7 +244,7 @@ const SignatureVerification = ({ customerPhone, onBack, socket: propSocket }) =>
               </Typography>
               <Box
                 component="img"
-                src={signaturePath}
+                src={toSignatureSrc(signaturePath)}
                 alt="Captured"
                 sx={{
                   width: '100%', // Responsive width

@@ -403,6 +403,7 @@ const Dashboard = () => {
                 onAudioStateChange={setAudioEnabled}
                 onVideoStateChange={setVideoEnabled}
                 onSpeakerStateChange={setSpeakerEnabled}
+                onHoldStateChange={setIsOnHold}
               />
 
               {/* Collaborative Whiteboard Overlay */}
@@ -459,10 +460,7 @@ const Dashboard = () => {
                   await openViduRef.current?.setBackground(mode);
                   setActiveBackground(mode);
                 }}
-                onToggleHold={async () => {
-                  await openViduRef.current?.toggleHold();
-                  setIsOnHold(Boolean(openViduRef.current?.isOnHold));
-                }}
+                onToggleHold={() => openViduRef.current?.toggleHold()}
                 onEndCall={() => openViduRef.current?.leaveCall()}
               />
               <RequestAssistance
