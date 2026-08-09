@@ -45,7 +45,8 @@ const AuthLayout = ({ title, subtitle, children }) => {
       <Box sx={{
         display: 'flex',
         flexDirection: 'column',
-        minHeight: '100vh',
+        height: '100vh',
+        overflow: 'hidden',
         backgroundColor: colors.background,
       }}>
         <AppBar
@@ -82,7 +83,9 @@ const AuthLayout = ({ title, subtitle, children }) => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
+            // Scroll within the bounded viewport when the form is tall; auto
+            // margins on the card keep it vertically centered when it fits.
+            overflowY: 'auto',
             p: 3,
           }}
         >
@@ -92,7 +95,8 @@ const AuthLayout = ({ title, subtitle, children }) => {
               backgroundColor: 'white',
               borderRadius: 2,
               p: 4,
-              boxShadow: 3
+              boxShadow: 3,
+              my: 'auto',
             }}
           >
             <Typography variant="h4" component="h1" gutterBottom align="center">

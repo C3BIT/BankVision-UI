@@ -25,7 +25,9 @@ export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await publicPost("/otp/send", {
+      // Staff registration OTP — dedicated route, not captcha-gated (RM onboarding
+      // is internal + rate-limited). Distinct from the customer-facing /otp/send.
+      const response = await publicPost("/manager/registration/send-otp", {
         email: userData.email,
       });
       return response.data;
