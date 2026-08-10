@@ -62,6 +62,9 @@ const customerImageSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.status = 'loading';
+        // Clear the previous customer's photo immediately so a new call never
+        // shows the prior person's face while their image is still loading.
+        state.profileImage = null;
       })
       .addCase(fetchCustomerImage.fulfilled, (state, action) => {
         state.loading = false;
