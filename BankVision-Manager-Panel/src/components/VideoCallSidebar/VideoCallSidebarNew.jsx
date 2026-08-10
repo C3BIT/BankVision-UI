@@ -96,6 +96,10 @@ const VideoCallSidebarNew = ({
   const [activeTab, setActiveTab] = useState(0); // 0 = Verification, 1 = Services
   const [activeListTab, setActiveListTab] = useState(0); // 0 = Accounts, 1 = Cards, 2 = Loans
   const [showSignatureVerification, setShowSignatureVerification] = useState(false);
+  // CBS getCustomerSignature + getCustomerCards are not available in coreMiddleware-v2 (both 404).
+  // Hide these sections until MTB provides the v2 endpoints — flip to true to re-enable.
+  const ENABLE_SIGNATURE_VERIFICATION = false;
+  const ENABLE_CARDS = false;
   const [showAccountActivation, setShowAccountActivation] = useState(false);
   const [showPhoneChange, setShowPhoneChange] = useState(false);
   const [showEmailChange, setShowEmailChange] = useState(false);
@@ -144,7 +148,7 @@ const VideoCallSidebarNew = ({
   useEffect(() => {
     if (customerPhone && customerPhone !== 'N/A') {
       dispatch(fetchCBSAccounts({ phone: customerPhone }));
-      dispatch(fetchCBSCards({ phone: customerPhone }));
+      if (ENABLE_CARDS) dispatch(fetchCBSCards({ phone: customerPhone }));
       dispatch(fetchCBSLoans({ phone: customerPhone }));
       dispatch(fetchCustomerImage({ phone: customerPhone }));
     }
@@ -174,6 +178,11 @@ const VideoCallSidebarNew = ({
 
   // Check if customer data was found
   const hasCustomerData = accounts.length > 0 || cards.length > 0 || loans.length > 0 || customerName !== 'N/A';
+  // Guests are not in the bank DB, so they have no CBS records and no reference
+  // photo to match against — passive face verification can never succeed for them
+  // and would retry forever. Gate it on actual CBS records (accounts/loans), NOT
+  // on customerName (a named guest would otherwise slip through).
+  const isRegisteredCustomer = accounts.length > 0 || cards.length > 0 || loans.length > 0;
 
   const handleOTPRequest = async () => {
     setIsRequestingOTP(true);
@@ -373,7 +382,7 @@ const VideoCallSidebarNew = ({
               { icon: <PhoneIcon sx={{ fontSize: 11 }} />, label: 'Phone', ok: phoneVerified },
               { icon: <EmailIcon sx={{ fontSize: 11 }} />, label: 'Email', ok: emailVerified },
               { icon: <FaceIcon sx={{ fontSize: 11 }} />, label: 'Face', ok: faceVerificationStatus === 'verified', fail: faceVerificationStatus !== 'verified' },
-              { icon: <SignatureIcon sx={{ fontSize: 11 }} />, label: 'Sign', ok: signatureVerified },
+              ...(ENABLE_SIGNATURE_VERIFICATION ? [{ icon: <SignatureIcon sx={{ fontSize: 11 }} />, label: 'Sign', ok: signatureVerified }] : []),
             ].map(({ icon, label, ok, fail }) => (
               <Chip
                 key={label}
@@ -393,8 +402,8 @@ const VideoCallSidebarNew = ({
           </Box>
         </Box>
 
-        {/* Passive Face Verification */}
-        {isCallActive && (
+        {/* Passive Face Verification — skip for guests (no CBS reference photo → infinite retries) */}
+        {isCallActive && isRegisteredCustomer && (
           <Box sx={{ mb: 1.5 }}>
             <PassiveFaceVerification
               videoElement={customerVideoElement}
@@ -453,18 +462,20 @@ const VideoCallSidebarNew = ({
                     {faceVerificationStatus === 'verified' ? <CheckCircleIcon sx={{ color: '#10B981', fontSize: 18 }} /> : <FaceIcon sx={{ color: colors.primary, fontSize: 18 }} />}
                     <Box>
                       <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>Face Verification</Typography>
-                      <Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{faceVerificationStatus === 'verified' ? 'Verified ✓ - Passive monitoring active' : 'Passive - Auto-verifying via CBS...'}</Typography>
+                      <Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{faceVerificationStatus === 'verified' ? 'Verified ✓ - Passive monitoring active' : isRegisteredCustomer ? 'Passive - Auto-verifying via CBS...' : 'Not available — guest (no bank record)'}</Typography>
                     </Box>
                   </Box>
 
-                  <Button fullWidth variant="outlined" onClick={() => setShowSignatureVerification(true)}
-                    startIcon={signatureVerified ? <CheckCircleIcon sx={{ color: '#10B981' }} /> : <SignatureIcon />}
-                    sx={btnSx(signatureVerified)}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1 }}>
-                      <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>Signature Verification</Typography>
-                      <Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{signatureVerified ? 'Verified ✓' : 'Upload and match signature'}</Typography>
-                    </Box>
-                  </Button>
+                  {ENABLE_SIGNATURE_VERIFICATION && (
+                    <Button fullWidth variant="outlined" onClick={() => setShowSignatureVerification(true)}
+                      startIcon={signatureVerified ? <CheckCircleIcon sx={{ color: '#10B981' }} /> : <SignatureIcon />}
+                      sx={btnSx(signatureVerified)}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1 }}>
+                        <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>Signature Verification</Typography>
+                        <Typography sx={{ fontSize: '0.7rem', color: '#666' }}>{signatureVerified ? 'Verified ✓' : 'Upload and match signature'}</Typography>
+                      </Box>
+                    </Button>
+                  )}
                 </Box>
               )}
             </Box>
@@ -529,9 +540,11 @@ const VideoCallSidebarNew = ({
               '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: '0.75rem', minHeight: 32, py: 0.25 },
             }}
           >
-            <Tab icon={<AccountIcon sx={{ fontSize: 14 }} />} iconPosition="start" label={`Accounts (${accounts.length})`} />
-            <Tab icon={<CardIcon sx={{ fontSize: 14 }} />} iconPosition="start" label={`Cards (${cards.length})`} />
-            <Tab icon={<LoanIcon sx={{ fontSize: 14 }} />} iconPosition="start" label={`Loans (${loans.length})`} />
+            <Tab value={0} icon={<AccountIcon sx={{ fontSize: 14 }} />} iconPosition="start" label={`Accounts (${accounts.length})`} />
+            {ENABLE_CARDS && (
+              <Tab value={1} icon={<CardIcon sx={{ fontSize: 14 }} />} iconPosition="start" label={`Cards (${cards.length})`} />
+            )}
+            <Tab value={2} icon={<LoanIcon sx={{ fontSize: 14 }} />} iconPosition="start" label={`Loans (${loans.length})`} />
           </Tabs>
 
           {/* Accounts */}
@@ -560,7 +573,7 @@ const VideoCallSidebarNew = ({
           )}
 
           {/* Cards */}
-          {activeListTab === 1 && (
+          {ENABLE_CARDS && activeListTab === 1 && (
             cards.length === 0 ? (
               <Box sx={{ p: 1.5, backgroundColor: '#F8F9FA', borderRadius: 1, textAlign: 'center' }}>
                 <Typography sx={{ fontSize: '0.8rem', color: '#999' }}>No cards available</Typography>
