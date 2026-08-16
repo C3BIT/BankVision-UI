@@ -184,8 +184,15 @@ const Home = () => {
       console.log('📞 initiateCall returned:', success);
 
       if (success) {
-        console.log('✅ Call initiated successfully, showing call modal');
-        setShowCallModal(true);
+        // Do NOT open the call UI here. initiateCall only *starts* the socket
+        // handshake; the customer is not really in a call until the socket
+        // AUTHENTICATES (valid OTP-minted customer_auth_token) and the server
+        // enqueues them, which flips callStatus to "queued" and opens the modal
+        // in the effect above. Opening it on this synchronous return let a
+        // manipulated /otp/verify-phone response (faked 200) advance the UI
+        // without a verified session. The socket's connect_error handler shows
+        // the error if auth fails.
+        console.log('✅ Call handshake started; waiting for server-confirmed enqueue');
         setFailedMessage("");
       } else {
         console.error('❌ Call initiation failed');
@@ -193,11 +200,11 @@ const Home = () => {
       }
     } catch (error) {
       console.error('❌ Error in handleStartCall:', error);
-      // Even if there's an error, try to proceed with call
-      console.log('⚠️ Attempting to proceed with call despite error');
+      // Retry starting the handshake, but still gate the UI on the
+      // server-confirmed "queued" state (do not open the modal here).
+      console.log('⚠️ Retrying call handshake after error');
       const success = initiateCall(customerPhone, verificationData);
       if (success) {
-        setShowCallModal(true);
         setFailedMessage("");
       } else {
         setFailedMessage("Unable to initiate call. Please try again or contact support.");
