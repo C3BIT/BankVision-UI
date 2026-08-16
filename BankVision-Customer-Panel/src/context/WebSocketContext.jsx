@@ -74,7 +74,7 @@ export const WebSocketProvider = ({ children }) => {
       });
 
       const newSocket = io(URL, {
-        transports: ["websocket"],
+        transports: ["polling", "websocket"],
         query: { phone: formattedPhone },
         // Carries the customer_auth_token httpOnly cookie on the handshake so
         // the backend can resolve the verified phone from the signed JWT

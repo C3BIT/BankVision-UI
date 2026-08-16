@@ -176,7 +176,7 @@ export const WebSocketProvider = ({ children }) => {
         // Auth is resolved server-side from the httpOnly auth_token cookie
         // (socketAuthMiddleware parses it from the handshake's Cookie header).
         const newSocket = io(URL, {
-            transports: ["websocket"],
+            transports: ["polling", "websocket"],
             withCredentials: true,
             reconnection: true,
             reconnectionAttempts: 5,

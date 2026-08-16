@@ -24,7 +24,7 @@ export const SocketProvider = ({ children }) => {
                     role: 'admin', // identify as admin
                 },
                 withCredentials: true,
-                transports: ['websocket'],
+                transports: ['polling', 'websocket'],
                 reconnection: true,
             });
 
