@@ -30,6 +30,9 @@ const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  // True only once the customer clicks "Submit Activation Request". The manager
+  // may validate / approve — and edit the compliance fields — only after this.
+  const [customerSubmitted, setCustomerSubmitted] = useState(false);
   const typingTimeoutNewRef = useRef(null);
   const typingTimeoutConfirmRef = useRef(null);
   const [customerIsTyping, setCustomerIsTyping] = useState(false);
@@ -43,6 +46,8 @@ const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
   useEffect(() => { customerTypedNewRef.current = customerTypedNew; }, [customerTypedNew]);
   useEffect(() => { customerTypedConfirmRef.current = customerTypedConfirm; }, [customerTypedConfirm]);
   useEffect(() => { accountDetailsRef.current = accountDetails; }, [accountDetails]);
+  const customerSubmittedRef = useRef(false);
+  useEffect(() => { customerSubmittedRef.current = customerSubmitted; }, [customerSubmitted]);
 
   // Compliance fields received from customer
   const [extraFields, setExtraFields] = useState({
@@ -109,18 +114,23 @@ const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
 
     const handleExtraFields = (data) => {
       const { submitted, ...fields } = data;
-      setExtraFields(prev => ({ ...prev, ...fields }));
+      // Before submission these mirror the customer's live input. After
+      // submission the manager owns them (may override), so a late/duplicate
+      // event must not clobber manager edits.
+      if (!customerSubmittedRef.current) {
+        setExtraFields(prev => ({ ...prev, ...fields }));
+      }
       setCustomerIsTyping(true);
       setTimeout(() => setCustomerIsTyping(false), 1000);
 
       // Customer clicked "Submit Activation Request". Unlike phone/email/
       // address changes, dormant activation has no dedicated
       // "customer:submit-*-request" event — it reuses this same live-typing
-      // event with a `submitted: true` flag. Auto-open the same confirmation
-      // dialog the manager's own "Validate & Activate" button opens, so this
-      // service pops up automatically like the other three instead of
-      // silently waiting on a manual click.
+      // event with a `submitted: true` flag. Only now may the manager
+      // validate/approve; auto-open the same confirmation dialog the
+      // "Validate & Activate" button opens so it surfaces automatically.
       if (submitted) {
+        setCustomerSubmitted(true);
         const newVal = customerTypedNewRef.current;
         const confirmVal = customerTypedConfirmRef.current;
         if (newVal && confirmVal && newVal === confirmVal && newVal === accountDetailsRef.current?.accountNumber) {
@@ -147,6 +157,15 @@ const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
       socket.off('customer:dormant-extra-fields', handleExtraFields);
     };
   }, [socket]);
+
+  // The manager may override the customer-provided compliance fields (TP /
+  // remarks) after the request is submitted. Edits land in `extraFields`, which
+  // is sent with the approval and takes precedence over the cached values
+  // server-side.
+  const handleManagerEditField = (field) => (e) => {
+    const { value } = e.target;
+    setExtraFields((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleValidateAndActivate = () => {
     setError(null);
@@ -338,21 +357,23 @@ const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
           <Box sx={{ flex: 1 }}>
             <Typography variant="caption" sx={{ color: '#666' }}>No. of Deposits / Month</Typography>
             <TextField
-              fullWidth size="small"
+              fullWidth size="small" type="number"
               value={extraFields.estDepositCount || ''}
-              InputProps={{ readOnly: true }}
-              placeholder="Waiting for customer..."
-              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: colors.background } }}
+              onChange={handleManagerEditField('estDepositCount')}
+              InputProps={{ readOnly: !customerSubmitted }}
+              placeholder={customerSubmitted ? 'Editable' : 'Waiting for customer...'}
+              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: customerSubmitted ? '#FFFFFF' : colors.background } }}
             />
           </Box>
           <Box sx={{ flex: 1 }}>
             <Typography variant="caption" sx={{ color: '#666' }}>Deposit Amount / Month</Typography>
             <TextField
-              fullWidth size="small"
+              fullWidth size="small" type="number"
               value={extraFields.estDepositAmount || ''}
-              InputProps={{ readOnly: true, startAdornment: <InputAdornment position="start">BDT</InputAdornment> }}
-              placeholder="Waiting..."
-              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: colors.background } }}
+              onChange={handleManagerEditField('estDepositAmount')}
+              InputProps={{ readOnly: !customerSubmitted, startAdornment: <InputAdornment position="start">BDT</InputAdornment> }}
+              placeholder={customerSubmitted ? 'Editable' : 'Waiting...'}
+              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: customerSubmitted ? '#FFFFFF' : colors.background } }}
             />
           </Box>
         </Box>
@@ -361,21 +382,23 @@ const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
           <Box sx={{ flex: 1 }}>
             <Typography variant="caption" sx={{ color: '#666' }}>No. of Withdrawals / Month</Typography>
             <TextField
-              fullWidth size="small"
+              fullWidth size="small" type="number"
               value={extraFields.estWithdrawCount || ''}
-              InputProps={{ readOnly: true }}
-              placeholder="Waiting for customer..."
-              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: colors.background } }}
+              onChange={handleManagerEditField('estWithdrawCount')}
+              InputProps={{ readOnly: !customerSubmitted }}
+              placeholder={customerSubmitted ? 'Editable' : 'Waiting for customer...'}
+              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: customerSubmitted ? '#FFFFFF' : colors.background } }}
             />
           </Box>
           <Box sx={{ flex: 1 }}>
             <Typography variant="caption" sx={{ color: '#666' }}>Withdrawal Amount / Month</Typography>
             <TextField
-              fullWidth size="small"
+              fullWidth size="small" type="number"
               value={extraFields.estWithdrawAmount || ''}
-              InputProps={{ readOnly: true, startAdornment: <InputAdornment position="start">BDT</InputAdornment> }}
-              placeholder="Waiting..."
-              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: colors.background } }}
+              onChange={handleManagerEditField('estWithdrawAmount')}
+              InputProps={{ readOnly: !customerSubmitted, startAdornment: <InputAdornment position="start">BDT</InputAdornment> }}
+              placeholder={customerSubmitted ? 'Editable' : 'Waiting...'}
+              sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: customerSubmitted ? '#FFFFFF' : colors.background } }}
             />
           </Box>
         </Box>
@@ -385,9 +408,10 @@ const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
           <TextField
             fullWidth size="small" multiline rows={2}
             value={extraFields.dormancyReason || ''}
-            InputProps={{ readOnly: true }}
-            placeholder="Waiting for customer..."
-            sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: colors.background } }}
+            onChange={handleManagerEditField('dormancyReason')}
+            InputProps={{ readOnly: !customerSubmitted }}
+            placeholder={customerSubmitted ? 'Editable' : 'Waiting for customer...'}
+            sx={{ mt: 0.5, '& .MuiOutlinedInput-root': { backgroundColor: customerSubmitted ? '#FFFFFF' : colors.background } }}
           />
         </Box>
 
@@ -403,9 +427,13 @@ const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
               <Alert severity="error" sx={{ backgroundColor: 'rgba(244, 67, 54, 0.08)' }}>
                 Account number does not match expected account
               </Alert>
-            ) : (
+            ) : customerSubmitted ? (
               <Alert severity="success" icon={<CheckCircle />} sx={{ backgroundColor: 'rgba(76, 175, 80, 0.08)' }}>
                 Account numbers match! Ready to activate.
+              </Alert>
+            ) : (
+              <Alert severity="info" sx={{ backgroundColor: 'rgba(33, 150, 243, 0.08)' }}>
+                Account numbers match — waiting for the customer to submit the request.
               </Alert>
             )}
           </Box>
@@ -446,7 +474,7 @@ const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
           </Box>
         )}
 
-        {!isLoading && customerTypedNew && customerTypedConfirm && !success && (
+        {!isLoading && customerSubmitted && customerTypedNew && customerTypedConfirm && !success && (
           <Button
             fullWidth
             variant="contained"
@@ -474,9 +502,11 @@ const DormantAccountActivation = ({ onBack, onActivationComplete }) => {
               ? 'Waiting for customer to enter account numbers'
               : !customerTypedNew || !customerTypedConfirm
                 ? 'Waiting for customer to complete both fields'
-                : isValid
-                  ? 'Ready to validate and activate account'
-                  : 'Account numbers must match expected account'}
+                : !isValid
+                  ? 'Account numbers must match expected account'
+                  : !customerSubmitted
+                    ? 'Waiting for the customer to submit the activation request'
+                    : 'Ready to validate and activate account'}
         </Typography>
       </Box>
 
