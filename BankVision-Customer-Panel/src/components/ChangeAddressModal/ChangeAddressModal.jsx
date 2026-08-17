@@ -45,6 +45,26 @@ const ChangeAddressModal = ({ open, onClose, onSubmit, currentAddress }) => {
   const [uploadError, setUploadError] = useState('');
   const [managerIsTyping, setManagerIsTyping] = useState(false);
 
+  // Start every new request from a clean slate. The modal stays mounted for the
+  // whole session (Home renders it with an `open` prop rather than conditionally
+  // mounting it), so without this reset a previous request's / previous call's
+  // fields, uploaded documents and errors linger — showing the customer stale
+  // data and, because that data was never freshly typed, leaving the manager's
+  // synced view empty.
+  useEffect(() => {
+    if (open) {
+      setAddressType('present');
+      setAddressLine1('');
+      setAddressLine2('');
+      setDistrict('');
+      setUpazila('');
+      setPostCode('');
+      setUploadedFiles([]);
+      setUploadError('');
+      setIsUploading(false);
+    }
+  }, [open]);
+
   // Listen for manager typing - update fields in real-time
   useEffect(() => {
     if (!socket) return;
