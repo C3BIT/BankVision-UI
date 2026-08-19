@@ -375,7 +375,9 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
       {otpSent && !verified && (
         <>
           <Alert severity="success" sx={{ backgroundColor: 'rgba(76,175,80,0.08)' }}>
-            OTP sent successfully to {accountDetails?.mobileNumber}
+            {/* OTP is sent to the NEW value (see handleSendOtp → sendOtpFn(newValue)),
+                not the account's stored number — show what it was actually sent to. */}
+            OTP sent successfully to {newValue}
           </Alert>
           <Divider sx={{ borderColor: colors.border }} />
           <Box>
