@@ -223,24 +223,30 @@ const StartVerification = ({ onVerified, disabled = false }) => {
 
       console.log('📋 OTP verification response:', response.data);
 
-      // Check multiple success indicators
-      const isVerified = response.data?.success === true ||
-        response.data?.isVerified === true ||
-        response.data?.isEmailVerified === true ||
-        response.status === 200;
+      // The verify response can be tampered with client-side (e.g. editing the
+      // status/body in a proxy) and it never carries the session itself — the
+      // session is an httpOnly cookie the server sets ONLY on a correct OTP.
+      // So don't trust the response to advance: confirm the session against the
+      // server, which returns 2xx only when a valid customer_auth_token cookie
+      // was actually issued (otherwise the auth middleware returns 401).
+      let sessionConfirmed = false;
+      try {
+        const check = await apiClient.post(`${API_URL}/customer/check-verification-status`, {});
+        sessionConfirmed = check?.status >= 200 && check?.status < 300;
+      } catch {
+        sessionConfirmed = false;
+      }
 
-      if (isVerified) {
-        console.log('✅ OTP verified successfully! Calling onVerified callback...');
-        // Pass verification info to parent
+      if (sessionConfirmed) {
+        console.log('✅ OTP verified and session confirmed; advancing...');
         const verificationData = {
           method: verificationMethod,
           phoneOrEmail: verificationMethod === 'phone' ? phone : email,
         };
-        console.log('📋 Verification data to pass:', verificationData);
         onVerified(verificationData);
       } else {
         const errorMsg = response.data?.message || 'Invalid OTP. Please try again.';
-        console.error('❌ OTP verification failed:', errorMsg);
+        console.error('❌ OTP verification not confirmed by server:', errorMsg);
         setError(errorMsg);
       }
     } catch (error) {
