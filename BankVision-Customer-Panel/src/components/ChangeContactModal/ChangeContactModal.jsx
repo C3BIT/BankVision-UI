@@ -70,7 +70,12 @@ const ChangeContactModal = ({
       if (phoneNumber === currentValue) return;
       try {
         const response = await publicPost('/customer/find-phone', { phone: phoneNumber });
-        if (response?.data && response.data.length > 0) {
+        // Cross-number lookups now return an existence boolean (no account
+        // details leaked); own-number/staff lookups still return an array.
+        const exists = Array.isArray(response?.data)
+          ? response.data.length > 0
+          : Boolean(response?.data);
+        if (exists) {
           setDuplicateWarning('This phone number is already registered to another account');
         } else {
           setDuplicateWarning('');
@@ -94,7 +99,12 @@ const ChangeContactModal = ({
       if (email.toLowerCase() === currentValue?.toLowerCase()) return;
       try {
         const response = await publicPost('/customer/find-email', { email: email });
-        if (response?.data && response.data.length > 0) {
+        // Cross-address lookups now return an existence boolean (no account
+        // details leaked); own/staff lookups still return an array.
+        const exists = Array.isArray(response?.data)
+          ? response.data.length > 0
+          : Boolean(response?.data);
+        if (exists) {
           setDuplicateWarning('This email is already registered to another account');
         } else {
           setDuplicateWarning('');
