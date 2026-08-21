@@ -89,6 +89,7 @@ const Home = () => {
     setFaceVerificationInitiated, // New setter
     verificationRequests,
     setVerificationRequests, // New setter
+    verificationChallengeId, // Challenge id relayed with the manager verification request
     confirmPhoneVerification,
     confirmEmailVerification,
     changeRequests,
@@ -276,7 +277,8 @@ const Home = () => {
       
       const response = await apiClient.post(`${API_URL}/otp/verify-phone`, {
         phone: phone,
-        otp: otp
+        otp: otp,
+        challengeId: verificationChallengeId,
       });
 
       if (response.data.status === 'success') {
@@ -322,7 +324,8 @@ const Home = () => {
       
       const response = await apiClient.post(`${API_URL}/otp/verify-email`, {
         email: currentAccountData?.email || '',
-        otp: otp
+        otp: otp,
+        challengeId: verificationChallengeId,
       });
 
       if (response.data.status === 'success') {

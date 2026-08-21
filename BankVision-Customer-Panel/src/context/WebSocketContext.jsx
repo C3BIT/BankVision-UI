@@ -25,6 +25,10 @@ export const WebSocketProvider = ({ children }) => {
     emailChangeRequested: false,
     addressChangeRequested: false
   });
+  // Challenge id relayed by the manager-initiated verification-request events
+  // (requested:phone-verification / requested:email-verification), presented
+  // back by Home's verify call so it binds to that server-issued send.
+  const [verificationChallengeId, setVerificationChallengeId] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
   const [isManagerTyping, setIsManagerTyping] = useState(false);
   const [currentScreen, setCurrentScreen] = useState(null); // Manager's current screen
@@ -414,6 +418,7 @@ export const WebSocketProvider = ({ children }) => {
       newSocket.on("requested:phone-verification", (data) => {
         console.log("📱 Manager requested phone verification:", data);
         setFaceVerificationInitiated(false);
+        setVerificationChallengeId(data.challengeId || '');
         setVerificationRequests({ phone: Date.now(), email: false, face: false, signature: false });
         setChangeRequests({ phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false, accountActivationRequested: false });
       });
@@ -421,6 +426,7 @@ export const WebSocketProvider = ({ children }) => {
       newSocket.on("requested:email-verification", (data) => {
         console.log("📧 Manager requested email verification:", data);
         setFaceVerificationInitiated(false);
+        setVerificationChallengeId(data.challengeId || '');
         setVerificationRequests({ phone: false, email: Date.now(), face: false, signature: false });
         setChangeRequests({ phoneChangeRequested: false, emailChangeRequested: false, addressChangeRequested: false, accountActivationRequested: false });
         // Store the email so the verify call can include it
@@ -809,6 +815,7 @@ export const WebSocketProvider = ({ children }) => {
     setFaceVerificationInitiated, // Add setter
     verificationRequests,
     setVerificationRequests, // Add setter
+    verificationChallengeId, // Challenge id relayed with a manager verification request
     changeRequests,
     chatMessages,
     isManagerTyping,

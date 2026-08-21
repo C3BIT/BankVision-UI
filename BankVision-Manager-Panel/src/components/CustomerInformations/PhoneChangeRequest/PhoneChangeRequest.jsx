@@ -8,9 +8,11 @@ const PhoneChangeRequest = ({ currentPhone, onBack }) => {
   const dispatch = useDispatch();
 
   const sendOtpFn = async (phone, allowOverride) => {
-    await dispatch(
+    const result = await dispatch(
       sendOtpToCustomer({ phone, checkDuplicate: true, allowDuplicate: allowOverride })
     ).unwrap();
+    // Surface the server-issued challenge id so the panel can present it at verify.
+    return result?.data?.challengeId || '';
   };
 
   return (

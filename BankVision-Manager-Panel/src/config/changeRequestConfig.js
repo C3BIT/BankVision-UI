@@ -34,7 +34,7 @@ export const MANAGER_CHANGE_REQUEST_CONFIG = {
 
     // API
     verifyOtpEndpoint: '/otp/verify-email',
-    verifyOtpPayload: (value, otp) => ({ email: value, otp }),
+    verifyOtpPayload: (value, otp, challengeId) => ({ email: value, otp, challengeId }),
     updateEndpoint: '/customer/update-email',
     updatePayload: (accountNumber, value) => ({ accountNumber, email: value }),
     duplicateCheckEndpoint: '/customer/find-email',
@@ -74,7 +74,7 @@ export const MANAGER_CHANGE_REQUEST_CONFIG = {
     submitChangeType: 'phone',
 
     verifyOtpEndpoint: '/otp/verify-phone',
-    verifyOtpPayload: (value, otp) => ({ phone: value, otp }),
+    verifyOtpPayload: (value, otp, challengeId) => ({ phone: value, otp, challengeId }),
     updateEndpoint: '/customer/update-phone',
     updatePayload: (accountNumber, value) => ({ accountNumber, phone: value }),
     duplicateCheckEndpoint: '/customer/find-phone',

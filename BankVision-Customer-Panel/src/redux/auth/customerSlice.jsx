@@ -3,9 +3,9 @@ import { publicPost } from "../../services/apiCaller";
 
 export const verifyPhoneOtp = createAsyncThunk(
     "customer/verifyPhoneOtp",
-    async ({ phone, otp }, { rejectWithValue }) => {
+    async ({ phone, otp, challengeId }, { rejectWithValue }) => {
         try {
-            const response = await publicPost("/otp/verify-phone", { phone, otp });
+            const response = await publicPost("/otp/verify-phone", { phone, otp, challengeId });
             return response.data;
         } catch (err) {
             return rejectWithValue(err.response);
@@ -15,9 +15,9 @@ export const verifyPhoneOtp = createAsyncThunk(
 
 export const verifyEmailOtp = createAsyncThunk(
     "customer/verifyEmailOtp",
-    async ({ email, otp }, { rejectWithValue }) => {
+    async ({ email, otp, challengeId }, { rejectWithValue }) => {
         try {
-            const response = await publicPost("/otp/verify-email", { email, otp });
+            const response = await publicPost("/otp/verify-email", { email, otp, challengeId });
             return response.data;
         } catch (err) {
             return rejectWithValue(err.response);

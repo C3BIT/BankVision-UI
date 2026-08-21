@@ -8,9 +8,11 @@ const EmailChangeRequest = ({ currentEmail, onBack }) => {
   const dispatch = useDispatch();
 
   const sendOtpFn = async (email) => {
-    await dispatch(
+    const result = await dispatch(
       sendEmailOtpToCustomer({ email, checkDuplicate: true })
     ).unwrap();
+    // Surface the server-issued challenge id so the panel can present it at verify.
+    return result?.data?.challengeId || '';
   };
 
   return (

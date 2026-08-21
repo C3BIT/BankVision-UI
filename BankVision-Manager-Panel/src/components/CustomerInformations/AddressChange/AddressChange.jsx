@@ -65,6 +65,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [otpSent, setOtpSent] = useState(false);
+  const [challengeId, setChallengeId] = useState('');
   const [otp, setOtp] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
@@ -169,7 +170,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
     setError(null);
 
     try {
-      await dispatch(
+      const sendResult = await dispatch(
         sendOtpToCustomer({
           phone: accountDetails?.mobileNumber,
           checkDuplicate: false,
@@ -178,6 +179,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
         })
       ).unwrap();
 
+      setChallengeId(sendResult?.data?.challengeId || '');
       setOtpSent(true);
       setOtp('');
 
@@ -209,7 +211,8 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
       // Use standard phone verification endpoint
       const response = await publicPost('/otp/verify-phone', {
         phone: accountDetails?.mobileNumber,
-        otp: otp
+        otp: otp,
+        challengeId: challengeId,
       });
 
       if (response?.status === 'success') {

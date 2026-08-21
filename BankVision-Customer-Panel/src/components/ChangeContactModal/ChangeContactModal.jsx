@@ -32,6 +32,7 @@ const ChangeContactModal = ({
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+  const [challengeId, setChallengeId] = useState('');
   const [duplicateWarning, setDuplicateWarning] = useState('');
 
   // Debounced socket emit for real-time updates to manager - separate events for new and confirm fields (150ms so manager sees typing quickly)
@@ -251,6 +252,7 @@ const ChangeContactModal = ({
       const response = await apiClient.post(`${API_URL}${endpoint}`, payload);
 
       if (response.data.status === 'success') {
+        setChallengeId(response.data?.data?.challengeId || '');
         setOtpSent(true);
         setStep(2);
         setError('');
@@ -281,8 +283,8 @@ const ChangeContactModal = ({
       const endpoint = type === 'phone' ? '/otp/verify-phone' : '/otp/verify-email';
 
       const payload = type === 'phone'
-        ? { phone: newValue, otp: otp, isChangeRequest: true }
-        : { email: newValue, otp: otp };
+        ? { phone: newValue, otp: otp, isChangeRequest: true, challengeId }
+        : { email: newValue, otp: otp, challengeId };
 
       const response = await apiClient.post(`${API_URL}${endpoint}`, payload);
 

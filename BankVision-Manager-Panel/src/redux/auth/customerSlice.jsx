@@ -32,9 +32,9 @@ export const sendEmailOtpToCustomer = createAsyncThunk(
 
 export const verifyEmailOtpToCustomer = createAsyncThunk(
   "customer/verifyEmailOtpToCustomer",
-  async ({ email, otp }, { rejectWithValue }) => {
+  async ({ email, otp, challengeId }, { rejectWithValue }) => {
     try {
-      const response = await publicPost("/otp/verify-email", { email, otp });
+      const response = await publicPost("/otp/verify-email", { email, otp, challengeId });
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response);
@@ -44,9 +44,9 @@ export const verifyEmailOtpToCustomer = createAsyncThunk(
 
 export const verifyPhoneOtpToCustomer = createAsyncThunk(
   "customer/verifyPhoneOtpToCustomer",
-  async ({ phone, otp }, { rejectWithValue }) => {
+  async ({ phone, otp, challengeId }, { rejectWithValue }) => {
     try {
-      const response = await publicPost("/otp/verify-phone", { phone, otp });
+      const response = await publicPost("/otp/verify-phone", { phone, otp, challengeId });
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response);

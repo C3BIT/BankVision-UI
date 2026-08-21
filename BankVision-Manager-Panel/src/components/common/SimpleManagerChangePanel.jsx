@@ -44,6 +44,7 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
   const [confirmValue, setConfirmValue] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [otpSent, setOtpSent] = useState(false);
+  const [challengeId, setChallengeId] = useState('');
   const [otp, setOtp] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
@@ -161,7 +162,8 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
     setIsSendingOtp(true);
     setError(null);
     try {
-      await sendOtpFn(newValue, canOverrideSubmit);
+      const cid = await sendOtpFn(newValue, canOverrideSubmit);
+      setChallengeId(cid || '');
       setOtpSent(true);
       setOtp('');
       if (socket) {
@@ -188,7 +190,7 @@ const SimpleManagerChangePanel = ({ config, currentValue, onBack, sendOtpFn }) =
     try {
       const verifyResponse = await publicPost(
         config.verifyOtpEndpoint,
-        config.verifyOtpPayload(newValue, otp)
+        config.verifyOtpPayload(newValue, otp, challengeId)
       );
 
       const isOtpSuccess =

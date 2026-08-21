@@ -33,6 +33,8 @@ const PreCallVerification = ({
   const [emailOtp, setEmailOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+  // Server-issued challenge id from the active send, presented back at verify.
+  const [challengeId, setChallengeId] = useState('');
   const [error, setError] = useState('');
   const [externalPhone, setExternalPhone] = useState('');
   const [guestEmail, setGuestEmail] = useState(''); // For guest email verification
@@ -114,6 +116,7 @@ const PreCallVerification = ({
       });
 
       if (response.data.success) {
+        setChallengeId(response.data?.data?.challengeId || '');
         setOtpSent(true);
         setError('');
       } else {
@@ -167,6 +170,7 @@ const PreCallVerification = ({
       });
 
       if (response.data.success) {
+        setChallengeId(response.data?.data?.challengeId || '');
         setOtpSent(true);
         setError('');
       } else {
@@ -198,6 +202,7 @@ const PreCallVerification = ({
       const response = await apiClient.post(`${API_URL}/otp/verify-phone`, {
         phone: externalPhone, // Verification phone number (visible to manager)
         otp: otp, // OTP code (not visible to manager)
+        challengeId: challengeId,
       });
 
       if (response.data.success) {
@@ -246,6 +251,7 @@ const PreCallVerification = ({
       const response = await apiClient.post(`${API_URL}/otp/verify-email`, {
         email: customerEmail,
         otp: emailOtp,
+        challengeId: challengeId,
       });
 
       if (response.data.success) {
@@ -655,6 +661,7 @@ const PreCallVerification = ({
                             captchaAnswer: captchaAnswer,
                           });
                           if (response.data.success) {
+                            setChallengeId(response.data?.data?.challengeId || '');
                             setOtpSent(true);
                             setError('');
                           } else {
@@ -710,6 +717,7 @@ const PreCallVerification = ({
                           const response = await apiClient.post(`${API_URL}/otp/verify-email`, {
                             email: guestEmail,
                             otp: emailOtp,
+                            challengeId: challengeId,
                           });
                           if (response.data.success) {
                             // Pass the verification email to parent so manager can see it

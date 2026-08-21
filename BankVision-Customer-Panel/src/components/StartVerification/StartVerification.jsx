@@ -26,6 +26,9 @@ const StartVerification = ({ onVerified, disabled = false }) => {
   const [email, setEmail] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
+  // Server-issued challenge id from the send response; presented back at verify
+  // so the OTP slot can only be addressed by whoever initiated this send.
+  const [challengeId, setChallengeId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isTouched, setIsTouched] = useState(false);
@@ -120,6 +123,9 @@ const StartVerification = ({ onVerified, disabled = false }) => {
         console.log('✅ OTP sent successfully, setting otpSent to true');
         console.log('📋 Current otpSent state before update:', otpSent);
 
+        // Capture the challenge id to present at verify time.
+        setChallengeId(response.data?.data?.challengeId || '');
+
         // Force state update
         setOtpSent(true);
         setError('');
@@ -213,11 +219,13 @@ const StartVerification = ({ onVerified, disabled = false }) => {
         response = await apiClient.post(`${API_URL}/otp/verify-phone`, {
           phone: phone,
           otp: otp,
+          challengeId: challengeId,
         });
       } else {
         response = await apiClient.post(`${API_URL}/otp/verify-email`, {
           email: email,
           otp: otp,
+          challengeId: challengeId,
         });
       }
 
