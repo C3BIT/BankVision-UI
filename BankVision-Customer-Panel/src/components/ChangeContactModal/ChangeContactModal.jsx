@@ -282,9 +282,11 @@ const ChangeContactModal = ({
       
       const endpoint = type === 'phone' ? '/otp/verify-phone' : '/otp/verify-email';
 
+      // isChangeRequest keeps the verify from re-issuing the customer session
+      // under the new, not-yet-approved value (same rationale for phone & email).
       const payload = type === 'phone'
-        ? { phone: newValue, otp: otp, isChangeRequest: true, challengeId }
-        : { email: newValue, otp: otp, challengeId };
+        ? { phone: newValue, otp: otp, isChangeRequest: true, challengeId, purpose: 'CHANGE_PHONE' }
+        : { email: newValue, otp: otp, isChangeRequest: true, challengeId, purpose: 'CHANGE_EMAIL' };
 
       const response = await apiClient.post(`${API_URL}${endpoint}`, payload);
 

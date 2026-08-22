@@ -213,6 +213,7 @@ const AddressChange = ({ presentAddress, permanentAddress, onBack }) => {
         phone: accountDetails?.mobileNumber,
         otp: otp,
         challengeId: challengeId,
+        purpose: 'CHANGE_ADDRESS',
       });
 
       if (response?.status === 'success') {
