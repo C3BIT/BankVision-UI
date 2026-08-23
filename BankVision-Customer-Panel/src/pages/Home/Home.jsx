@@ -279,6 +279,11 @@ const Home = () => {
         phone: phone,
         otp: otp,
         challengeId: verificationChallengeId,
+        // In-call, manager-requested confirmation of an already-logged-in
+        // customer — NOT a fresh login. isChangeRequest keeps the existing
+        // session (no re-issue) and exempts it from the login-only
+        // session-switch revoke.
+        isChangeRequest: true,
       });
 
       if (response.data.status === 'success') {
@@ -326,6 +331,9 @@ const Home = () => {
         email: currentAccountData?.email || '',
         otp: otp,
         challengeId: verificationChallengeId,
+        // In-call confirmation of an already-logged-in customer — keep the
+        // existing session and exempt from the session-switch revoke.
+        isChangeRequest: true,
       });
 
       if (response.data.status === 'success') {
